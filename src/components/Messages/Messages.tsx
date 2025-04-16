@@ -11,7 +11,7 @@ import withAuth from "../../context/withAuth";
 import type { ChatInfo } from "../../types";
 
 function Messages() {
-  const { isAuthenticated, apiClient, activePhoneNumber, eventEmitter } =
+  const { isAuthenticated, twilioClient, activePhoneNumber, eventEmitter } =
     useAuthedCreds();
   const [chats, setChats] = React.useState<ChatInfo[]>([]);
   const [selectedChat, setSelectedChat] = React.useState<ChatInfo | null>(null);
@@ -65,7 +65,7 @@ function Messages() {
   }, [isAuthenticated]);
 
   React.useEffect(() => {
-    apiClient
+    twilioClient
       .getChats(activePhoneNumber)
       .then((chats) => setChats(chats))
       .catch((err) => console.error("Failed to fetch chats:", err));
@@ -127,7 +127,7 @@ function Messages() {
         <NewMessagesPane
           callback={async (contactNumber: string) => {
             try {
-              const chatsData = await apiClient.getChats(activePhoneNumber)!;
+              const chatsData = await twilioClient.getChats(activePhoneNumber)!;
               const chat = chatsData.filter(
                 (e) => e.contactNumber === contactNumber,
               )[0];

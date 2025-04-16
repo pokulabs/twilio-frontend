@@ -1,70 +1,43 @@
-import { MessagesService } from "./services/messages.service";
-import { ContactsService } from "./services/contacts.service";
-import { PhoneNumbersService } from "./services/phone-numbers.service";
-import TwilioClient from "./services/twilio-client";
-
-import type { ChatInfo, PlainMessage } from "./types";
+import axios, { AxiosInstance } from "axios";
+import { storage } from "./storage";
+import type { CredentialResponse } from "@react-oauth/google";
 
 class ApiClient {
-    axiosInstance: TwilioClient;
-    sid: string;
-    authToken: string;
+    private api: AxiosInstance;
 
-    private static instance: ApiClient | undefined;
-    private messagesService: MessagesService;
-    private contactsService: ContactsService;
-    private phoneNumbersService: PhoneNumbersService;
+    constructor() {
+        this.api = axios.create({
+            baseURL: import.meta.env.VITE_API_URL,
+        });
 
-    private constructor(sid: string, token: string) {
-        this.sid = sid;
-        this.authToken = token;
-        this.axiosInstance = new TwilioClient(sid, token);
-
-        this.messagesService = new MessagesService(this.axiosInstance);
-        this.contactsService = new ContactsService(this.axiosInstance);
-        this.phoneNumbersService = new PhoneNumbersService(this.axiosInstance);
+        this.api.interceptors.request.use((config) => {
+            const user = storage.getUser();
+            if (user.idToken) {
+                config.headers.Authorization = `Bearer ${user.idToken}`;
+            }
+            return config;
+        });
     }
 
-    static async getInstance(sid: string, token: string) {
-        if (
-            !ApiClient.instance ||
-            sid !== ApiClient.instance.sid ||
-            token !== ApiClient.instance.authToken
-        ) {
-            const client = new ApiClient(sid, token);
-            // Test connection
-            await client.getPhoneNumbers();
-            ApiClient.instance = client;
-        }
-
-        return ApiClient.instance;
+    async getToggle(chatId: string) {
+        return this.api.get(`/chats/${chatId}/toggle`);
     }
 
-    async getPhoneNumbers() {
-        return this.phoneNumbersService.getPhoneNumbers();
+    async setToggle(chatId: string, isEnabled: boolean) {
+        return this.api.post(`/chats/${chatId}/toggle`, {
+            isEnabled,
+        });
     }
 
-    async getChats(activeNumber: string): Promise<ChatInfo[]> {
-        return this.contactsService.getChats(activeNumber);
+    async createApiKey() {
+        return this.api.post(`/auth/key`);
     }
 
-    async getMessages(
-        activeNumber: string,
-        contactNumber: string,
-    ): Promise<PlainMessage[]> {
-        return this.messagesService.getMessages(activeNumber, contactNumber);
-    }
-
-    async sendMessage(activeNumber: string, to: string, body: string) {
-        return this.messagesService.sendMessage(activeNumber, to, body);
-    }
-
-    updateMostRecentlySeenMessage(chatId: string, messageId: string) {
-        return this.contactsService.updateMostRecentlySeenMessageId(
-            chatId,
-            messageId,
-        );
+    async login(credentialResponse: CredentialResponse) {
+        return axios.post(import.meta.env.VITE_API_URL + "/auth/google", {
+            token: credentialResponse.credential,
+        });
     }
 }
 
-export default ApiClient;
+export const apiClient = new ApiClient();

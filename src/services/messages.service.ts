@@ -1,11 +1,11 @@
-import TwilioClient from "./twilio-client";
+import TwilioRawClient from "./twilio-raw-client";
 
 import type { PlainMessage, TwilioMsg } from "../types";
 
 export class MessagesService {
-    private client: TwilioClient;
+    private client: TwilioRawClient;
 
-    constructor(client: TwilioClient) {
+    constructor(client: TwilioRawClient) {
         this.client = client;
     }
 

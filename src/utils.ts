@@ -51,7 +51,7 @@ export function closeMessagesPane() {
 export function toggleMessagesPane() {
     if (typeof window !== "undefined" && typeof document !== "undefined") {
         const slideIn = window
-            .getComputedStyle(document.documentElement)
+            .getComputedStyle(document.getElementById("messages-component")!)
             .getPropertyValue("--MessagesPane-slideIn");
         if (slideIn) {
             closeMessagesPane();
@@ -74,5 +74,4 @@ export function displayDateTime(d: Date) {
     }
 }
 
-export const LOCAL_STORAGE_UNREAD_KEY = "mostRecentMessageSeenPerChat";
 export const POLL_INTERVAL = 10000; // every 10 seconds

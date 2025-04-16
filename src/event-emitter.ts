@@ -1,5 +1,5 @@
 import { POLL_INTERVAL } from "./utils";
-import TwilioClient from "./services/twilio-client";
+import TwilioRawClient from "./services/twilio-raw-client";
 
 import type { PlainMessage, TwilioMsg } from "./types";
 
@@ -8,13 +8,13 @@ type CB = (msg: PlainMessage) => void;
 
 export class EventEmitter {
     private static instance: EventEmitter | undefined;
-    private twilioClient: TwilioClient;
+    private twilioClient: TwilioRawClient;
     private callbacks: Record<Event, CB[]> = {
         "new-message": [],
     };
     private lastKnownMsgId = "";
 
-    private constructor(twilioClient: TwilioClient) {
+    private constructor(twilioClient: TwilioRawClient) {
         this.twilioClient = twilioClient;
     }
 
@@ -24,7 +24,7 @@ export class EventEmitter {
         setInterval(this.checkForNewMessage.bind(this), POLL_INTERVAL);
     }
 
-    static async getInstance(twilioClient: TwilioClient) {
+    static async getInstance(twilioClient: TwilioRawClient) {
         if (
             !EventEmitter.instance ||
             twilioClient.sid !== EventEmitter.instance.twilioClient.sid ||

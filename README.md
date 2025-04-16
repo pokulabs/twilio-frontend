@@ -45,10 +45,12 @@ $ pnpm run dev
 ```
 
 ## Deploy
+
 You can deploy to Netlify using this button:  
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/pokulabs/twilio-frontend)
 
 Or serve the `dist/` directory on your favorite static site host.
+
 ```
 # Build for production into dist/
 $ pnpm run build

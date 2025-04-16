@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from "axios";
 
 import type { RawMsg, RawNumber, TwilioMsg } from "../types";
 
@@ -26,7 +26,7 @@ function transform(rawMsg: RawMsg): TwilioMsg {
     };
 }
 
-class TwilioClient {
+class TwilioRawClient {
     sid: string;
     authToken: string;
 
@@ -133,4 +133,4 @@ class Paginator {
     }
 }
 
-export default TwilioClient;
+export default TwilioRawClient;

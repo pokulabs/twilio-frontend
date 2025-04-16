@@ -1,7 +1,7 @@
 import React from "react";
-import { useCredentials } from "../context/CredentialsContext";
 import { Alert, Box, Button, CircularProgress } from "@mui/joy";
 import { Link } from "react-router-dom";
+import { useCredentials } from "../context/CredentialsContext";
 
 const withAuth = <P extends object>(Component: React.ComponentType<P>) => {
   return (props: P) => {
@@ -47,9 +47,9 @@ const withAuth = <P extends object>(Component: React.ComponentType<P>) => {
             variant="solid"
             sx={{ width: "100%" }}
             component={Link}
-            to="/credentials"
+            to="/integrations"
           >
-            Go to Credentials Page
+            Go to Integrations Page
           </Button>
         </Box>
       );

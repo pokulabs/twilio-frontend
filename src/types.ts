@@ -94,3 +94,7 @@ export type RawNumber = {
         phone_number: string;
     }[];
 };
+
+export type WebhooksActivationStatus = {
+    ["update-autonomy-state"]: boolean;
+};

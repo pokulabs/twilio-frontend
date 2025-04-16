@@ -11,16 +11,27 @@ import {
   ListItemContent,
   Typography,
   Sheet,
+  Divider,
+  IconButton,
 } from "@mui/joy";
-import { KeyRounded, QuestionAnswerRounded, GitHub } from "@mui/icons-material";
+import {
+  QuestionAnswerRounded,
+  GitHub,
+  ShareRounded,
+  AccountCircle,
+  LogoutRounded,
+} from "@mui/icons-material";
 
 import logo from "../assets/logo.png"; // Import the logo
 import slack from "../assets/slack.png";
 import ColorSchemeToggle from "./Messages/ColorSchemeToggle";
 import { closeSidebar } from "../utils";
+import { useAuth } from "../context/AuthContext";
+import { googleLogout } from "@react-oauth/google";
 
 export default function Sidebar() {
   const location = useLocation();
+  const { logout, user, isAuthenticated } = useAuth();
 
   return (
     <Sheet
@@ -95,7 +106,6 @@ export default function Sidebar() {
           size="sm"
           sx={{
             gap: 1,
-            "--List-nestedInsetStart": "30px",
             "--ListItem-radius": (theme) => theme.vars.radius.sm,
           }}
         >
@@ -114,12 +124,24 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               component={Link}
-              to="/credentials"
-              selected={location.pathname === "/credentials"}
+              to="/integrations"
+              selected={location.pathname === "/integrations"}
             >
-              <KeyRounded />
+              <ShareRounded />
               <ListItemContent>
-                <Typography level="title-sm">Credentials</Typography>
+                <Typography level="title-sm">Integrations</Typography>
+              </ListItemContent>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              component={Link}
+              to="/account"
+              selected={location.pathname === "/account"}
+            >
+              <AccountCircle />
+              <ListItemContent>
+                <Typography level="title-sm">Account</Typography>
               </ListItemContent>
             </ListItemButton>
           </ListItem>
@@ -131,6 +153,7 @@ export default function Sidebar() {
             mt: "auto",
             flexGrow: 0,
             mb: 2,
+            gap: 1,
             "--ListItem-radius": (theme) => theme.vars.radius.sm,
           }}
         >
@@ -162,6 +185,28 @@ export default function Sidebar() {
           </ListItem>
         </List>
       </Box>
+      {isAuthenticated && (
+        <>
+          <Divider />
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography level="title-sm">Logged in</Typography>
+              <Typography level="body-xs">{user?.email}</Typography>
+            </Box>
+            <IconButton
+              size="sm"
+              variant="plain"
+              color="neutral"
+              onClick={() => {
+                googleLogout();
+                logout();
+              }}
+            >
+              <LogoutRounded />
+            </IconButton>
+          </Box>
+        </>
+      )}
     </Sheet>
   );
 }

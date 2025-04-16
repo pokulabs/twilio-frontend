@@ -1,18 +1,31 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import ApiClient from "../api-client";
+
+import TwilioClient from "../twilio-client";
 import { EventEmitter } from "../event-emitter";
+import { storage } from "../storage";
+
+import type { WebhooksActivationStatus } from "../types";
 
 interface CredentialsContextType {
   sid: string;
   authToken: string;
-  apiClient: ApiClient | null;
+  twilioClient: TwilioClient | null;
   eventEmitter: EventEmitter | null;
   setCredentials: (sid: string, authToken: string) => Promise<boolean>;
   isAuthenticated: boolean;
   activePhoneNumber: string;
   phoneNumbers: string[];
-  setActivePhoneNumberContext: (phoneNumber: string) => void;
+  setActivePhoneNumber: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
+  webhookUrl: string;
+  setWebhookUrl: (url: string) => void;
+  webhooksActivationStatus: WebhooksActivationStatus;
+  setWebhooksActivationStatus: (
+    key: keyof WebhooksActivationStatus,
+    value: boolean,
+  ) => void;
+  whatsappNumbers: string[];
+  setWhatsappNumbers: (numbers: string[]) => void;
 }
 
 const CredentialsContext = createContext<CredentialsContextType | null>(null);
@@ -29,7 +42,7 @@ export const useAuthedCreds = () => {
 
   if (
     !ctx.isAuthenticated ||
-    !ctx.apiClient ||
+    !ctx.twilioClient ||
     !ctx.eventEmitter ||
     ctx.isLoading
   ) {
@@ -38,7 +51,7 @@ export const useAuthedCreds = () => {
 
   return {
     ...ctx,
-    apiClient: ctx.apiClient,
+    twilioClient: ctx.twilioClient,
     eventEmitter: ctx.eventEmitter,
   };
 };
@@ -46,42 +59,68 @@ export const useAuthedCreds = () => {
 export const CredentialsProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [sid, setSid] = useState(localStorage.getItem("sid") || "");
-  const [authToken, setAuthToken] = useState(
-    localStorage.getItem("authToken") || "",
-  );
-  const [apiClient, setApiClient] = useState<ApiClient | null>(null);
+  const [sid, setSid] = useState(storage.get("sid"));
+  const [authToken, setAuthToken] = useState(storage.get("authToken"));
+  const [twilioClient, setTwilioClient] = useState<TwilioClient | null>(null);
   const [eventEmitter, setEventEmitter] = useState<EventEmitter | null>(null);
   const [activePhoneNumber, setActivePhoneNumber] = useState("");
   const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState(
+    storage.get("mainStore").webhookUrl,
+  );
+  const [webhooksActivationStatus, setWebhooksActivationStatus] = useState(
+    storage.get("mainStore").webhooksActivationStatus,
+  );
+  const [whatsappNumbers, setWhatsappNumbers] = useState(
+    storage.get("mainStore").whatsappNumbers,
+  );
 
   const setCredentials = async (sid: string, authToken: string) => {
-    let success = false;
-    if (!sid || !authToken) return success;
+    let isSuccess = false;
+    if (!sid || !authToken) return isSuccess;
     setIsLoading(true);
     try {
       setSid(sid);
       setAuthToken(authToken);
-      const client = await ApiClient.getInstance(sid, authToken);
+      const client = await TwilioClient.getInstance(sid, authToken);
       const numbers = await client.getPhoneNumbers();
       const ee = await EventEmitter.getInstance(client.axiosInstance);
       setEventEmitter(ee);
-      setApiClient(client);
+      setTwilioClient(client);
       setPhoneNumbers(numbers);
       setActivePhoneNumber(numbers[0]);
       setIsAuthenticated(true);
-      success = true;
+      isSuccess = true;
+      // Only save credentials in storage after validity check
+      storage.setCredentials(sid, authToken);
     } catch (err) {
       setIsAuthenticated(false);
     }
     setIsLoading(false);
-    return success;
+    return isSuccess;
   };
 
-  const setActivePhoneNumberContext = (phoneNumber: string) => {
-    setActivePhoneNumber(phoneNumber);
+  const setActivatedWebhooksContext = (
+    key: keyof WebhooksActivationStatus,
+    value: boolean,
+  ) => {
+    setWebhooksActivationStatus((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+    storage.setWebhooksActivationStatus(key, value);
+  };
+
+  const setWebhookUrlContext = (url: string) => {
+    setWebhookUrl(url);
+    storage.setWebhookUrl(url);
+  };
+
+  const setWhatsappNumbersContext = (numbers: string[]) => {
+    setWhatsappNumbers(numbers);
+    storage.setWhatsappNumbers(numbers);
   };
 
   return (
@@ -89,14 +128,20 @@ export const CredentialsProvider: React.FC<{ children: ReactNode }> = ({
       value={{
         sid,
         authToken,
-        apiClient,
+        twilioClient,
         eventEmitter,
         setCredentials,
         isAuthenticated,
         activePhoneNumber,
         phoneNumbers,
-        setActivePhoneNumberContext,
+        setActivePhoneNumber,
         isLoading,
+        setWebhookUrl: setWebhookUrlContext,
+        webhookUrl,
+        setWebhooksActivationStatus: setActivatedWebhooksContext,
+        webhooksActivationStatus,
+        whatsappNumbers,
+        setWhatsappNumbers: setWhatsappNumbersContext,
       }}
     >
       {children}

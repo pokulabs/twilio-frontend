@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { Alert, Box, Input, Button, Typography } from "@mui/joy";
+import { Alert, Input, Button, Typography, Stack } from "@mui/joy";
 
 import { useCredentials } from "../../context/CredentialsContext";
 
@@ -19,36 +19,20 @@ export default function TwilioForm() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const credsValid = await setCredentials(sid, authToken);
-    localStorage.setItem("sid", sid);
-    localStorage.setItem("authToken", authToken);
     if (credsValid) {
       navigate("/");
     }
   };
 
   return (
-    <Box
+    <Stack
+      direction="column"
+      spacing={2}
       component="form"
       onSubmit={handleSubmit}
-      sx={{
-        display: "flex",
-        marginTop: 20,
-        flexDirection: "column",
-        alignItems: "center",
-        p: 2,
-        mx: "auto",
-        width: "100%",
-        maxWidth: 400,
-      }}
     >
-      <Typography level="h4" sx={{ mb: 2, textAlign: "center" }}>
-        Enter Twilio Credentials
-      </Typography>
-      <Alert
-        variant="outlined"
-        color="success"
-        sx={{ mb: 2, width: "100%", textAlign: "center" }}
-      >
+      <Typography level="h4">Enter Twilio Credentials</Typography>
+      <Alert variant="outlined" color="success">
         Your credentials are safe, they never leave this browser. <br />
         You can check the code!
       </Alert>
@@ -57,28 +41,26 @@ export default function TwilioForm() {
         placeholder="Twilio SID"
         value={sid}
         onChange={(e) => setSid(e.target.value)}
-        sx={{ mb: 2, width: "100%" }}
       />
       <Input
         placeholder="Auth Token"
         type="password"
         value={authToken}
         onChange={(e) => setAuthToken(e.target.value)}
-        sx={{ mb: 2, width: "100%" }}
       />
-      <Button type="submit" variant="solid" sx={{ width: "100%" }}>
+      <Button type="submit" variant="solid">
         Submit
       </Button>
       {isAuthenticated && !isLoading && (
-        <Alert variant="soft" color="success" sx={{ mt: 2, width: "100%" }}>
+        <Alert variant="soft" color="success">
           Credentials successfully set!
         </Alert>
       )}
       {!isAuthenticated && !isLoading && (sidContext || authTokenContext) && (
-        <Alert variant="soft" color="danger" sx={{ mt: 2, width: "100%" }}>
+        <Alert variant="soft" color="danger">
           Credentials incorrect!
         </Alert>
       )}
-    </Box>
+    </Stack>
   );
 }

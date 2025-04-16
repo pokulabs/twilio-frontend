@@ -1,12 +1,13 @@
-import { LOCAL_STORAGE_UNREAD_KEY, makeChatId } from "../utils.ts";
-import TwilioClient from "./twilio-client.ts";
+import { makeChatId } from "../utils.ts";
+import TwilioRawClient from "./twilio-raw-client.ts";
+import { storage } from "../storage.ts";
 
 import type { ChatInfo, TwilioMsg } from "../types.ts";
 
 export class ContactsService {
-    private client: TwilioClient;
+    private client: TwilioRawClient;
 
-    constructor(client: TwilioClient) {
+    constructor(client: TwilioRawClient) {
         this.client = client;
     }
 
@@ -46,20 +47,11 @@ export class ContactsService {
     }
 
     updateMostRecentlySeenMessageId(chatId: string, messageId: string) {
-        const e = localStorage.getItem(LOCAL_STORAGE_UNREAD_KEY);
-        const obj = e ? JSON.parse(e) : {};
-        obj[chatId] = messageId;
-        localStorage.setItem(LOCAL_STORAGE_UNREAD_KEY, JSON.stringify(obj));
+        storage.updateMostRecentlySeenMessageId(chatId, messageId);
     }
 
     private getMostRecentMsgSeen(chatId: string) {
-        const e = localStorage.getItem(LOCAL_STORAGE_UNREAD_KEY);
-        if (!e) {
-            return;
-        }
-
-        const obj = JSON.parse(e);
-        return obj[chatId];
+        return storage.get("mostRecentMessageSeenPerChat")[chatId];
     }
 
     private mergeTwoSortedArrays(inbound: TwilioMsg[], outbound: TwilioMsg[]) {

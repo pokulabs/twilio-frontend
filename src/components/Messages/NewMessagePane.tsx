@@ -11,7 +11,7 @@ export default function NewMessagesPane(props: {
 }) {
   const { activePhoneNumber, callback } = props;
   const [contactNumber, setContactNumber] = React.useState("");
-  const { apiClient } = useAuthedCreds();
+  const { twilioClient } = useAuthedCreds();
 
   return (
     <Sheet
@@ -26,7 +26,7 @@ export default function NewMessagesPane(props: {
       <Box sx={{ mt: "auto" }}>
         <MessageInput
           onSubmit={async (content) => {
-            await apiClient.sendMessage(
+            await twilioClient.sendMessage(
               activePhoneNumber,
               contactNumber,
               content,

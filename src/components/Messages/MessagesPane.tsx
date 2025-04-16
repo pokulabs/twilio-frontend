@@ -15,17 +15,17 @@ type MessagesPaneProps = {
 
 export default function MessagesPane(props: MessagesPaneProps) {
   const { chat, activePhoneNumber } = props;
-  const { apiClient, eventEmitter } = useAuthedCreds();
+  const { twilioClient, eventEmitter } = useAuthedCreds();
   const [chatMessages, setChatMessages] = React.useState<PlainMessage[]>([]);
 
   React.useEffect(() => {
-    apiClient
+    twilioClient
       .getMessages(activePhoneNumber, chat.contactNumber)
       .then((chatMsgs) => {
         setChatMessages(chatMsgs);
         const mostRecentMessageId = chatMsgs.at(-1)?.id;
         if (mostRecentMessageId) {
-          return apiClient.updateMostRecentlySeenMessage(
+          return twilioClient.updateMostRecentlySeenMessage(
             chat.chatId,
             mostRecentMessageId,
           );
@@ -53,7 +53,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
         backgroundColor: "background.level1",
       }}
     >
-      <MessagesPaneHeader contactNumber={chat.contactNumber} />
+      <MessagesPaneHeader chat={chat} />
       <Box
         sx={{
           display: "flex",
@@ -85,7 +85,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
       <MessageInput
         onSubmit={async (content) => {
           try {
-            await apiClient.sendMessage(
+            await twilioClient.sendMessage(
               activePhoneNumber,
               chat.contactNumber,
               content,

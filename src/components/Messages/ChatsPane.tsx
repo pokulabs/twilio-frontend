@@ -30,7 +30,8 @@ type ChatsPaneProps = {
 
 export default function ChatsPane(props: ChatsPaneProps) {
   const { chats, setSelectedChat, selectedChatId, activePhoneNumber } = props;
-  const { phoneNumbers, setActivePhoneNumberContext } = useAuthedCreds();
+  const { phoneNumbers, setActivePhoneNumber, whatsappNumbers } =
+    useAuthedCreds();
   const [contactsFilter, setContactsFilter] = useState("");
 
   return (
@@ -94,10 +95,10 @@ export default function ChatsPane(props: ChatsPaneProps) {
         <Select
           value={activePhoneNumber}
           onChange={(_event, newPhoneNumber) =>
-            setActivePhoneNumberContext(newPhoneNumber!)
+            setActivePhoneNumber(newPhoneNumber!)
           }
         >
-          {phoneNumbers.map((e) => {
+          {phoneNumbers.concat(whatsappNumbers).map((e) => {
             return (
               <Option key={e} value={e}>
                 {e}

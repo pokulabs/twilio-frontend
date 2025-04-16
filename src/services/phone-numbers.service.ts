@@ -1,9 +1,9 @@
-import TwilioClient from "./twilio-client.ts";
+import TwilioRawClient from "./twilio-raw-client.ts";
 
 export class PhoneNumbersService {
-    private client: TwilioClient;
+    private client: TwilioRawClient;
 
-    constructor(client: TwilioClient) {
+    constructor(client: TwilioRawClient) {
         this.client = client;
     }
 
