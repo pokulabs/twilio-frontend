@@ -23,7 +23,7 @@ function Messages() {
     setChats((prevChats) => {
       return prevChats.map((c) =>
         c.chatId === payload.chatCode
-          ? { ...c, isFlagged: payload.isFlagged }
+          ? { ...c, ...payload }
           : c,
       );
     });
@@ -46,15 +46,12 @@ function Messages() {
           recentMsgId: msg.id,
         };
 
-        
         if (index !== -1) {
-          if (prevChats[index].isFlagged) {
-            newChat.isFlagged = prevChats[index].isFlagged;
-            newChat.flaggedReason = prevChats[index].flaggedReason;
-            newChat.flaggedMessage = prevChats[index].flaggedMessage;
-          }
           const updatedChats = [...prevChats];
-          updatedChats[index] = newChat;
+          updatedChats[index] = {
+            ...updatedChats[index],
+            ...newChat,
+          };
           return updatedChats;
         } else {
           return [...prevChats, newChat];
