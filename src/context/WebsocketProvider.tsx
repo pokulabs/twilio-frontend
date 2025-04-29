@@ -26,6 +26,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isConnected, setIsConnected] = useState(false);
 
   const connect = () => {
+    disconnect();
+
     if (!isAuthenticated || !token) {
       // No auth, skipping connection
       return;
@@ -38,6 +40,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     socketRef.current = ws;
 
     ws.onopen = () => {
+      console.log("connected");
       setIsConnected(true);
     };
 
@@ -70,10 +73,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const scheduleReconnect = () => {
     if (reconnectTimeoutRef.current) return; // already scheduled
+
     console.log("Scheduling WebSocket reconnect in 3 seconds...");
     reconnectTimeoutRef.current = setTimeout(() => {
       reconnectTimeoutRef.current = null;
-      connect();
+      if (isAuthenticated && token) {
+        connect();
+      } else {
+        console.log("Skipping reconnect: not authenticated");
+      }
     }, 3000);
   };
 

@@ -21,10 +21,9 @@ function Messages() {
 
   useWebSocketEvent("flag-update", (payload) => {
     setChats((prevChats) => {
+      console.log(payload);
       return prevChats.map((c) =>
-        c.chatId === payload.chatCode
-          ? { ...c, ...payload }
-          : c,
+        c.chatId === payload.chatCode ? { ...c, ...payload } : c,
       );
     });
   });
