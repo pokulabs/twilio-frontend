@@ -41,7 +41,7 @@ export default function Account() {
           <br />
           &bull; Chat toggle
           <br />
-          &bull; Decision agent (coming soon)
+          &bull; Decision agent
         </Typography>
         <Login />
       </Card>
