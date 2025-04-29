@@ -15,13 +15,12 @@ import type { ChatInfo } from "../../types";
 
 type ChatListItemProps = ListItemButtonProps & {
   chat: ChatInfo;
-  selectedChatId?: string;
+  isSelected: boolean;
   setSelectedChat: (chat: ChatInfo) => void;
 };
 
 export default function ChatListItem(props: ChatListItemProps) {
-  const { chat, selectedChatId, setSelectedChat } = props;
-  const selected = selectedChatId === chat.chatId;
+  const { chat, isSelected, setSelectedChat } = props;
   return (
     <>
       <ListItem>
@@ -30,7 +29,7 @@ export default function ChatListItem(props: ChatListItemProps) {
             toggleMessagesPane();
             setSelectedChat(chat);
           }}
-          selected={selected}
+          selected={isSelected}
           color="neutral"
           sx={{
             flexDirection: "row",

@@ -17,11 +17,15 @@ function Messages() {
   const { isAuthenticated, twilioClient, activePhoneNumber, eventEmitter } =
     useAuthedCreds();
   const [chats, setChats] = useSortedChats([]);
-  const [selectedChat, setSelectedChat] = React.useState<ChatInfo | null>(null);
+  const [selectedChatId, setSelectedChatId] = React.useState<string | null>(null);
+
+  const selectedChat = React.useMemo(
+    () => chats.find((c) => c.chatId === selectedChatId) ?? null,
+    [chats, selectedChatId]
+  );
 
   useWebSocketEvent("flag-update", (payload) => {
     setChats((prevChats) => {
-      console.log(payload);
       return prevChats.map((c) =>
         c.chatId === payload.chatCode ? { ...c, ...payload } : c,
       );
@@ -101,7 +105,7 @@ function Messages() {
     };
 
     fetchData();
-    setSelectedChat(null);
+    setSelectedChatId(null);
   }, [isAuthenticated, activePhoneNumber]);
 
   return (
@@ -135,9 +139,9 @@ function Messages() {
         <ChatsPane
           activePhoneNumber={activePhoneNumber}
           chats={chats}
-          selectedChatId={selectedChat?.chatId}
+          selectedChatId={selectedChatId}
           setSelectedChat={(chat) => {
-            setSelectedChat(chat);
+            setSelectedChatId(chat ? chat.chatId : chat);
             if (chat) {
               // Mark chat as read
               setChats((prevChats) =>
@@ -163,7 +167,7 @@ function Messages() {
                 (e) => e.contactNumber === contactNumber,
               )[0];
               setChats(chatsData);
-              setSelectedChat(chat);
+              setSelectedChatId(chat.chatId);
             } catch (error) {
               console.error("Failed to fetch chats:", error);
             }

@@ -56,7 +56,6 @@ export class EventEmitter {
             const msgs = await this.twilioClient.getMessages({ limit: 1 });
             if (msgs.items[0].sid !== this.lastKnownMsgId) {
                 const interveningMsgs = await this.fetchInterveningMsgs();
-                console.log(interveningMsgs);
                 this.lastKnownMsgId = msgs.items[0].sid;
                 this.emitNewMsgs(interveningMsgs);
             }

@@ -25,7 +25,7 @@ type ChatsPaneProps = {
   activePhoneNumber: string;
   chats: ChatInfo[];
   setSelectedChat: (chat: ChatInfo | null) => void;
-  selectedChatId: string | undefined;
+  selectedChatId: string | null;
 };
 
 export default function ChatsPane(props: ChatsPaneProps) {
@@ -134,7 +134,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
               key={chat.chatId}
               chat={chat}
               setSelectedChat={setSelectedChat}
-              selectedChatId={selectedChatId}
+              isSelected={selectedChatId === chat.chatId}
             />
           ))}
       </List>
