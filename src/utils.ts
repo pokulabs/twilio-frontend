@@ -1,5 +1,3 @@
-import { ChatInfo } from "./types";
-
 export function openSidebar() {
     if (typeof window !== "undefined") {
         document.body.style.overflow = "hidden";

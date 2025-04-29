@@ -33,7 +33,7 @@ export default function LlmKey() {
           sx={{ mb: 2 }}
           endDecorator={<Check color="success" />}
         >
-          OpenAI API key already saved
+          OpenAI API key saved
         </Typography>
       ) : (
         <Typography level="body-md" sx={{ mb: 2 }}>

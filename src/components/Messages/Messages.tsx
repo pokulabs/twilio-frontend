@@ -45,7 +45,14 @@ function Messages() {
           recentMsgDate: new Date(msg.timestamp),
           recentMsgId: msg.id,
         };
+
+        
         if (index !== -1) {
+          if (prevChats[index].isFlagged) {
+            newChat.isFlagged = prevChats[index].isFlagged;
+            newChat.flaggedReason = prevChats[index].flaggedReason;
+            newChat.flaggedMessage = prevChats[index].flaggedMessage;
+          }
           const updatedChats = [...prevChats];
           updatedChats[index] = newChat;
           return updatedChats;
