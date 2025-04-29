@@ -68,7 +68,7 @@ function Login() {
           }
         }}
         onError={() => {
-          console.log("Google login failed");
+          console.error("Google login failed");
         }}
         size="medium"
         // width={360}

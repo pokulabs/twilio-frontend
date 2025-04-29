@@ -32,7 +32,16 @@ export default function ChatListItem(props: ChatListItemProps) {
           }}
           selected={selected}
           color="neutral"
-          sx={{ flexDirection: "row", alignItems: "center", gap: 1 }}
+          sx={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 1,
+            border: 0,
+            borderLeft: "4px solid",
+            borderLeftColor: chat.isFlagged
+              ? "var(--joy-palette-warning-400)"
+              : "transparent",
+          }}
         >
           <Circle
             sx={{
@@ -51,11 +60,7 @@ export default function ChatListItem(props: ChatListItemProps) {
               justifyContent="space-between"
             >
               <Typography level="title-sm">{chat.contactNumber}</Typography>
-              <Typography
-                level="body-xs"
-                noWrap
-                sx={{ display: { xs: "none", md: "block" } }}
-              >
+              <Typography level="body-xs" noWrap>
                 {displayDateTime(chat.recentMsgDate)}
               </Typography>
             </Stack>

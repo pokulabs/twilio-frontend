@@ -21,6 +21,7 @@ import {
   AccountCircle,
   LogoutRounded,
   DescriptionRounded,
+  SportsMartialArtsRounded,
 } from "@mui/icons-material";
 
 import logo from "../assets/logo.png"; // Import the logo
@@ -137,6 +138,18 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               component={Link}
+              to="/hitl"
+              selected={location.pathname === "/hitl"}
+            >
+              <SportsMartialArtsRounded />
+              <ListItemContent>
+                <Typography level="title-sm">Human Intervention</Typography>
+              </ListItemContent>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              component={Link}
               to="/account"
               selected={location.pathname === "/account"}
             >
@@ -165,7 +178,7 @@ export default function Sidebar() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <DescriptionRounded  />
+              <DescriptionRounded />
               <ListItemContent>
                 <Typography level="title-sm">Documentation</Typography>
               </ListItemContent>
@@ -178,7 +191,7 @@ export default function Sidebar() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Avatar size="sm" src={slack} sx={{ width: 24, height: 24 }} />
+              <Avatar size="sm" src={slack} sx={{ width: 18, height: 18 }} />
               <ListItemContent>
                 <Typography level="title-sm">Slack</Typography>
               </ListItemContent>

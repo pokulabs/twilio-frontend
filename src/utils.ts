@@ -1,3 +1,5 @@
+import { ChatInfo } from "./types";
+
 export function openSidebar() {
     if (typeof window !== "undefined") {
         document.body.style.overflow = "hidden";
@@ -75,6 +77,8 @@ export function displayDateTime(d: Date) {
 }
 
 export const POLL_INTERVAL = 3000; // every 3 seconds
-export const DOCS_LINK = "https://docs.google.com/document/d/1gIfciWfCTrKlyVgYXdARi6ZJhOiOfOPDtq39FtwEYBA/edit?usp=sharing";
-export const SLACK_LINK = "https://join.slack.com/t/pokulabs/shared_invite/zt-334pmqhy9-oZN8cMAXLFUdmDCgNZX9rA";
+export const DOCS_LINK =
+    "https://docs.google.com/document/d/1gIfciWfCTrKlyVgYXdARi6ZJhOiOfOPDtq39FtwEYBA/edit?usp=sharing";
+export const SLACK_LINK =
+    "https://join.slack.com/t/pokulabs/shared_invite/zt-334pmqhy9-oZN8cMAXLFUdmDCgNZX9rA";
 export const GITHUB_LINK = "https://github.com/pokulabs/twilio-frontend";

@@ -9,36 +9,41 @@ import Messages from "./components/Messages/Messages";
 import Integrations from "./components/Integrations/Integrations";
 import Pages from "./components/Pages";
 import Account from "./components/Account/Account";
+import Hitl from "./components/Hitl/Hitl";
 import { CredentialsProvider } from "./context/CredentialsContext";
 import { AuthProvider } from "./context/AuthContext";
+import { WebSocketProvider } from "./context/WebsocketProvider";
 
 export default function App() {
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <CredentialsProvider>
-          <CssVarsProvider disableTransitionOnChange>
-            <CssBaseline />
-            <Router>
-              <Pages>
-                <Box
-                  sx={{
-                    display: "flex",
-                    minHeight: "100dvh",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Sidebar />
-                  <Header />
-                  <Routes>
-                    <Route path="/" element={<Messages />} />
-                    <Route path="/integrations" element={<Integrations />} />
-                    <Route path="/account" element={<Account />} />
-                  </Routes>
-                </Box>
-              </Pages>
-            </Router>
-          </CssVarsProvider>
+          <WebSocketProvider>
+            <CssVarsProvider disableTransitionOnChange>
+              <CssBaseline />
+              <Router>
+                <Pages>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      minHeight: "100dvh",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Sidebar />
+                    <Header />
+                    <Routes>
+                      <Route path="/" element={<Messages />} />
+                      <Route path="/integrations" element={<Integrations />} />
+                      <Route path="/account" element={<Account />} />
+                      <Route path="/hitl" element={<Hitl />} />
+                    </Routes>
+                  </Box>
+                </Pages>
+              </Router>
+            </CssVarsProvider>
+          </WebSocketProvider>
         </CredentialsProvider>
       </AuthProvider>
     </GoogleOAuthProvider>

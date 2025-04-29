@@ -42,9 +42,9 @@ export default function WebhookIntegration() {
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={1}>
               Whatsapp
             </Tab>
-            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
+            {/* <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
               Webhooks
-            </Tab>
+            </Tab> */}
           </TabList>
           <TabPanel value={0}>
             <Box

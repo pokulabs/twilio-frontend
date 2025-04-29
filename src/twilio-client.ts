@@ -80,20 +80,6 @@ class TwilioClient {
             messageId,
         );
     }
-
-    async getToggle(chatId: string) {
-        return this.api.get(`/chats/${chatId}/toggle`);
-    }
-
-    async setToggle(chatId: string, isEnabled: boolean) {
-        return this.api.post(`/chats/${chatId}/toggle`, {
-            isEnabled,
-        });
-    }
-
-    async createApiKey() {
-        return this.api.post(`/auth/key`);
-    }
 }
 
 export default TwilioClient;

@@ -9,12 +9,25 @@ import { makeChatId } from "../../utils";
 import withAuth from "../../context/withAuth";
 
 import type { ChatInfo } from "../../types";
+import { apiClient } from "../../api-client";
+import { useWebSocketEvent } from "../../hooks/use-websocket";
+import { useSortedChats } from "../../hooks/use-sorted-chats";
 
 function Messages() {
   const { isAuthenticated, twilioClient, activePhoneNumber, eventEmitter } =
     useAuthedCreds();
-  const [chats, setChats] = React.useState<ChatInfo[]>([]);
+  const [chats, setChats] = useSortedChats([]);
   const [selectedChat, setSelectedChat] = React.useState<ChatInfo | null>(null);
+
+  useWebSocketEvent("flag-update", (payload) => {
+    setChats((prevChats) => {
+      return prevChats.map((c) =>
+        c.chatId === payload.chatCode
+          ? { ...c, isFlagged: payload.isFlagged }
+          : c,
+      );
+    });
+  });
 
   React.useEffect(() => {
     const subId = eventEmitter.on("new-message", (msg) => {
@@ -24,29 +37,20 @@ function Messages() {
 
       setChats((prevChats) => {
         const index = prevChats.findIndex((c) => c.chatId === newMsgChatId);
+        const newChat: ChatInfo = {
+          chatId: newMsgChatId,
+          contactNumber: newMsgContactNumber,
+          hasUnread: true,
+          recentMsgContent: msg.content,
+          recentMsgDate: new Date(msg.timestamp),
+          recentMsgId: msg.id,
+        };
         if (index !== -1) {
           const updatedChats = [...prevChats];
-          updatedChats[index] = {
-            chatId: newMsgChatId,
-            contactNumber: newMsgContactNumber,
-            hasUnread: true,
-            recentMsgContent: msg.content,
-            recentMsgDate: new Date(msg.timestamp),
-            recentMsgId: msg.id,
-          };
+          updatedChats[index] = newChat;
           return updatedChats;
         } else {
-          return [
-            ...prevChats,
-            {
-              chatId: newMsgChatId,
-              contactNumber: newMsgContactNumber,
-              hasUnread: true,
-              recentMsgContent: msg.content,
-              recentMsgDate: new Date(msg.timestamp),
-              recentMsgId: msg.id,
-            },
-          ];
+          return [...prevChats, newChat];
         }
       });
 
@@ -61,15 +65,39 @@ function Messages() {
     // Ask for notification permission
     window.Notification?.requestPermission();
 
-    return () => eventEmitter.off(subId);
+    return () => {
+      eventEmitter.off(subId);
+    };
   }, [isAuthenticated]);
 
   React.useEffect(() => {
-    twilioClient
-      .getChats(activePhoneNumber)
-      .then((chats) => setChats(chats))
-      .catch((err) => console.error("Failed to fetch chats:", err));
+    const fetchData = async () => {
+      const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
+        twilioClient.getChats(activePhoneNumber),
+        apiClient.getFlaggedChats(),
+      ]);
 
+      if (newChatsResult.status === "fulfilled") {
+        const newChats = newChatsResult.value;
+        if (flaggedChatsResult.status === "fulfilled") {
+          const flaggedChats = flaggedChatsResult.value.data.data;
+          for (const c of newChats) {
+            const found = flaggedChats.find((fc) => fc.chatCode === c.chatId);
+            if (found) {
+              c.isFlagged = found.isFlagged;
+              c.flaggedReason = found.flaggedReason;
+              c.flaggedMessage = found.flaggedMessage;
+            }
+          }
+        }
+
+        setChats(newChats);
+      } else {
+        console.error("Failed to fetch chats: ", newChatsResult.reason);
+      }
+    };
+
+    fetchData();
     setSelectedChat(null);
   }, [isAuthenticated, activePhoneNumber]);
 

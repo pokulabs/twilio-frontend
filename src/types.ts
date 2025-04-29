@@ -1,3 +1,5 @@
+export type MessageDirection = "inbound" | "outbound";
+
 export type ChatInfo = {
     contactNumber: string;
     chatId: string;
@@ -5,6 +7,10 @@ export type ChatInfo = {
     recentMsgId: string;
     recentMsgContent: string;
     hasUnread: boolean;
+    isEnabled?: boolean;
+    isFlagged?: boolean;
+    flaggedReason?: string;
+    flaggedMessage?: string;
 };
 
 export type MessageProps = {
