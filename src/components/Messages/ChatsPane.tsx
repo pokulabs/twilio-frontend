@@ -40,7 +40,8 @@ export default function ChatsPane(props: ChatsPaneProps) {
         borderRight: "1px solid",
         borderColor: "divider",
         height: { sm: "calc(100dvh - var(--Header-height))", md: "100dvh" },
-        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Stack
@@ -80,7 +81,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
         </IconButton>
         <IconButton
           variant="plain"
-          aria-label="edit"
+          aria-label="close"
           color="neutral"
           size="sm"
           onClick={() => {
@@ -122,6 +123,8 @@ export default function ChatsPane(props: ChatsPaneProps) {
       </Stack>
       <List
         sx={{
+          flex: 1,
+          overflowY: "auto",
           py: 0,
           "--ListItem-paddingY": "0.75rem",
           "--ListItem-paddingX": "1rem",

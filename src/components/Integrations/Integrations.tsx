@@ -1,5 +1,4 @@
 import { Box, Tab, TabList, Tabs, tabClasses, TabPanel } from "@mui/joy";
-import Whatsapp from "./Whatsapp";
 import TwilioForm from "./TwilioForm";
 import Vapi from "./Vapi";
 
