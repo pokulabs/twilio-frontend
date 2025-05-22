@@ -85,15 +85,17 @@ function Messages() {
     };
   }, [isAuthenticated]);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
+  const fetchChats = React.useCallback(async (loadMore = false) => {
       const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
-        twilioClient.getChats(activePhoneNumber),
+        twilioClient.getChats(activePhoneNumber, loadMore),
         apiClient.getFlaggedChats(),
       ]);
 
       if (newChatsResult.status === "fulfilled") {
         const newChats = newChatsResult.value;
+
+        // Apply flag status to any new matched chats
+        // TODO: what if a flagged chat is not in currently loaded chats
         if (flaggedChatsResult.status === "fulfilled") {
           const flaggedChats = flaggedChatsResult.value.data.data;
           for (const c of newChats) {
@@ -106,15 +108,43 @@ function Messages() {
           }
         }
 
-        setChats(newChats);
+        if (loadMore) {
+          // Merge new chats with existing chats
+          setChats((prevChats) => {
+            // Create a map of chatIds to filter out duplicates
+            const chatMap = new Map<string, ChatInfo>();
+            
+            // Add all existing chats to the map
+            prevChats.forEach(chat => chatMap.set(chat.chatId, chat));
+            
+            // Add or update with new chats
+            newChats.forEach(chat => {
+              // Only add if it doesn't already exist
+              if (!chatMap.has(chat.chatId)) {
+                chatMap.set(chat.chatId, chat);
+              }
+            });
+            
+            // Convert map back to array
+            return Array.from(chatMap.values());
+          });
+        } else {
+          setChats(newChats);
+        }
       } else {
         console.error("Failed to fetch chats: ", newChatsResult.reason);
       }
-    };
+  }, [twilioClient, activePhoneNumber]);
 
-    fetchData();
+  // Handle loading more chats
+  const handleLoadMore = React.useCallback(async () => {
+    await fetchChats(true);
+  }, [fetchChats]);
+
+  React.useEffect(() => {
+    fetchChats();
     setSelectedChatId(null);
-  }, [isAuthenticated, activePhoneNumber]);
+  }, [isAuthenticated, activePhoneNumber, fetchChats]);
 
   return (
     <Sheet
@@ -148,6 +178,7 @@ function Messages() {
           activePhoneNumber={activePhoneNumber}
           chats={chats}
           selectedChatId={selectedChatId}
+          onLoadMore={handleLoadMore}
           setSelectedChat={(chat) => {
             setSelectedChatId(chat ? chat.chatId : chat);
             if (chat) {

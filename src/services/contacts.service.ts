@@ -6,20 +6,63 @@ import type { ChatInfo, TwilioMsg } from "../types.ts";
 
 export class ContactsService {
     private client: TwilioRawClient;
+    private paginators: {
+        inbound: Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
+        outbound: Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
+    } | undefined;
 
     constructor(client: TwilioRawClient) {
         this.client = client;
     }
 
-    async getChats(activeNumber: string): Promise<ChatInfo[]> {
+    async getChats(activeNumber: string, loadMore = false) {
         const knownContacts = new Set<string>();
         const arr: ChatInfo[] = [];
-        const [outbound, inbound] = await Promise.all([
-            this.client.getMessages({ from: activeNumber }),
-            this.client.getMessages({ to: activeNumber }),
-        ]);
 
-        const full = this.mergeTwoSortedArrays(inbound.items, outbound.items);
+        // Try to get the next pages
+        if (loadMore) {
+            if (!this.paginators) {
+                throw new Error("Can only call loadMore=true after calling loadMore=false at least once.");
+            }
+            if (!this.hasMoreChats()) {
+                throw new Error("No more chats to load.");
+            }
+
+            // Only fetch next pages for paginators that have more data
+            const outboundPromise = this.paginators.outbound.hasNextPage() 
+                ? this.paginators.outbound.getNextPage() 
+                : this.paginators.outbound;
+                
+            const inboundPromise = this.paginators.inbound.hasNextPage() 
+                ? this.paginators.inbound.getNextPage() 
+                : this.paginators.inbound;
+            
+            const [outbound, inbound] = await Promise.all([
+                outboundPromise,
+                inboundPromise,
+            ]);
+
+            this.paginators = {
+                inbound: inbound,
+                outbound: outbound,
+            };
+        } else {
+            // Otherwise, get the first page
+            const [outbound, inbound] = await Promise.all([
+                this.client.getMessages({ from: activeNumber }),
+                this.client.getMessages({ to: activeNumber }),
+            ]);
+
+            this.paginators = {
+                inbound: inbound,
+                outbound: outbound,
+            };
+        }
+
+        const full = this.mergeTwoSortedArrays(
+            this.paginators.inbound.items, 
+            this.paginators.outbound.items
+        );
 
         /**
          * Results are sorted by the DateSent field, with the most recent messages appearing first.
@@ -44,6 +87,10 @@ export class ContactsService {
         }
 
         return arr;
+    }
+    
+    hasMoreChats() {
+        return !!(this.paginators?.outbound.hasNextPage() || this.paginators?.inbound.hasNextPage());
     }
 
     updateMostRecentlySeenMessageId(chatId: string, messageId: string) {

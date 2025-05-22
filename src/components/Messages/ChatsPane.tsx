@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   IconButton,
   Input,
@@ -8,6 +8,9 @@ import {
   Sheet,
   Typography,
   List,
+  Button,
+  CircularProgress,
+  ListItem,
 } from "@mui/joy";
 import {
   EditNoteRounded,
@@ -26,13 +29,39 @@ type ChatsPaneProps = {
   chats: ChatInfo[];
   setSelectedChat: (chat: ChatInfo | null) => void;
   selectedChatId: string | null;
+  onLoadMore: () => Promise<void>;
 };
 
 export default function ChatsPane(props: ChatsPaneProps) {
-  const { chats, setSelectedChat, selectedChatId, activePhoneNumber } = props;
-  const { phoneNumbers, setActivePhoneNumber, whatsappNumbers } =
+  const {
+    chats, 
+    setSelectedChat, 
+    selectedChatId, 
+    activePhoneNumber, 
+    onLoadMore, 
+  } = props;
+  
+  const { twilioClient, phoneNumbers, setActivePhoneNumber, whatsappNumbers } =
     useAuthedCreds();
   const [contactsFilter, setContactsFilter] = useState("");
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreChats, setHasMoreChats] = useState(false);
+
+  useEffect(() => {
+    // Check if there are more chats to load
+    setHasMoreChats(twilioClient.hasMoreChats());
+  }, [chats]);
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore) return;
+    
+    setIsLoadingMore(true);
+    try {
+      await onLoadMore();
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   return (
     <Sheet
@@ -130,16 +159,29 @@ export default function ChatsPane(props: ChatsPaneProps) {
           "--ListItem-paddingX": "1rem",
         }}
       >
-        {chats
-          .filter((e) => e.contactNumber.includes(contactsFilter))
-          .map((chat) => (
-            <ChatListItem
-              key={chat.chatId}
-              chat={chat}
-              setSelectedChat={setSelectedChat}
-              isSelected={selectedChatId === chat.chatId}
-            />
-          ))}
+        {chats.map((chat) => (
+          <ChatListItem
+            key={chat.chatId}
+            chat={chat}
+            setSelectedChat={setSelectedChat}
+            isSelected={selectedChatId === chat.chatId}
+          />
+        ))}
+        
+        {hasMoreChats && (
+          <ListItem sx={{ justifyContent: "center", py: 2 }}>
+            <Button
+              variant="outlined"
+              color="neutral"
+              size="sm"
+              disabled={isLoadingMore}
+              onClick={handleLoadMore}
+              startDecorator={isLoadingMore ? <CircularProgress size="sm" /> : null}
+            >
+              {isLoadingMore ? "Loading..." : "Load More"}
+            </Button>
+          </ListItem>
+        )}
       </List>
     </Sheet>
   );
