@@ -57,18 +57,19 @@ class TwilioClient {
         return this.phoneNumbersService.getPhoneNumbers();
     }
 
+    async getChat(activeNumber: string, contactNumber: string) {
+        return this.contactsService.getChat(activeNumber, contactNumber);
+    }
+
     async getChats(activeNumber: string, loadMore = false) {
         return this.contactsService.getChats(activeNumber, loadMore);
     }
-    
+
     hasMoreChats() {
         return this.contactsService.hasMoreChats();
     }
 
-    async getMessages(
-        activeNumber: string,
-        contactNumber: string,
-    ) {
+    async getMessages(activeNumber: string, contactNumber: string) {
         return this.messagesService.getMessages(activeNumber, contactNumber);
     }
 

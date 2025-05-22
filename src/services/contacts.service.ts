@@ -6,13 +6,48 @@ import type { ChatInfo, TwilioMsg } from "../types.ts";
 
 export class ContactsService {
     private client: TwilioRawClient;
-    private paginators: {
-        inbound: Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
-        outbound: Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
-    } | undefined;
+    private paginators:
+        | {
+              inbound: Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
+              outbound: Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
+          }
+        | undefined;
 
     constructor(client: TwilioRawClient) {
         this.client = client;
+    }
+
+    async getChat(activeNumber: string, contactNumber: string) {
+        const arr: ChatInfo[] = [];
+        const [outbound, inbound] = await Promise.all([
+            this.client.getMessages({ from: activeNumber, to: contactNumber }),
+            this.client.getMessages({ from: contactNumber, to: activeNumber }),
+        ]);
+
+        if (!outbound.items.length && !inbound.items.length) {
+            return [];
+        }
+
+        const chatId = makeChatId(activeNumber, contactNumber);
+
+        const moreRecentMsg =
+            outbound.items[0]?.dateSent > inbound.items[0]?.dateSent
+                ? outbound.items[0]
+                : inbound.items[0];
+
+        arr.push({
+            chatId: chatId,
+            contactNumber: contactNumber,
+            recentMsgId: moreRecentMsg.sid,
+            recentMsgDate: moreRecentMsg.dateSent,
+            recentMsgContent: moreRecentMsg.body,
+            hasUnread:
+                moreRecentMsg.sid === this.getMostRecentMsgSeen(chatId)
+                    ? false
+                    : true,
+        });
+
+        return arr;
     }
 
     async getChats(activeNumber: string, loadMore = false) {
@@ -22,21 +57,23 @@ export class ContactsService {
         // Try to get the next pages
         if (loadMore) {
             if (!this.paginators) {
-                throw new Error("Can only call loadMore=true after calling loadMore=false at least once.");
+                throw new Error(
+                    "Can only call loadMore=true after calling loadMore=false at least once.",
+                );
             }
             if (!this.hasMoreChats()) {
                 throw new Error("No more chats to load.");
             }
 
             // Only fetch next pages for paginators that have more data
-            const outboundPromise = this.paginators.outbound.hasNextPage() 
-                ? this.paginators.outbound.getNextPage() 
+            const outboundPromise = this.paginators.outbound.hasNextPage()
+                ? this.paginators.outbound.getNextPage()
                 : this.paginators.outbound;
-                
-            const inboundPromise = this.paginators.inbound.hasNextPage() 
-                ? this.paginators.inbound.getNextPage() 
+
+            const inboundPromise = this.paginators.inbound.hasNextPage()
+                ? this.paginators.inbound.getNextPage()
                 : this.paginators.inbound;
-            
+
             const [outbound, inbound] = await Promise.all([
                 outboundPromise,
                 inboundPromise,
@@ -60,8 +97,8 @@ export class ContactsService {
         }
 
         const full = this.mergeTwoSortedArrays(
-            this.paginators.inbound.items, 
-            this.paginators.outbound.items
+            this.paginators.inbound.items,
+            this.paginators.outbound.items,
         );
 
         /**
@@ -88,9 +125,12 @@ export class ContactsService {
 
         return arr;
     }
-    
+
     hasMoreChats() {
-        return !!(this.paginators?.outbound.hasNextPage() || this.paginators?.inbound.hasNextPage());
+        return !!(
+            this.paginators?.outbound.hasNextPage() ||
+            this.paginators?.inbound.hasNextPage()
+        );
     }
 
     updateMostRecentlySeenMessageId(chatId: string, messageId: string) {

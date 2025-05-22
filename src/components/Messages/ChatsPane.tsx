@@ -30,22 +30,25 @@ type ChatsPaneProps = {
   setSelectedChat: (chat: ChatInfo | null) => void;
   selectedChatId: string | null;
   onLoadMore: () => Promise<void>;
+  onSearchFilterChange: (contactNumber: string) => Promise<void>;
 };
 
 export default function ChatsPane(props: ChatsPaneProps) {
   const {
-    chats, 
-    setSelectedChat, 
-    selectedChatId, 
-    activePhoneNumber, 
-    onLoadMore, 
+    chats,
+    setSelectedChat,
+    selectedChatId,
+    activePhoneNumber,
+    onLoadMore,
+    onSearchFilterChange,
   } = props;
-  
+
   const { twilioClient, phoneNumbers, setActivePhoneNumber, whatsappNumbers } =
     useAuthedCreds();
   const [contactsFilter, setContactsFilter] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMoreChats, setHasMoreChats] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     // Check if there are more chats to load
@@ -54,12 +57,25 @@ export default function ChatsPane(props: ChatsPaneProps) {
 
   const handleLoadMore = async () => {
     if (isLoadingMore) return;
-    
+
     setIsLoadingMore(true);
     try {
       await onLoadMore();
     } finally {
       setIsLoadingMore(false);
+    }
+  };
+  
+  const handleSearch = async () => {
+    if (!contactsFilter.trim() || isSearching) return;
+    
+    setIsSearching(true);
+    try {
+      await onSearchFilterChange(contactsFilter);
+    } catch (err) {
+      console.error("Search failed:", err);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -139,15 +155,37 @@ export default function ChatsPane(props: ChatsPaneProps) {
         <Input
           onChange={(event) => {
             setContactsFilter(event.target.value);
+            if (!event.target.value) {
+              onSearchFilterChange("");
+            }
           }}
           value={contactsFilter}
-          startDecorator={<SearchRounded />}
-          placeholder="Filter contacts"
-          endDecorator={
-            <IconButton size="sm" onClick={() => setContactsFilter("")}>
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch();
+            }
+          }}
+          startDecorator={
+            <IconButton 
+              size="sm" 
+              onClick={() => {
+                setContactsFilter("");
+                onSearchFilterChange("");
+              }}
+            >
               <CloseRounded />
             </IconButton>
           }
+          endDecorator={
+            <IconButton 
+              variant="soft" 
+              onClick={handleSearch}
+              disabled={isSearching || !contactsFilter.trim()}
+            >
+              {isSearching ? <CircularProgress size="sm" /> : <SearchRounded />}
+            </IconButton>
+          }
+          placeholder="Search for chat"
         />
       </Stack>
       <List
@@ -176,7 +214,9 @@ export default function ChatsPane(props: ChatsPaneProps) {
               size="sm"
               disabled={isLoadingMore}
               onClick={handleLoadMore}
-              startDecorator={isLoadingMore ? <CircularProgress size="sm" /> : null}
+              startDecorator={
+                isLoadingMore ? <CircularProgress size="sm" /> : null
+              }
             >
               {isLoadingMore ? "Loading..." : "Load More"}
             </Button>

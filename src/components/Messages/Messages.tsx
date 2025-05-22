@@ -7,11 +7,11 @@ import NewMessagesPane from "./NewMessagePane";
 import { useAuthedCreds } from "../../context/CredentialsContext";
 import { makeChatId } from "../../utils";
 import withAuth from "../../context/withAuth";
-
-import type { ChatInfo } from "../../types";
 import { apiClient } from "../../api-client";
 import { useWebSocketEvent } from "../../hooks/use-websocket";
 import { useSortedChats } from "../../hooks/use-sorted-chats";
+
+import type { ChatInfo } from "../../types";
 
 function Messages() {
   const { isAuthenticated, twilioClient, activePhoneNumber, eventEmitter } =
@@ -85,7 +85,8 @@ function Messages() {
     };
   }, [isAuthenticated]);
 
-  const fetchChats = React.useCallback(async (loadMore = false) => {
+  const fetchChats = React.useCallback(
+    async (loadMore = false) => {
       const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
         twilioClient.getChats(activePhoneNumber, loadMore),
         apiClient.getFlaggedChats(),
@@ -113,18 +114,18 @@ function Messages() {
           setChats((prevChats) => {
             // Create a map of chatIds to filter out duplicates
             const chatMap = new Map<string, ChatInfo>();
-            
+
             // Add all existing chats to the map
-            prevChats.forEach(chat => chatMap.set(chat.chatId, chat));
-            
+            prevChats.forEach((chat) => chatMap.set(chat.chatId, chat));
+
             // Add or update with new chats
-            newChats.forEach(chat => {
+            newChats.forEach((chat) => {
               // Only add if it doesn't already exist
               if (!chatMap.has(chat.chatId)) {
                 chatMap.set(chat.chatId, chat);
               }
             });
-            
+
             // Convert map back to array
             return Array.from(chatMap.values());
           });
@@ -134,12 +135,9 @@ function Messages() {
       } else {
         console.error("Failed to fetch chats: ", newChatsResult.reason);
       }
-  }, [twilioClient, activePhoneNumber]);
-
-  // Handle loading more chats
-  const handleLoadMore = React.useCallback(async () => {
-    await fetchChats(true);
-  }, [fetchChats]);
+    },
+    [twilioClient, activePhoneNumber],
+  );
 
   React.useEffect(() => {
     fetchChats();
@@ -178,7 +176,15 @@ function Messages() {
           activePhoneNumber={activePhoneNumber}
           chats={chats}
           selectedChatId={selectedChatId}
-          onLoadMore={handleLoadMore}
+          onLoadMore={() => fetchChats(true)}
+          onSearchFilterChange={async (contactNumber) => {
+            if (!contactNumber) {
+              fetchChats();
+              return
+            }
+            const results = await twilioClient.getChat(activePhoneNumber, contactNumber);
+            setChats(results);
+          }}
           setSelectedChat={(chat) => {
             setSelectedChatId(chat ? chat.chatId : chat);
             if (chat) {
@@ -200,16 +206,11 @@ function Messages() {
       ) : (
         <NewMessagesPane
           callback={async (contactNumber: string) => {
-            try {
-              const chatsData = await twilioClient.getChats(activePhoneNumber)!;
-              const chat = chatsData.filter(
-                (e) => e.contactNumber === contactNumber,
-              )[0];
-              setChats(chatsData);
-              setSelectedChatId(chat.chatId);
-            } catch (error) {
-              console.error("Failed to fetch chats:", error);
-            }
+            await fetchChats();
+            const chat = chats.filter(
+              (e) => e.contactNumber === contactNumber,
+            )[0];
+            setSelectedChatId(chat.chatId);
           }}
           activePhoneNumber={activePhoneNumber}
         />
