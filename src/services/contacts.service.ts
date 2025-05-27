@@ -122,6 +122,11 @@ export class ContactsService {
                 temp,
             );
 
+            // If no messages to process and no more pages, break out
+            if (merged.length === 0 && !inboundPage.hasNextPage() && !outboundPage.hasNextPage()) {
+                break;
+            }
+
             for (const m of merged) {
                 const contactNumber = m.direction === "inbound" ? m.from : m.to;
                 const chatId = makeChatId(activeNumber, contactNumber);

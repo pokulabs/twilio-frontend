@@ -12,6 +12,45 @@ import { useWebSocketEvent } from "../../hooks/use-websocket";
 import { useSortedChats } from "../../hooks/use-sorted-chats";
 
 import type { ChatInfo } from "../../types";
+import TwilioClient from "../../twilio-client";
+
+// Helper function moved outside component to avoid recreating on each render
+const fetchChatsHelper = async (
+  twilioClient: TwilioClient,
+  activePhoneNumber: string,
+  chats: ChatInfo[],
+  loadMore = false,
+) => {
+  const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
+    twilioClient.getChats(activePhoneNumber, {
+      loadMore,
+      existingChatsId: chats.map((e) => e.chatId),
+    }),
+    apiClient.getFlaggedChats(),
+  ]);
+
+  if (newChatsResult.status === "fulfilled") {
+    const newChats = newChatsResult.value;
+
+    // Apply flag status to any new matched chats
+    if (flaggedChatsResult.status === "fulfilled") {
+      const flaggedChats = flaggedChatsResult.value.data.data;
+      for (const c of newChats) {
+        const found = flaggedChats.find((fc) => fc.chatCode === c.chatId);
+        if (found) {
+          c.isFlagged = found.isFlagged;
+          c.flaggedReason = found.flaggedReason;
+          c.flaggedMessage = found.flaggedMessage;
+        }
+      }
+    }
+
+    return { success: true, chats: newChats, loadMore };
+  } else {
+    console.error("Failed to fetch chats: ", newChatsResult.reason);
+    return { success: false };
+  }
+};
 
 function Messages() {
   const { isAuthenticated, twilioClient, activePhoneNumber, eventEmitter } =
@@ -89,72 +128,25 @@ function Messages() {
     // Ask for notification permission
     window.Notification?.requestPermission();
 
+    const fetchInitialChats = async () => {
+      const result = await fetchChatsHelper(
+        twilioClient,
+        activePhoneNumber,
+        chats,
+        false,
+      );
+      if (result.success && result.chats) {
+        setChats(result.chats);
+      }
+    };
+
+    fetchInitialChats();
+    setSelectedChatId(null);
+
     return () => {
       eventEmitter.off(subId);
     };
-  }, [isAuthenticated, activePhoneNumber]);
-
-  const fetchChats = React.useCallback(
-    async (loadMore = false) => {
-      const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
-        twilioClient.getChats(activePhoneNumber, {
-          loadMore,
-          existingChatsId: chats.map((e) => e.chatId),
-        }),
-        apiClient.getFlaggedChats(),
-      ]);
-
-      if (newChatsResult.status === "fulfilled") {
-        const newChats = newChatsResult.value;
-
-        // Apply flag status to any new matched chats
-        // TODO: what if a flagged chat is not in currently loaded chats
-        if (flaggedChatsResult.status === "fulfilled") {
-          const flaggedChats = flaggedChatsResult.value.data.data;
-          for (const c of newChats) {
-            const found = flaggedChats.find((fc) => fc.chatCode === c.chatId);
-            if (found) {
-              c.isFlagged = found.isFlagged;
-              c.flaggedReason = found.flaggedReason;
-              c.flaggedMessage = found.flaggedMessage;
-            }
-          }
-        }
-
-        if (loadMore) {
-          // Merge new chats with existing chats
-          setChats((prevChats) => {
-            // Create a map of chatIds to filter out duplicates
-            const chatMap = new Map<string, ChatInfo>();
-
-            // Add all existing chats to the map
-            prevChats.forEach((chat) => chatMap.set(chat.chatId, chat));
-
-            // Add or update with new chats
-            newChats.forEach((chat) => {
-              // Only add if it doesn't already exist
-              if (!chatMap.has(chat.chatId)) {
-                chatMap.set(chat.chatId, chat);
-              }
-            });
-
-            // Convert map back to array
-            return Array.from(chatMap.values());
-          });
-        } else {
-          setChats(newChats);
-        }
-      } else {
-        console.error("Failed to fetch chats: ", newChatsResult.reason);
-      }
-    },
-    [twilioClient, activePhoneNumber],
-  );
-
-  React.useEffect(() => {
-    fetchChats();
-    setSelectedChatId(null);
-  }, [isAuthenticated, activePhoneNumber, fetchChats]);
+  }, [isAuthenticated, activePhoneNumber, twilioClient]);
 
   return (
     <Sheet
@@ -188,10 +180,37 @@ function Messages() {
           activePhoneNumber={activePhoneNumber}
           chats={chats}
           selectedChatId={selectedChatId}
-          onLoadMore={() => fetchChats(true)}
+          onLoadMore={async () => {
+            const result = await fetchChatsHelper(
+              twilioClient,
+              activePhoneNumber,
+              chats,
+              true,
+            );
+            if (result.success && result.chats) {
+              setChats((prevChats) => {
+                const chatMap = new Map<string, ChatInfo>();
+                prevChats.forEach((chat) => chatMap.set(chat.chatId, chat));
+                result.chats.forEach((chat) => {
+                  if (!chatMap.has(chat.chatId)) {
+                    chatMap.set(chat.chatId, chat);
+                  }
+                });
+                return Array.from(chatMap.values());
+              });
+            }
+          }}
           onSearchFilterChange={async (contactNumber) => {
             if (!contactNumber) {
-              fetchChats();
+              const result = await fetchChatsHelper(
+                twilioClient,
+                activePhoneNumber,
+                chats,
+                false,
+              );
+              if (result.success && result.chats) {
+                setChats(result.chats);
+              }
               return;
             }
             const result = await twilioClient.getChat(
@@ -203,7 +222,6 @@ function Messages() {
           setSelectedChat={(chat) => {
             setSelectedChatId(chat ? chat.chatId : chat);
             if (chat) {
-              // Mark chat as read
               setChats((prevChats) =>
                 prevChats.map((c) =>
                   c.chatId === chat.chatId ? { ...c, hasUnread: false } : c,
@@ -221,7 +239,15 @@ function Messages() {
       ) : (
         <NewMessagesPane
           callback={async (contactNumber: string) => {
-            await fetchChats();
+            const result = await fetchChatsHelper(
+              twilioClient,
+              activePhoneNumber,
+              chats,
+              false,
+            );
+            if (result.success && result.chats) {
+              setChats(result.chats);
+            }
             const chat = chats.filter(
               (e) => e.contactNumber === contactNumber,
             )[0];
