@@ -71,6 +71,8 @@ export default function ChatListItem(props: ChatListItemProps) {
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                overflowWrap: "break-word", // Handles long words
+                wordBreak: "break-word", // Extra safety for long strings like URLs
               }}
             >
               {chat.recentMsgContent}
