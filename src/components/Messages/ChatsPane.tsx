@@ -84,7 +84,8 @@ export default function ChatsPane(props: ChatsPaneProps) {
       sx={{
         borderRight: "1px solid",
         borderColor: "divider",
-        height: { sm: "calc(100dvh - var(--Header-height))", md: "100dvh" },
+        // height: { sm: "calc(100dvh - var(--Header-height))", md: "100dvh" },
+        height: "100%", // or `calc(100dvh - HEADER_HEIGHT)` if needed
         display: "flex",
         flexDirection: "column",
       }}

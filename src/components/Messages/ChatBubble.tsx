@@ -68,9 +68,9 @@ export default function ChatBubble(props: ChatBubbleProps) {
                     color: "var(--joy-palette-danger-400)",
                   }
                 : {},
-                {
-                  overflowWrap: "anywhere"
-                }
+              {
+                overflowWrap: "anywhere",
+              },
             ]}
           >
             {content}

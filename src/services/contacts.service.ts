@@ -4,12 +4,20 @@ import { storage } from "../storage.ts";
 
 import type { ChatInfo, TwilioMsg } from "../types.ts";
 
+type MessagePaginator = Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
+
+interface GetChatsOptions {
+    loadMore?: boolean;
+    existingChatsId?: string[];
+    chatsPageSize?: number;
+}
+
 export class ContactsService {
     private client: TwilioRawClient;
     private paginators:
         | {
-              inbound: Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
-              outbound: Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
+              inbound: MessagePaginator;
+              outbound: MessagePaginator;
           }
         | undefined;
     private globalEarliestEnder: Date | undefined;
@@ -39,24 +47,11 @@ export class ContactsService {
             return;
         }
 
-        const chatId = makeChatId(activeNumber, contactNumber);
-
-        const moreRecentMsg =
-            outbound.items[0]?.dateSent > inbound.items[0]?.dateSent
-                ? outbound.items[0]
-                : inbound.items[0];
-
-        return {
-            chatId: chatId,
-            contactNumber: contactNumber,
-            recentMsgId: moreRecentMsg.sid,
-            recentMsgDate: moreRecentMsg.dateSent,
-            recentMsgContent: moreRecentMsg.body,
-            hasUnread:
-                moreRecentMsg.sid === this.getMostRecentMsgSeen(chatId)
-                    ? false
-                    : true,
-        };
+        const moreRecentMsg = this.getMostRecentMessage(
+            outbound.items[0],
+            inbound.items[0],
+        );
+        return this.createChatInfo(activeNumber, moreRecentMsg);
     }
 
     async getChats(
@@ -65,14 +60,10 @@ export class ContactsService {
             loadMore = false,
             existingChatsId = [],
             chatsPageSize = 2,
-        }: {
-            loadMore?: boolean;
-            existingChatsId?: string[];
-            chatsPageSize?: number;
-        },
+        }: GetChatsOptions,
     ): Promise<ChatInfo[]> {
         if (!loadMore) {
-            return this.first(activeNumber);
+            return this.initializeChats(activeNumber);
         }
 
         const chats = new Map<string, ChatInfo>();
@@ -84,86 +75,67 @@ export class ContactsService {
             );
         }
 
-        let inboundPage = this.paginators.inbound;
-        let outboundPage = this.paginators.outbound;
+        let { inbound, outbound } = this.paginators;
 
         while (chats.size < chatsPageSize) {
-            // If inbound has been fully processed
-            if (
-                this.globalEarliestEnder?.getTime() ===
-                inboundPage.items.at(-1)?.dateSent.getTime()
-            ) {
-                const hasMoreInbound = inboundPage.hasNextPage();
-                if (hasMoreInbound) {
-                    inboundPage = await inboundPage.getNextPage();
-                }
-            }
+            inbound = await this.tryAdvancePaginator(inbound);
+            outbound = await this.tryAdvancePaginator(outbound);
 
-            if (
-                this.globalEarliestEnder?.getTime() ===
-                outboundPage.items.at(-1)?.dateSent.getTime()
-            ) {
-                const hasMoreoutbound = outboundPage.hasNextPage();
-                if (hasMoreoutbound) {
-                    outboundPage = await outboundPage.getNextPage();
-                }
-            }
-
-            let temp = this.getPointer(inboundPage.items, outboundPage.items);
+            let cutoffDate = this.getMostRecentMessage(
+                inbound.items.at(-1),
+                outbound.items.at(-1),
+            ).dateSent;
 
             // Merge filtered messages
-            const merged = this.mergeTwoSortedArrays(
-                inboundPage.items.filter(
+            const merged = this.mergeSortedMessages(
+                inbound.items.filter(
                     (m) => m.dateSent < this.globalEarliestEnder!,
                 ),
-                outboundPage.items.filter(
+                outbound.items.filter(
                     (m) => m.dateSent < this.globalEarliestEnder!,
                 ),
-                temp,
+                cutoffDate,
             );
 
             // If no messages to process and no more pages, break out
-            if (merged.length === 0 && !inboundPage.hasNextPage() && !outboundPage.hasNextPage()) {
+            if (
+                merged.length === 0 &&
+                !inbound.hasNextPage() &&
+                !outbound.hasNextPage()
+            ) {
                 break;
             }
 
             for (const m of merged) {
-                const contactNumber = m.direction === "inbound" ? m.from : m.to;
-                const chatId = makeChatId(activeNumber, contactNumber);
-                if (chats.has(chatId) || existingChatsId.includes(chatId)) {
+                const chatInfo = this.createChatInfo(activeNumber, m);
+                if (
+                    chats.has(chatInfo.chatId) ||
+                    existingChatsId.includes(chatInfo.chatId)
+                ) {
                     continue;
                 }
-                chats.set(chatId, {
-                    chatId,
-                    contactNumber,
-                    recentMsgId: m.sid,
-                    recentMsgDate: m.dateSent,
-                    recentMsgContent: m.body,
-                    hasUnread: m.sid !== this.getMostRecentMsgSeen(chatId),
-                });
+                chats.set(chatInfo.chatId, chatInfo);
 
                 if (chats.size >= chatsPageSize) {
                     // Ended early so back up the pointer (make more recent in the array)
-                    temp = m.dateSent;
+                    cutoffDate = m.dateSent;
                     break;
                 }
             }
 
             // Update pointers
-            this.globalEarliestEnder = temp;
+            this.globalEarliestEnder = cutoffDate;
 
             this.paginators = {
-                inbound: inboundPage,
-                outbound: outboundPage,
+                inbound,
+                outbound,
             };
         }
-
-        console.log([...chats.values()]);
 
         return [...chats.values()];
     }
 
-    private async first(activeNumber: string) {
+    private async initializeChats(activeNumber: string) {
         const chats = new Map<string, ChatInfo>();
 
         // First call — just get the first pages of both
@@ -173,33 +145,24 @@ export class ContactsService {
         ]);
 
         this.paginators = { outbound, inbound };
-        this.globalEarliestEnder = this.getPointer(
-            inbound.items,
-            outbound.items,
-        );
+        this.globalEarliestEnder = this.getMostRecentMessage(
+            inbound.items.at(-1),
+            outbound.items.at(-1),
+        ).dateSent;
 
         // Merge and slice just enough
-        const merged = this.mergeTwoSortedArrays(
+        const merged = this.mergeSortedMessages(
             inbound.items,
             outbound.items,
             this.globalEarliestEnder,
         );
 
         for (const m of merged) {
-            const contactNumber = m.direction === "inbound" ? m.from : m.to;
-            const chatId = makeChatId(activeNumber, contactNumber);
-            if (chats.has(chatId)) {
+            const chatInfo = this.createChatInfo(activeNumber, m);
+            if (chats.has(chatInfo.chatId)) {
                 continue;
             }
-
-            chats.set(chatId, {
-                chatId,
-                contactNumber,
-                recentMsgId: m.sid,
-                recentMsgDate: m.dateSent,
-                recentMsgContent: m.body,
-                hasUnread: m.sid !== this.getMostRecentMsgSeen(chatId),
-            });
+            chats.set(chatInfo.chatId, chatInfo);
         }
 
         return [...chats.values()];
@@ -216,26 +179,42 @@ export class ContactsService {
         storage.updateMostRecentlySeenMessageId(chatId, messageId);
     }
 
-    private getPointer(inbound: TwilioMsg[], outbound: TwilioMsg[]) {
-        const oldestInboundDate = inbound.at(-1)?.dateSent;
-        const oldestOutboundDate = outbound.at(-1)?.dateSent;
-
-        const dates = [oldestInboundDate, oldestOutboundDate].filter(
-            Boolean,
-        ) as Date[];
-        return new Date(Math.max(...dates.map((d) => d.getTime())));
-    }
-
     private getMostRecentMsgSeen(chatId: string) {
         return storage.get("mostRecentMessageSeenPerChat")[chatId];
     }
 
-    private mergeTwoSortedArrays(
+    private createChatInfo(activeNumber: string, message: TwilioMsg): ChatInfo {
+        const contactNumber =
+            message.direction === "inbound" ? message.from : message.to;
+        const chatId = makeChatId(activeNumber, contactNumber);
+
+        return {
+            chatId,
+            contactNumber,
+            recentMsgId: message.sid,
+            recentMsgDate: message.dateSent,
+            recentMsgContent: message.body,
+            hasUnread: message.sid !== this.getMostRecentMsgSeen(chatId),
+        };
+    }
+
+    private getMostRecentMessage(
+        outboundMsg?: TwilioMsg,
+        inboundMsg?: TwilioMsg,
+    ): TwilioMsg {
+        if (!outboundMsg) return inboundMsg!;
+        if (!inboundMsg) return outboundMsg;
+
+        return outboundMsg.dateSent > inboundMsg.dateSent
+            ? outboundMsg
+            : inboundMsg;
+    }
+
+    private mergeSortedMessages(
         inbound: TwilioMsg[],
         outbound: TwilioMsg[],
         oldestAllowedDate?: Date,
-    ) {
-        const full: TwilioMsg[] = [];
+    ): TwilioMsg[] {
         const filteredInbound = oldestAllowedDate
             ? inbound.filter((msg) => msg.dateSent >= oldestAllowedDate)
             : inbound;
@@ -244,25 +223,37 @@ export class ContactsService {
             ? outbound.filter((msg) => msg.dateSent >= oldestAllowedDate)
             : outbound;
 
+        const result: TwilioMsg[] = [];
         let i = 0;
         let j = 0;
 
+        // Merge while both arrays have elements
         while (i < filteredInbound.length && j < filteredOutbound.length) {
             if (filteredInbound[i].dateSent > filteredOutbound[j].dateSent) {
-                full.push(filteredInbound[i++]);
+                result.push(filteredInbound[i++]);
             } else {
-                full.push(filteredOutbound[j++]);
+                result.push(filteredOutbound[j++]);
             }
         }
 
-        while (i < filteredInbound.length) {
-            full.push(filteredInbound[i++]);
+        // Add remaining elements
+        result.push(...filteredInbound.slice(i), ...filteredOutbound.slice(j));
+
+        return result;
+    }
+
+    private async tryAdvancePaginator(paginator: MessagePaginator) {
+        const lastMessage = paginator.items.at(-1);
+        if (
+            !lastMessage ||
+            this.globalEarliestEnder?.getTime() !==
+                lastMessage.dateSent.getTime()
+        ) {
+            return paginator;
         }
 
-        while (j < filteredOutbound.length) {
-            full.push(filteredOutbound[j++]);
-        }
-
-        return full;
+        return paginator.hasNextPage()
+            ? await paginator.getNextPage()
+            : paginator;
     }
 }

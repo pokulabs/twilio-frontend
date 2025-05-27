@@ -95,7 +95,6 @@ export default function Sidebar() {
       <Box
         sx={{
           minHeight: 0,
-          overflow: "hidden auto",
           flexGrow: 1,
           display: "flex",
           flexDirection: "column",

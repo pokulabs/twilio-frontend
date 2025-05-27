@@ -174,6 +174,8 @@ function Messages() {
           zIndex: 100,
           width: "100%",
           top: 52,
+          height: { xs: "calc(100dvh - 52px)", sm: "100dvh" }, // Need this line
+          overflow: "hidden", // block parent scrolling
         }}
       >
         <ChatsPane
