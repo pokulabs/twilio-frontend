@@ -7,11 +7,11 @@ import NewMessagesPane from "./NewMessagePane";
 import { useAuthedCreds } from "../../context/CredentialsContext";
 import { makeChatId } from "../../utils";
 import withAuth from "../../context/withAuth";
-
-import type { ChatInfo } from "../../types";
 import { apiClient } from "../../api-client";
 import { useWebSocketEvent } from "../../hooks/use-websocket";
 import { useSortedChats } from "../../hooks/use-sorted-chats";
+
+import type { ChatInfo } from "../../types";
 
 function Messages() {
   const { isAuthenticated, twilioClient, activePhoneNumber, eventEmitter } =
@@ -94,15 +94,21 @@ function Messages() {
     };
   }, [isAuthenticated, activePhoneNumber]);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
+  const fetchChats = React.useCallback(
+    async (loadMore = false) => {
       const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
-        twilioClient.getChats(activePhoneNumber),
+        twilioClient.getChats(activePhoneNumber, {
+          loadMore,
+          existingChatsId: chats.map((e) => e.chatId),
+        }),
         apiClient.getFlaggedChats(),
       ]);
 
       if (newChatsResult.status === "fulfilled") {
         const newChats = newChatsResult.value;
+
+        // Apply flag status to any new matched chats
+        // TODO: what if a flagged chat is not in currently loaded chats
         if (flaggedChatsResult.status === "fulfilled") {
           const flaggedChats = flaggedChatsResult.value.data.data;
           for (const c of newChats) {
@@ -115,15 +121,40 @@ function Messages() {
           }
         }
 
-        setChats(newChats);
+        if (loadMore) {
+          // Merge new chats with existing chats
+          setChats((prevChats) => {
+            // Create a map of chatIds to filter out duplicates
+            const chatMap = new Map<string, ChatInfo>();
+
+            // Add all existing chats to the map
+            prevChats.forEach((chat) => chatMap.set(chat.chatId, chat));
+
+            // Add or update with new chats
+            newChats.forEach((chat) => {
+              // Only add if it doesn't already exist
+              if (!chatMap.has(chat.chatId)) {
+                chatMap.set(chat.chatId, chat);
+              }
+            });
+
+            // Convert map back to array
+            return Array.from(chatMap.values());
+          });
+        } else {
+          setChats(newChats);
+        }
       } else {
         console.error("Failed to fetch chats: ", newChatsResult.reason);
       }
-    };
+    },
+    [twilioClient, activePhoneNumber],
+  );
 
-    fetchData();
+  React.useEffect(() => {
+    fetchChats();
     setSelectedChatId(null);
-  }, [isAuthenticated, activePhoneNumber]);
+  }, [isAuthenticated, activePhoneNumber, fetchChats]);
 
   return (
     <Sheet
@@ -157,6 +188,18 @@ function Messages() {
           activePhoneNumber={activePhoneNumber}
           chats={chats}
           selectedChatId={selectedChatId}
+          onLoadMore={() => fetchChats(true)}
+          onSearchFilterChange={async (contactNumber) => {
+            if (!contactNumber) {
+              fetchChats();
+              return;
+            }
+            const result = await twilioClient.getChat(
+              activePhoneNumber,
+              contactNumber,
+            );
+            setChats(result ? [result] : []);
+          }}
           setSelectedChat={(chat) => {
             setSelectedChatId(chat ? chat.chatId : chat);
             if (chat) {
@@ -178,16 +221,11 @@ function Messages() {
       ) : (
         <NewMessagesPane
           callback={async (contactNumber: string) => {
-            try {
-              const chatsData = await twilioClient.getChats(activePhoneNumber)!;
-              const chat = chatsData.filter(
-                (e) => e.contactNumber === contactNumber,
-              )[0];
-              setChats(chatsData);
-              setSelectedChatId(chat.chatId);
-            } catch (error) {
-              console.error("Failed to fetch chats:", error);
-            }
+            await fetchChats();
+            const chat = chats.filter(
+              (e) => e.contactNumber === contactNumber,
+            )[0];
+            setSelectedChatId(chat.chatId);
           }}
           activePhoneNumber={activePhoneNumber}
         />

@@ -5,8 +5,6 @@ import { PhoneNumbersService } from "./services/phone-numbers.service";
 import TwilioRawClient from "./services/twilio-raw-client";
 import { storage } from "./storage";
 
-import type { ChatInfo, PlainMessage } from "./types";
-
 class TwilioClient {
     axiosInstance: TwilioRawClient;
     sid: string;
@@ -59,14 +57,31 @@ class TwilioClient {
         return this.phoneNumbersService.getPhoneNumbers();
     }
 
-    async getChats(activeNumber: string): Promise<ChatInfo[]> {
-        return this.contactsService.getChats(activeNumber);
+    async getChat(activeNumber: string, contactNumber: string) {
+        return this.contactsService.getChat(activeNumber, contactNumber);
     }
 
-    async getMessages(
+    async getChats(
         activeNumber: string,
-        contactNumber: string,
-    ): Promise<PlainMessage[]> {
+        {
+            loadMore = false,
+            existingChatsId = [],
+        }: {
+            loadMore?: boolean;
+            existingChatsId?: string[];
+        },
+    ) {
+        return this.contactsService.getChats(activeNumber, {
+            loadMore,
+            existingChatsId,
+        });
+    }
+
+    hasMoreChats() {
+        return this.contactsService.hasMoreChats();
+    }
+
+    async getMessages(activeNumber: string, contactNumber: string) {
         return this.messagesService.getMessages(activeNumber, contactNumber);
     }
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   IconButton,
   Input,
@@ -8,6 +8,9 @@ import {
   Sheet,
   Typography,
   List,
+  Button,
+  CircularProgress,
+  ListItem,
 } from "@mui/joy";
 import {
   EditNoteRounded,
@@ -26,13 +29,55 @@ type ChatsPaneProps = {
   chats: ChatInfo[];
   setSelectedChat: (chat: ChatInfo | null) => void;
   selectedChatId: string | null;
+  onLoadMore: () => Promise<void>;
+  onSearchFilterChange: (contactNumber: string) => Promise<void>;
 };
 
 export default function ChatsPane(props: ChatsPaneProps) {
-  const { chats, setSelectedChat, selectedChatId, activePhoneNumber } = props;
-  const { phoneNumbers, setActivePhoneNumber, whatsappNumbers } =
+  const {
+    chats,
+    setSelectedChat,
+    selectedChatId,
+    activePhoneNumber,
+    onLoadMore,
+    onSearchFilterChange,
+  } = props;
+
+  const { twilioClient, phoneNumbers, setActivePhoneNumber, whatsappNumbers } =
     useAuthedCreds();
   const [contactsFilter, setContactsFilter] = useState("");
+  const [hasMore, setHasMore] = useState(false);
+  const [hasMoreChats, setHasMoreChats] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+
+  useEffect(() => {
+    // Check if there are more chats to load
+    setHasMoreChats(twilioClient.hasMoreChats());
+  }, [chats]);
+
+  const handleLoadMore = async () => {
+    if (hasMore) return;
+
+    setHasMore(true);
+    try {
+      await onLoadMore();
+    } finally {
+      setHasMore(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!contactsFilter.trim() || isSearching) return;
+
+    setIsSearching(true);
+    try {
+      await onSearchFilterChange(contactsFilter);
+    } catch (err) {
+      console.error("Search failed:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   return (
     <Sheet
@@ -110,15 +155,37 @@ export default function ChatsPane(props: ChatsPaneProps) {
         <Input
           onChange={(event) => {
             setContactsFilter(event.target.value);
+            if (!event.target.value) {
+              onSearchFilterChange("");
+            }
           }}
           value={contactsFilter}
-          startDecorator={<SearchRounded />}
-          placeholder="Filter contacts"
-          endDecorator={
-            <IconButton size="sm" onClick={() => setContactsFilter("")}>
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+          startDecorator={
+            <IconButton
+              size="sm"
+              onClick={() => {
+                setContactsFilter("");
+                onSearchFilterChange("");
+              }}
+            >
               <CloseRounded />
             </IconButton>
           }
+          endDecorator={
+            <IconButton
+              variant="soft"
+              onClick={handleSearch}
+              disabled={isSearching || !contactsFilter.trim()}
+            >
+              {isSearching ? <CircularProgress size="sm" /> : <SearchRounded />}
+            </IconButton>
+          }
+          placeholder="Search for chat"
         />
       </Stack>
       <List
@@ -130,16 +197,29 @@ export default function ChatsPane(props: ChatsPaneProps) {
           "--ListItem-paddingX": "1rem",
         }}
       >
-        {chats
-          .filter((e) => e.contactNumber.includes(contactsFilter))
-          .map((chat) => (
-            <ChatListItem
-              key={chat.chatId}
-              chat={chat}
-              setSelectedChat={setSelectedChat}
-              isSelected={selectedChatId === chat.chatId}
-            />
-          ))}
+        {chats.map((chat) => (
+          <ChatListItem
+            key={chat.chatId}
+            chat={chat}
+            setSelectedChat={setSelectedChat}
+            isSelected={selectedChatId === chat.chatId}
+          />
+        ))}
+
+        {hasMoreChats && !contactsFilter && (
+          <ListItem sx={{ justifyContent: "center", py: 2 }}>
+            <Button
+              variant="outlined"
+              color="neutral"
+              size="sm"
+              disabled={hasMore}
+              onClick={handleLoadMore}
+              startDecorator={hasMore ? <CircularProgress size="sm" /> : null}
+            >
+              {hasMore ? "Loading..." : "Load More"}
+            </Button>
+          </ListItem>
+        )}
       </List>
     </Sheet>
   );
