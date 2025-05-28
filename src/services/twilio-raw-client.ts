@@ -61,7 +61,7 @@ class TwilioRawClient {
             params: {
                 From: props.from,
                 To: props.to,
-                PageSize: props.limit ?? 50,
+                PageSize: props.limit ?? 1000,
             },
         });
         return new Paginator(

@@ -59,7 +59,7 @@ export class ContactsService {
         {
             loadMore = false,
             existingChatsId = [],
-            chatsPageSize = 2,
+            chatsPageSize = 10,
         }: GetChatsOptions,
     ): Promise<ChatInfo[]> {
         if (!loadMore) {
