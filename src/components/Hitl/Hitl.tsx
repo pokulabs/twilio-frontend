@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/joy";
 import LlmKey from "./LlmKey";
 import DecisionAgent from "./Agent";
 import withLoggedIn from "../../context/withLoggedIn";
+import HumanAsATool from "./HumanAsATool";
 
 function Hitl() {
   return (
@@ -22,6 +23,7 @@ function Hitl() {
 
       <LlmKey />
       <DecisionAgent />
+      <HumanAsATool />
     </Box>
   );
 }

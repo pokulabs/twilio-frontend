@@ -28,12 +28,16 @@ class ApiClient {
         });
     }
 
+    async checkTwilioCredsExist() {
+        return this.api.get<{hasKey: boolean;}>("/account/keys/twilio");
+    }
+
     async checkLlmKeyExists() {
-        return this.api.get("/account/keys/openai");
+        return this.api.get<{hasKey: boolean;}>("/account/keys/openai");
     }
 
     async checkVapiKeyExists() {
-        return this.api.get("/account/keys/vapi");
+        return this.api.get<{hasKey: boolean;}>("/account/keys/vapi");
     }
 
     async createLlmKey(key: string) {
@@ -48,6 +52,25 @@ class ApiClient {
             platform: "vapi",
             key: key,
         });
+    }
+
+    async createTwilioKey(sid: string, key: string) {
+        return this.api.post("/account/keys", {
+            platform: "twilio",
+            id: sid,
+            key: key,
+        });
+    }
+
+    async saveAccount(humanNumber: string, agentNumber: string) {
+        return this.api.post("/account/hitl", {
+            humanNumber: humanNumber,
+            agentNumber: agentNumber,
+        });
+    }
+
+    async getAccount() {
+        return this.api.get<{humanNumber: string; agentNumber: string;} | undefined>("/account/hitl");
     }
 
     async getAgents() {
