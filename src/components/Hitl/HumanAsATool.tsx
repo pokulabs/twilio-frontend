@@ -48,7 +48,7 @@ export default function HumanAsATool() {
       <Typography
         level="h4"
       >
-        Human As A Tool
+        Human in the Loop
       </Typography>
 
       <Typography>Agent number:</Typography>
