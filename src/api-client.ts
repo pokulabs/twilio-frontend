@@ -151,6 +151,22 @@ class ApiClient {
     async refresh() {
         return this.api.post("/auth/refresh");
     }
+
+    async createCampaign(
+        template: string,
+        recipients: Recipient[],
+        senders: string[],
+    ) {
+        return this.api.post("/campaigns", {
+            template: template,
+            recipients: recipients,
+            senders: senders,
+        });
+    }
+
+    async getCampaigns() {
+        return this.api.get("/campaigns");
+    }
 }
 
 export const apiClient = new ApiClient();

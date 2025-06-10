@@ -22,6 +22,7 @@ import {
   LogoutRounded,
   DescriptionRounded,
   SportsMartialArtsRounded,
+  CampaignRounded,
 } from "@mui/icons-material";
 
 import logo from "../assets/logo.png"; // Import the logo
@@ -119,6 +120,18 @@ export default function Sidebar() {
               <QuestionAnswerRounded />
               <ListItemContent>
                 <Typography level="title-sm">Messages</Typography>
+              </ListItemContent>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              component={Link}
+              to="/campaigns"
+              selected={location.pathname === "/campaigns"}
+            >
+              <CampaignRounded />
+              <ListItemContent>
+                <Typography level="title-sm">Campaigns</Typography>
               </ListItemContent>
             </ListItemButton>
           </ListItem>

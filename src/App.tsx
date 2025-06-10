@@ -13,6 +13,7 @@ import Hitl from "./components/Hitl/Hitl";
 import { CredentialsProvider } from "./context/CredentialsContext";
 import { AuthProvider } from "./context/AuthContext";
 import { WebsocketProvider } from "./context/WebsocketProvider";
+import Campaigns from "./components/Campaigns/Campaigns";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
                     <Header />
                     <Routes>
                       <Route path="/" element={<Messages />} />
+                      <Route path="/campaigns" element={<Campaigns />} />
                       <Route path="/integrations" element={<Integrations />} />
                       <Route path="/account" element={<Account />} />
                       <Route path="/hitl" element={<Hitl />} />
