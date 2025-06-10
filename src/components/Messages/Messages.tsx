@@ -167,7 +167,6 @@ export function useNewMessageListener(
       const newChat: ChatInfo = {
         chatId,
         contactNumber,
-        hasUnread: true,
         recentMsgContent: msg.content,
         recentMsgDate: new Date(msg.timestamp),
         recentMsgId: msg.id,
@@ -186,9 +185,12 @@ export function useNewMessageListener(
         const index = prev.findIndex((c) => c.chatId === chatId);
         if (index >= 0) {
           const updated = [...prev];
+          newChat.hasUnread = msg.direction === "inbound" ? true : updated[index].hasUnread;
           updated[index] = { ...updated[index], ...newChat };
           return updated;
         }
+
+        newChat.hasUnread = msg.direction === "inbound" ? true : false;
         return [...prev, newChat];
       });
 
