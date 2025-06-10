@@ -50,8 +50,8 @@ export class MessagesService {
             timestamp: e.dateSent.getTime(),
             direction:
                 e.direction === "inbound"
-                    ? ("received" as "received")
-                    : ("sent" as "sent"), // Explicitly type the direction
+                    ? ("inbound" as "inbound")
+                    : ("outbound" as "outbound"), // Explicitly type the direction
             from: e.from,
             to: e.to,
             id: e.sid,

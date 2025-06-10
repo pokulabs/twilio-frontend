@@ -23,13 +23,10 @@ export default function MessagesPane(props: MessagesPaneProps) {
       .getMessages(activePhoneNumber, chat.contactNumber)
       .then((chatMsgs) => {
         setChatMessages(chatMsgs);
-        const mostRecentMessageId = chatMsgs.at(-1)?.id;
-        if (mostRecentMessageId) {
-          return twilioClient.updateMostRecentlySeenMessage(
-            chat.chatId,
-            mostRecentMessageId,
-          );
-        }
+        return twilioClient.updateMostRecentlySeenMessageId(
+          chat.chatId,
+          chatMsgs,
+        );
       })
       .catch((err) => console.error("Failed to fetch chat messages:", err));
 
@@ -67,7 +64,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
       >
         <Stack spacing={2} sx={{ justifyContent: "flex-end" }}>
           {chatMessages.map((message, index) => {
-            const isYou = message.direction === "sent";
+            const isYou = message.direction === "outbound";
             return (
               <Stack
                 key={index}

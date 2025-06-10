@@ -9,7 +9,7 @@ type ChatBubbleProps = PlainMessage;
 
 export default function ChatBubble(props: ChatBubbleProps) {
   const { content, timestamp, direction, status } = props;
-  const isSent = direction === "sent";
+  const isSent = direction === "outbound";
   return (
     <Box sx={{ maxWidth: "60%", minWidth: "auto" }}>
       <Stack

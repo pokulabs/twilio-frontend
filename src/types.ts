@@ -6,30 +6,18 @@ export type ChatInfo = {
     recentMsgDate: Date;
     recentMsgId: string;
     recentMsgContent: string;
-    hasUnread: boolean;
+    recentMsgDirection: MessageDirection;
+    hasUnread?: boolean;
     isDisabled?: boolean;
     isFlagged?: boolean;
     flaggedReason?: string;
     flaggedMessage?: string;
 };
 
-export type MessageProps = {
-    id: string;
-    content: string;
-    timestamp: string;
-    unread?: boolean;
-    sender: ChatInfo | "You";
-    attachment?: {
-        fileName: string;
-        type: string;
-        size: string;
-    };
-};
-
 export type PlainMessage = {
     content: string;
     timestamp: number;
-    direction: "sent" | "received";
+    direction: MessageDirection;
     from: string;
     to: string;
     id: string;

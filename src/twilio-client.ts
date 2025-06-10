@@ -4,6 +4,7 @@ import { ContactsService } from "./services/contacts.service";
 import { PhoneNumbersService } from "./services/phone-numbers.service";
 import TwilioRawClient from "./services/twilio-raw-client";
 import { storage } from "./storage";
+import { ChatInfo, PlainMessage } from "./types";
 
 class TwilioClient {
     axiosInstance: TwilioRawClient;
@@ -89,11 +90,15 @@ class TwilioClient {
         return this.messagesService.sendMessage(activeNumber, to, body);
     }
 
-    updateMostRecentlySeenMessage(chatId: string, messageId: string) {
+    updateMostRecentlySeenMessageId(chatId: string, msgs: PlainMessage[]) {
         return this.contactsService.updateMostRecentlySeenMessageId(
             chatId,
-            messageId,
+            msgs,
         );
+    }
+
+    hasUnread(activeNumber: string, chats: ChatInfo[]) {
+        return this.contactsService.hasUnread(activeNumber, chats);
     }
 }
 

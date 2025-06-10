@@ -2,7 +2,7 @@ import { makeChatId } from "../utils.ts";
 import TwilioRawClient from "./twilio-raw-client.ts";
 import { storage } from "../storage.ts";
 
-import type { ChatInfo, TwilioMsg } from "../types.ts";
+import type { ChatInfo, PlainMessage, TwilioMsg } from "../types.ts";
 
 type MessagePaginator = Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
 
@@ -163,6 +163,7 @@ export class ContactsService {
             this.globalEarliestEnder,
         );
 
+        // Take advantage of the known sort order, earliest to latest
         for (const m of merged) {
             const chatInfo = this.createChatInfo(activeNumber, m);
             if (chats.has(chatInfo.chatId)) {
@@ -181,12 +182,29 @@ export class ContactsService {
         );
     }
 
-    updateMostRecentlySeenMessageId(chatId: string, messageId: string) {
-        storage.updateMostRecentlySeenMessageId(chatId, messageId);
+    updateMostRecentlySeenMessageId(chatId: string, msgs: PlainMessage[]) {
+        // Take advantage of known sort order, oldest to newest
+        const mostRecentInboundMsg = msgs.slice().reverse().find(m => m.direction === "inbound");
+        if (mostRecentInboundMsg) {
+            storage.updateMostRecentlySeenMessageId(chatId, mostRecentInboundMsg.id);
+        }
     }
 
-    private getMostRecentMsgSeen(chatId: string) {
-        return storage.get("mostRecentMessageSeenPerChat")[chatId];
+    hasUnread(activeNumber: string, chats: ChatInfo[]) {
+        return Promise.all(chats.map(async c => {
+            const lastInboundMsgId = storage.get("mostRecentMessageSeenPerChat")[c.chatId];
+            const msgs = await this.client.getMessages({ from: c.contactNumber, to: activeNumber });
+            // Take advantage of the known sort order, most recent to least
+            const earliestInboundMsg = msgs.items.find(m => m.direction === "inbound");
+            if (earliestInboundMsg) {
+                if (earliestInboundMsg.sid === lastInboundMsgId) {
+                    return false;
+                }
+                return true;
+            }
+
+            return false;
+        }));
     }
 
     private createChatInfo(activeNumber: string, message: TwilioMsg): ChatInfo {
@@ -200,7 +218,7 @@ export class ContactsService {
             recentMsgId: message.sid,
             recentMsgDate: message.dateSent,
             recentMsgContent: message.body,
-            hasUnread: message.sid !== this.getMostRecentMsgSeen(chatId),
+            recentMsgDirection: message.direction === "inbound" ? "inbound" : "outbound",
         };
     }
 

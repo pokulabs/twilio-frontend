@@ -102,7 +102,7 @@ export class EventEmitter {
     }
 
     private emitNewMsgs(msgs: TwilioMsg[]) {
-        const msgsOldestToNewest = msgs.reverse();
+        const msgsOldestToNewest = msgs.slice().reverse();
         for (const cb of this.callbacks["new-message"]) {
             for (const msg of msgsOldestToNewest) {
                 cb({
@@ -110,8 +110,8 @@ export class EventEmitter {
                     timestamp: msg.dateSent.getTime(),
                     direction:
                         msg.direction === "inbound"
-                            ? ("received" as "received")
-                            : ("sent" as "sent"), // Explicitly type the direction
+                            ? ("inbound" as "inbound")
+                            : ("outbound" as "outbound"), // Explicitly type the direction
                     from: msg.from,
                     to: msg.to,
                     id: msg.sid,
