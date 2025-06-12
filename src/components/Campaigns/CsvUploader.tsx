@@ -1,11 +1,10 @@
 import { useState } from "react";
 import Papa from "papaparse";
-import { Stack, Typography, Sheet } from "@mui/joy";
+import { Stack, Typography, Sheet, IconButton, Box } from "@mui/joy";
 import Dropzone from "react-dropzone";
 import { UploadFileRounded } from "@mui/icons-material";
 
 export type Recipient = {
-  phone: string;
   [index: string]: any;
 };
 
@@ -16,6 +15,20 @@ type Props = {
 export default function CsvUploader(props: Props) {
   const { onRecipients } = props;
   const [error, setError] = useState("");
+  const [fileName, setFileName] = useState("");
+
+  const parseCsv = (file: File) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      worker: true,
+      complete: (result) => {
+        const data = result.data as Recipient[];
+        onRecipients(data);
+      },
+      error: () => setError("Failed to parse CSV"),
+    });
+  };
 
   const handleDrop = (files: File[]) => {
     setError("");
@@ -27,21 +40,8 @@ export default function CsvUploader(props: Props) {
       return;
     }
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      worker: true,
-      complete: (result) => {
-        const data = result.data as Recipient[];
-        if (!data[0]?.phone) {
-          setError("CSV must include a 'phone' column.");
-          return;
-        }
-
-        onRecipients(data);
-      },
-      error: () => setError("Failed to parse CSV"),
-    });
+    setFileName(file.name); // Set file name
+    parseCsv(file);
   };
 
   return (
@@ -52,29 +52,38 @@ export default function CsvUploader(props: Props) {
         multiple={false}
       >
         {({ getRootProps, getInputProps, isDragActive }) => (
-          <Sheet
-            sx={{
-              p: 4,
-              border: "2px dashed",
-              borderColor: isDragActive
-                ? "primary.solidBg"
-                : "neutral.outlinedBorder",
-              borderRadius: "lg",
-              textAlign: "center",
-              cursor: "pointer",
-            }}
-          >
+          <Sheet>
             <div {...getRootProps()}>
-              <input {...getInputProps()} />
-              <UploadFileRounded color="primary" />
-              <Typography mt={1}>
-                {isDragActive
-                  ? "Drop the CSV here..."
-                  : "Drag CSV here or click to upload"}
-              </Typography>
-              <Typography>
-                Max file size: <b>5MB</b>
-              </Typography>
+              <Box
+                sx={{
+                  cursor: "pointer",
+                  padding: 3,
+                  border: "2px dashed",
+                  borderColor: isDragActive
+                    ? "primary.solidBg"
+                    : "neutral.outlinedBorder",
+                  borderRadius: "lg",
+                  textAlign: "center",
+                }}
+              >
+                <input {...getInputProps()} />
+                <IconButton>
+                  <UploadFileRounded color="primary" />
+                </IconButton>
+                <Typography mt={1}>
+                  {isDragActive
+                    ? "Drop the CSV here..."
+                    : "Drag CSV here or click to upload"}
+                </Typography>
+                <Typography color="neutral" fontSize={14}>
+                  Up to 5MB
+                </Typography>
+                {fileName && (
+                  <Typography mt={1} fontSize={14} color="primary">
+                    Uploaded: {fileName}
+                  </Typography>
+                )}
+              </Box>
             </div>
           </Sheet>
         )}

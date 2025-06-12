@@ -184,27 +184,42 @@ export class ContactsService {
 
     updateMostRecentlySeenMessageId(chatId: string, msgs: PlainMessage[]) {
         // Take advantage of known sort order, oldest to newest
-        const mostRecentInboundMsg = msgs.slice().reverse().find(m => m.direction === "inbound");
+        const mostRecentInboundMsg = msgs
+            .slice()
+            .reverse()
+            .find((m) => m.direction === "inbound");
         if (mostRecentInboundMsg) {
-            storage.updateMostRecentlySeenMessageId(chatId, mostRecentInboundMsg.id);
+            storage.updateMostRecentlySeenMessageId(
+                chatId,
+                mostRecentInboundMsg.id,
+            );
         }
     }
 
     hasUnread(activeNumber: string, chats: ChatInfo[]) {
-        return Promise.all(chats.map(async c => {
-            const lastInboundMsgId = storage.get("mostRecentMessageSeenPerChat")[c.chatId];
-            const msgs = await this.client.getMessages({ from: c.contactNumber, to: activeNumber });
-            // Take advantage of the known sort order, most recent to least
-            const earliestInboundMsg = msgs.items.find(m => m.direction === "inbound");
-            if (earliestInboundMsg) {
-                if (earliestInboundMsg.sid === lastInboundMsgId) {
-                    return false;
+        return Promise.all(
+            chats.map(async (c) => {
+                const lastInboundMsgId = storage.get(
+                    "mostRecentMessageSeenPerChat",
+                )[c.chatId];
+                const msgs = await this.client.getMessages({
+                    from: c.contactNumber,
+                    to: activeNumber,
+                });
+                // Take advantage of the known sort order, most recent to least
+                const earliestInboundMsg = msgs.items.find(
+                    (m) => m.direction === "inbound",
+                );
+                if (earliestInboundMsg) {
+                    if (earliestInboundMsg.sid === lastInboundMsgId) {
+                        return false;
+                    }
+                    return true;
                 }
-                return true;
-            }
 
-            return false;
-        }));
+                return false;
+            }),
+        );
     }
 
     private createChatInfo(activeNumber: string, message: TwilioMsg): ChatInfo {
@@ -218,7 +233,8 @@ export class ContactsService {
             recentMsgId: message.sid,
             recentMsgDate: message.dateSent,
             recentMsgContent: message.body,
-            recentMsgDirection: message.direction === "inbound" ? "inbound" : "outbound",
+            recentMsgDirection:
+                message.direction === "inbound" ? "inbound" : "outbound",
         };
     }
 

@@ -7,6 +7,10 @@ import {
   Checkbox,
   Grid,
   Table,
+  Select,
+  Option,
+  Input,
+  Box,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useCredentials } from "../../context/CredentialsContext";
@@ -21,13 +25,23 @@ const hydrate = (t: string, r: Recipient) => {
   return text;
 };
 
-export default function NewCampaign() {
+type NewCampaignProps = {
+  onComplete: () => void;
+  onCancel: () => void;
+};
+
+export default function NewCampaign({
+  onComplete,
+  onCancel,
+}: NewCampaignProps) {
   const { phoneNumbers, whatsappNumbers } = useCredentials();
   const [senderNumbers, setSenderNumbers] = useState<string[]>([]);
-
   const [recipients, setRecipients] = useState<Recipient[]>([]);
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [phoneNumberHeader, setPhoneNumberHeader] = useState("");
+  const [campaignName, setCampaignName] = useState("");
   const [template, setTemplate] = useState(
-    "Hi {{name}}, thanks for visiting {{company}}!",
+    `Create your template here—use {{ColumnName}} to personalize each message.\n\nExample:\nHi {{FirstName}}, thanks for visiting {{Company}}!`,
   );
 
   const handleCheckboxChange = (number: string) => {
@@ -44,31 +58,57 @@ export default function NewCampaign() {
         New Campaign
       </Typography>
 
-      <Typography>Send number(s):</Typography>
-
-      <Grid container>
-        {phoneNumbers.concat(whatsappNumbers).map((number) => (
-          <Grid xs={6} key={number}>
-            <Checkbox
-              label={number}
-              checked={senderNumbers.includes(number)}
-              onChange={() => handleCheckboxChange(number)}
-            />
-          </Grid>
-        ))}
-      </Grid>
-
-      <CsvUploader
-        onRecipients={(data) => {
-          setRecipients(data);
-        }}
+      <Input
+        placeholder="Campaign name"
+        value={campaignName}
+        onChange={(e) => setCampaignName(e.target.value)}
       />
+
+      <Stack gap={1}>
+        <Typography>Select number(s) to send campaign from:</Typography>
+        <Grid container>
+          {phoneNumbers.concat(whatsappNumbers).map((number) => (
+            <Grid xs={6} key={number}>
+              <Checkbox
+                label={number}
+                checked={senderNumbers.includes(number)}
+                onChange={() => handleCheckboxChange(number)}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Stack>
+
+      <Stack gap={1}>
+        <Typography>Upload receipients list:</Typography>
+        <CsvUploader
+          onRecipients={(data) => {
+            setRecipients(data);
+            setHeaders(Object.keys(data[0]));
+          }}
+        />
+      </Stack>
 
       <Textarea
         minRows={3}
         value={template}
         onChange={(e) => setTemplate(e.target.value)}
       />
+
+      <Select
+        disabled={!recipients.length}
+        placeholder="Select the phone number column"
+        value={phoneNumberHeader}
+        onChange={(_event, newPhoneNumber) =>
+          setPhoneNumberHeader(newPhoneNumber!)
+        }
+      >
+        {headers.map((e) => (
+          <Option key={e} value={e}>
+            {e}
+          </Option>
+        ))}
+      </Select>
 
       {recipients.length > 0 && (
         <>
@@ -83,7 +123,7 @@ export default function NewCampaign() {
             <tbody>
               {recipients.slice(0, 5).map((r, i) => (
                 <tr key={i}>
-                  <td>{r.phone}</td>
+                  <td>{phoneNumberHeader && r[phoneNumberHeader]}</td>
                   <td>{hydrate(template, r)}</td>
                 </tr>
               ))}
@@ -93,16 +133,32 @@ export default function NewCampaign() {
       )}
 
       <Button
-        disabled={!senderNumbers.length || !recipients.length}
+        disabled={
+          !campaignName ||
+          !senderNumbers.length ||
+          !recipients.length ||
+          !phoneNumberHeader
+        }
         onClick={async () => {
           try {
-            await apiClient.createCampaign(template, recipients, senderNumbers);
+            await apiClient.createCampaign(
+              campaignName,
+              template,
+              recipients,
+              senderNumbers,
+              phoneNumberHeader,
+            );
           } catch (err) {
             console.error("Error creating campaign:", err);
           }
+          onComplete();
         }}
       >
         Send Campaign
+      </Button>
+
+      <Button onClick={onCancel} variant="outlined" color="neutral">
+        Cancel
       </Button>
     </Stack>
   );
