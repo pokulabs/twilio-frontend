@@ -28,27 +28,10 @@ function Campaigns() {
     fetch();
   }, []);
 
-  if (!isAuthenticated) {
-    return (
-      <Box
-        sx={{ marginTop: 20, p: 3, mx: "auto", width: "100%", maxWidth: 400 }}
-      >
-        <Card sx={{ pb: 5 }}>
-          <Typography level="h3" sx={{ mb: 2, textAlign: "center" }}>
-            Account
-          </Typography>
-          <Typography>
-            Some Poku features require an account to work.
-          </Typography>
-        </Card>
-      </Box>
-    );
-  }
-
   if (propaganda) {
     return (
       <Box sx={{ mt: 10, p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}>
-        Email us at hello@pokulabs.com to access this feature!
+        Email us at <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a> to access this feature!
       </Box>
     );
   }
