@@ -4,18 +4,26 @@ import NewCampaign from "./NewCampaign";
 import CampaignsTable from "./CampaignsTable";
 import { useEffect, useState } from "react";
 import { apiClient } from "../../api-client";
+import { AxiosError } from "axios";
+import withLoggedIn from "../../context/withLoggedIn";
 
-export default function Campaigns() {
+function Campaigns() {
   const { isAuthenticated } = useAuth();
 
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [creatingNew, setCreatingNew] = useState(false);
+  const [propaganda, setPropaganda] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
-      const res = await apiClient.getCampaigns();
-      console.log(res.data);
-      setCampaigns(res.data);
+      try {
+        const res = await apiClient.getCampaigns();
+        setCampaigns(res.data);
+      } catch (err) {
+        if (err instanceof AxiosError && err.status === 401) {
+          setPropaganda(true);
+        }
+      }
     };
     fetch();
   }, []);
@@ -37,8 +45,16 @@ export default function Campaigns() {
     );
   }
 
+  if (propaganda) {
+    return (
+      <Box sx={{ mt: 10, p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}>
+        Email us at hello@pokulabs.com to access this feature!
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}>
+    <Box sx={{ mt: 10, p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}>
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         {!creatingNew && (
           <Button onClick={() => setCreatingNew(true)}>New Campaign</Button>
@@ -60,3 +76,5 @@ export default function Campaigns() {
     </Box>
   );
 }
+
+export default withLoggedIn(Campaigns, "Campaigns")
