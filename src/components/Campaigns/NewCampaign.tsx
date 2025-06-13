@@ -10,7 +10,6 @@ import {
   Select,
   Option,
   Input,
-  Box,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useCredentials } from "../../context/CredentialsContext";

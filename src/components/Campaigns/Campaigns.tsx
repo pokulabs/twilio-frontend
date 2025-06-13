@@ -1,5 +1,4 @@
-import { Box, Button, Card, Typography } from "@mui/joy";
-import { useAuth } from "../../context/AuthContext";
+import { Box, Button, Typography } from "@mui/joy";
 import NewCampaign from "./NewCampaign";
 import CampaignsTable from "./CampaignsTable";
 import { useEffect, useState } from "react";
@@ -8,8 +7,6 @@ import { AxiosError } from "axios";
 import withLoggedIn from "../../context/withLoggedIn";
 
 function Campaigns() {
-  const { isAuthenticated } = useAuth();
-
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [creatingNew, setCreatingNew] = useState(false);
   const [propaganda, setPropaganda] = useState(false);
