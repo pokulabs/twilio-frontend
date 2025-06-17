@@ -13,7 +13,7 @@ import {
   Box,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
-import { useCredentials } from "../../context/CredentialsContext";
+import { useTwilio } from "../../context/TwilioProvider";
 import CsvUploader, { Recipient } from "./CsvUploader";
 
 const hydrate = (t: string, r: Recipient) => {
@@ -34,7 +34,7 @@ export default function NewCampaign({
   onComplete,
   onCancel,
 }: NewCampaignProps) {
-  const { phoneNumbers, whatsappNumbers } = useCredentials();
+  const { phoneNumbers, whatsappNumbers } = useTwilio();
   const [senderNumbers, setSenderNumbers] = useState<string[]>([]);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);

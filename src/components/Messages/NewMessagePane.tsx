@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box, Sheet } from "@mui/joy";
 
 import MessageInput from "./MessageInput";
-import { useAuthedCreds } from "../../context/CredentialsContext";
+import { useAuthedTwilio } from "../../context/TwilioProvider";
 import NewMessagePaneHeader from "./NewMessagePaneHeader";
 
 export default function NewMessagesPane(props: {
@@ -11,7 +11,7 @@ export default function NewMessagesPane(props: {
 }) {
   const { activePhoneNumber, callback } = props;
   const [contactNumber, setContactNumber] = React.useState("");
-  const { twilioClient } = useAuthedCreds();
+  const { twilioClient } = useAuthedTwilio();
 
   return (
     <Sheet

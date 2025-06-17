@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Typography, Input, Stack, Select, Option } from "@mui/joy";
 import { apiClient } from "../../api-client";
-import { useCredentials } from "../../context/CredentialsContext";
+import { useTwilio } from "../../context/TwilioProvider";
 
 export default function HumanAsATool() {
-  const { phoneNumbers, whatsappNumbers, sid, authToken } = useCredentials();
+  const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
   const [humanNumber, setHumanNumber] = useState("");
   const [agentNumber, setAgentNumber] = useState("");
   const [waitTime, setWaitTime] = useState<number>(60);

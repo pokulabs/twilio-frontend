@@ -4,7 +4,7 @@ import { Sheet } from "@mui/joy";
 import MessagesPane from "./MessagesPane";
 import ChatsPane from "./ChatsPane";
 import NewMessagesPane from "./NewMessagePane";
-import { useAuthedCreds } from "../../context/CredentialsContext";
+import { useAuthedTwilio } from "../../context/TwilioProvider";
 import { makeChatId } from "../../utils";
 import withAuth from "../../context/withAuth";
 import { apiClient } from "../../api-client";
@@ -16,7 +16,7 @@ import TwilioClient from "../../twilio-client";
 import { useEffect, useState } from "react";
 
 function useInitialChatsFetch(activePhoneNumber: string, onlyUnread: boolean, searchFilter: string | null, setChats: (chats: ChatInfo[]) => void) {
-  const { twilioClient } = useAuthedCreds();
+  const { twilioClient } = useAuthedTwilio();
 
   useEffect(() => {
     const loadChats = async () => {
@@ -56,7 +56,7 @@ function MessagesLayout(props: {
   );
   const [onlyUnread, setOnlyUnread] = useState(false);
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
-  const { twilioClient } = useAuthedCreds();
+  const { twilioClient } = useAuthedTwilio();
 
   const selectedChat = React.useMemo(
     () => chats.find((c) => c.chatId === selectedChatId) ?? null,
@@ -170,7 +170,7 @@ function useNewMessageListener(
     updater: ((prevChats: ChatInfo[]) => ChatInfo[]) | ChatInfo[],
   ) => void,
 ) {
-  const { eventEmitter } = useAuthedCreds();
+  const { eventEmitter } = useAuthedTwilio();
 
   useEffect(() => {
     const subId = eventEmitter.on("new-message", async (msg) => {
@@ -242,7 +242,7 @@ function useSubscribeWsFlag(
 }
 
 function MessagesContainer() {
-  const { activePhoneNumber } = useAuthedCreds();
+  const { activePhoneNumber } = useAuthedTwilio();
   const [chats, setChats] = useSortedChats([]);
 
   useNewMessageListener(activePhoneNumber, setChats);

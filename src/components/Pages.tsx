@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { useCredentials } from "../context/CredentialsContext";
+import { useTwilio } from "../context/TwilioProvider";
 
 const Pages: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { setCredentials, sid, authToken } = useCredentials();
+  const { setCredentials, sid, authToken } = useTwilio();
 
   useEffect(() => {
     if (sid && authToken) {

@@ -1,9 +1,9 @@
 import { AddCircleOutline, RemoveCircleOutline } from "@mui/icons-material";
 import { Box, Button, IconButton, Input, Typography } from "@mui/joy";
-import { useCredentials } from "../../context/CredentialsContext";
+import { useTwilio } from "../../context/TwilioProvider";
 
 export default function Whatsapp() {
-  const { whatsappNumbers, setWhatsappNumbers } = useCredentials();
+  const { whatsappNumbers, setWhatsappNumbers } = useTwilio();
 
   const handleAddInput = () => {
     setWhatsappNumbers([...whatsappNumbers, ""]);

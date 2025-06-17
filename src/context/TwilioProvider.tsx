@@ -30,15 +30,15 @@ interface CredentialsContextType {
 
 const CredentialsContext = createContext<CredentialsContextType | null>(null);
 
-export const useCredentials = () => {
+export const useTwilio = () => {
   const ctx = useContext(CredentialsContext);
   if (!ctx)
     throw new Error("useCredentials must be used within CredentialsProvider");
   return ctx;
 };
 
-export const useAuthedCreds = () => {
-  const ctx = useCredentials();
+export const useAuthedTwilio = () => {
+  const ctx = useTwilio();
 
   if (
     !ctx.isAuthenticated ||

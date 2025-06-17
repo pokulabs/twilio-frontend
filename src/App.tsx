@@ -10,7 +10,7 @@ import Integrations from "./components/Integrations/Integrations";
 import Pages from "./components/Pages";
 import Account from "./components/Account/Account";
 import Hitl from "./components/Hitl/Hitl";
-import { CredentialsProvider } from "./context/CredentialsContext";
+import { CredentialsProvider } from "./context/TwilioProvider";
 import { AuthProvider } from "./context/AuthContext";
 import { WebsocketProvider } from "./context/WebsocketProvider";
 import Campaigns from "./components/Campaigns/Campaigns";

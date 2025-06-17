@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 
-import { useCredentials } from "../context/CredentialsContext";
+import { useTwilio } from "../context/TwilioProvider";
 
 import type { WebhooksActivationStatus } from "../types";
 
@@ -36,7 +36,7 @@ class WebhookClient {
 }
 
 export function useWebhook() {
-    const { webhookUrl, webhooksActivationStatus } = useCredentials();
+    const { webhookUrl, webhooksActivationStatus } = useTwilio();
 
     const webhookClient = React.useMemo(
         () => new WebhookClient(webhookUrl, webhooksActivationStatus),

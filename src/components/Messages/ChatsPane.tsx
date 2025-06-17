@@ -25,7 +25,7 @@ import {
 
 import ChatListItem from "./ChatListItem";
 import { toggleMessagesPane } from "../../utils";
-import { useAuthedCreds } from "../../context/CredentialsContext";
+import { useAuthedTwilio } from "../../context/TwilioProvider";
 
 import type { ChatInfo } from "../../types";
 
@@ -51,7 +51,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
   } = props;
 
   const { twilioClient, phoneNumbers, setActivePhoneNumber, whatsappNumbers } =
-    useAuthedCreds();
+    useAuthedTwilio();
   const [contactsFilter, setContactsFilter] = useState("");
   const [hasMore, setHasMore] = useState(false);
   const [hasMoreChats, setHasMoreChats] = useState(false);

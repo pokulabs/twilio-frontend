@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@mui/joy";
 import { accordionContent } from "./webhook-docs";
-import { useCredentials } from "../../context/CredentialsContext";
+import { useTwilio } from "../../context/TwilioProvider";
 import { useWebhook } from "../../hooks/use-webhook";
 
 export default function Webhooks() {
@@ -24,7 +24,7 @@ export default function Webhooks() {
     setWebhookUrl,
     webhooksActivationStatus,
     setWebhooksActivationStatus,
-  } = useCredentials();
+  } = useTwilio();
 
   return (
     <Box>
@@ -98,7 +98,7 @@ export default function Webhooks() {
 }
 
 function TestWebhook() {
-  const { webhookUrl } = useCredentials();
+  const { webhookUrl } = useTwilio();
   const { webhookClient } = useWebhook();
   const [selectedOption, setSelectedOption] = React.useState(
     accordionContent[0].name,

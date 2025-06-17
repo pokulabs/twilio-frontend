@@ -4,7 +4,7 @@ import { Box, Sheet, Stack, Avatar } from "@mui/joy";
 import ChatBubble from "./ChatBubble";
 import MessageInput from "./MessageInput";
 import MessagesPaneHeader from "./MessagesPaneHeader";
-import { useAuthedCreds } from "../../context/CredentialsContext";
+import { useAuthedTwilio } from "../../context/TwilioProvider";
 
 import type { ChatInfo, PlainMessage } from "../../types";
 
@@ -15,7 +15,7 @@ type MessagesPaneProps = {
 
 export default function MessagesPane(props: MessagesPaneProps) {
   const { chat, activePhoneNumber } = props;
-  const { twilioClient, eventEmitter } = useAuthedCreds();
+  const { twilioClient, eventEmitter } = useAuthedTwilio();
   const [chatMessages, setChatMessages] = React.useState<PlainMessage[]>([]);
 
   React.useEffect(() => {

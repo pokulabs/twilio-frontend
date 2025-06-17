@@ -2,7 +2,7 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Input, Button, Typography, Stack } from "@mui/joy";
 
-import { useCredentials } from "../../context/CredentialsContext";
+import { useTwilio } from "../../context/TwilioProvider";
 import Whatsapp from "./Whatsapp";
 
 export default function TwilioForm() {
@@ -12,7 +12,7 @@ export default function TwilioForm() {
     sid: sidContext,
     authToken: authTokenContext,
     isLoading,
-  } = useCredentials();
+  } = useTwilio();
   const [sid, setSid] = React.useState(sidContext);
   const [authToken, setAuthToken] = React.useState(authTokenContext);
   const navigate = useNavigate();

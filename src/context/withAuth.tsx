@@ -1,11 +1,11 @@
 import React from "react";
 import { Alert, Box, Button, CircularProgress } from "@mui/joy";
 import { Link } from "react-router-dom";
-import { useCredentials } from "../context/CredentialsContext";
+import { useTwilio } from "./TwilioProvider";
 
 const withAuth = <P extends object>(Component: React.ComponentType<P>) => {
   return (props: P) => {
-    const { isAuthenticated, isLoading } = useCredentials();
+    const { isAuthenticated, isLoading } = useTwilio();
 
     if (isLoading) {
       return (
