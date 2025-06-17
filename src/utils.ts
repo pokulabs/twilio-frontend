@@ -32,7 +32,7 @@ export function toggleSidebar() {
 
 export function openMessagesPane() {
     if (typeof window !== "undefined") {
-        document.body.style.overflow = "hidden";
+        // document.body.style.overflow = "hidden";
         document
             .getElementById("messages-component")!
             .style.setProperty("--MessagesPane-slideIn", "1");
@@ -44,7 +44,7 @@ export function closeMessagesPane() {
         document
             .getElementById("messages-component")!
             .style.removeProperty("--MessagesPane-slideIn");
-        document.body.style.removeProperty("overflow");
+        // document.body.style.removeProperty("overflow");
     }
 }
 
