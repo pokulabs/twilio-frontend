@@ -4,7 +4,7 @@ type Store = {
     sid: string;
     authToken: string;
     mostRecentMessageSeenPerChat: {
-        [chatId: string]: string; // messageId
+        [chatId: string]: string | undefined; // messageId
     };
     mainStore: {
         webhookUrl: string;

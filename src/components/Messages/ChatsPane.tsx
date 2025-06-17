@@ -11,11 +11,16 @@ import {
   Button,
   CircularProgress,
   ListItem,
+  Menu,
+  Checkbox,
+  Dropdown,
+  MenuButton,
 } from "@mui/joy";
 import {
   EditNoteRounded,
   SearchRounded,
   CloseRounded,
+  FilterAltOutlined,
 } from "@mui/icons-material";
 
 import ChatListItem from "./ChatListItem";
@@ -30,7 +35,8 @@ type ChatsPaneProps = {
   setSelectedChat: (chat: ChatInfo | null) => void;
   selectedChatId: string | null;
   onLoadMore: () => Promise<void>;
-  onSearchFilterChange: (contactNumber: string) => Promise<void>;
+  onSearchFilterChange: (contactNumber: string) => void;
+  onMessageFilterChange: (filters: { onlyUnread: boolean }) => void;
 };
 
 export default function ChatsPane(props: ChatsPaneProps) {
@@ -41,6 +47,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
     activePhoneNumber,
     onLoadMore,
     onSearchFilterChange,
+    onMessageFilterChange,
   } = props;
 
   const { twilioClient, phoneNumbers, setActivePhoneNumber, whatsappNumbers } =
@@ -71,7 +78,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
 
     setIsSearching(true);
     try {
-      await onSearchFilterChange(contactsFilter);
+      onSearchFilterChange(contactsFilter);
     } catch (err) {
       console.error("Search failed:", err);
     } finally {
@@ -153,41 +160,49 @@ export default function ChatsPane(props: ChatsPaneProps) {
             );
           })}
         </Select>
-        <Input
-          onChange={(event) => {
-            setContactsFilter(event.target.value);
-            if (!event.target.value) {
-              onSearchFilterChange("");
-            }
-          }}
-          value={contactsFilter}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
-          startDecorator={
-            <IconButton
-              size="sm"
-              onClick={() => {
-                setContactsFilter("");
+        <Stack direction="row" spacing={1}>
+          <Input
+            sx={{ flex: 1 }}
+            onChange={(event) => {
+              setContactsFilter(event.target.value);
+              if (!event.target.value) {
                 onSearchFilterChange("");
-              }}
-            >
-              <CloseRounded />
-            </IconButton>
-          }
-          endDecorator={
-            <IconButton
-              variant="soft"
-              onClick={handleSearch}
-              disabled={isSearching || !contactsFilter.trim()}
-            >
-              {isSearching ? <CircularProgress size="sm" /> : <SearchRounded />}
-            </IconButton>
-          }
-          placeholder="Search for chat"
-        />
+              }
+            }}
+            value={contactsFilter}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+            startDecorator={
+              <IconButton
+                size="sm"
+                onClick={() => {
+                  setContactsFilter("");
+                  onSearchFilterChange("");
+                }}
+              >
+                <CloseRounded />
+              </IconButton>
+            }
+            endDecorator={
+              <IconButton
+                variant="soft"
+                onClick={handleSearch}
+                disabled={isSearching || !contactsFilter.trim()}
+              >
+                {isSearching ? (
+                  <CircularProgress size="sm" />
+                ) : (
+                  <SearchRounded />
+                )}
+              </IconButton>
+            }
+            placeholder="Search for chat"
+          />
+          <MessageFilter onChange={onMessageFilterChange} />
+        </Stack>
       </Stack>
       <List
         sx={{
@@ -223,5 +238,40 @@ export default function ChatsPane(props: ChatsPaneProps) {
         )}
       </List>
     </Sheet>
+  );
+}
+
+type MessageFilterProps = {
+  onChange: (filters: { onlyUnread: boolean }) => void;
+};
+
+function MessageFilter({ onChange }: MessageFilterProps) {
+  const [onlyUnread, setOnlyUnread] = useState(false);
+
+  return (
+    <Dropdown>
+      <MenuButton slots={{ root: IconButton }}>
+        <FilterAltOutlined />
+      </MenuButton>
+      <Menu
+        sx={{
+          p: 2,
+          gap: 1,
+          width: 250,
+        }}
+      >
+        <Typography level="title-sm">Filters</Typography>
+        <Sheet>
+          <Checkbox
+            label="Only unread"
+            checked={onlyUnread}
+            onChange={(event) => {
+              setOnlyUnread(event.target.checked);
+              onChange({ onlyUnread: event.target.checked });
+            }}
+          />
+        </Sheet>
+      </Menu>
+    </Dropdown>
   );
 }

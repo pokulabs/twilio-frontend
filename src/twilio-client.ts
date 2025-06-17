@@ -66,14 +66,17 @@ class TwilioClient {
         activeNumber: string,
         {
             loadMore = false,
+            onlyUnread = false,
             existingChatsId = [],
         }: {
             loadMore?: boolean;
+            onlyUnread?: boolean;
             existingChatsId?: string[];
         },
     ) {
         return this.contactsService.getChats(activeNumber, {
             loadMore,
+            onlyUnread,
             existingChatsId,
         });
     }

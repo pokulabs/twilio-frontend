@@ -10,6 +10,7 @@ interface GetChatsOptions {
     loadMore?: boolean;
     existingChatsId?: string[];
     chatsPageSize?: number;
+    onlyUnread?: boolean;
 }
 
 export class ContactsService {
@@ -58,12 +59,13 @@ export class ContactsService {
         activeNumber: string,
         {
             loadMore = false,
+            onlyUnread = false,
             existingChatsId = [],
             chatsPageSize = 10,
         }: GetChatsOptions,
     ): Promise<ChatInfo[]> {
         if (!loadMore) {
-            return this.initializeChats(activeNumber);
+            return this.initializeChats(activeNumber, onlyUnread);
         }
 
         const chats = new Map<string, ChatInfo>();
@@ -123,6 +125,15 @@ export class ContactsService {
                 }
             }
 
+            if (onlyUnread) {
+                const unread = await this.hasUnread(activeNumber, [...chats.values()]);
+                [...chats.values()].forEach((c, i) => {
+                    if (!unread[i]) {
+                        chats.delete(c.chatId);
+                    }
+                });
+            }
+
             // Update pointers
             this.globalEarliestEnder = cutoffDate;
 
@@ -135,7 +146,7 @@ export class ContactsService {
         return [...chats.values()];
     }
 
-    private async initializeChats(activeNumber: string) {
+    private async initializeChats(activeNumber: string, onlyUnread = false) {
         const chats = new Map<string, ChatInfo>();
 
         // First call — just get the first pages of both
@@ -170,6 +181,11 @@ export class ContactsService {
                 continue;
             }
             chats.set(chatInfo.chatId, chatInfo);
+        }
+
+        if (onlyUnread) {
+            const unread = await this.hasUnread(activeNumber, [...chats.values()]);
+            return [...chats.values()].filter((_, i) => unread[i]);
         }
 
         return [...chats.values()];
@@ -210,14 +226,11 @@ export class ContactsService {
                 const earliestInboundMsg = msgs.items.find(
                     (m) => m.direction === "inbound",
                 );
-                if (earliestInboundMsg) {
-                    if (earliestInboundMsg.sid === lastInboundMsgId) {
-                        return false;
-                    }
-                    return true;
+                if (!earliestInboundMsg) {
+                    return false;
                 }
 
-                return false;
+                return earliestInboundMsg.sid !== lastInboundMsgId;;
             }),
         );
     }
