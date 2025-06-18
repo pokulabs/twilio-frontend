@@ -15,7 +15,12 @@ import type { ChatInfo } from "../../types";
 import TwilioClient from "../../twilio-client";
 import { useEffect, useState } from "react";
 
-function useInitialChatsFetch(activePhoneNumber: string, onlyUnread: boolean, searchFilter: string | null, setChats: (chats: ChatInfo[]) => void) {
+function useInitialChatsFetch(
+  activePhoneNumber: string,
+  onlyUnread: boolean,
+  searchFilter: string | null,
+  setChats: (chats: ChatInfo[]) => void,
+) {
   const { twilioClient } = useAuthedTwilio();
 
   useEffect(() => {
@@ -25,7 +30,7 @@ function useInitialChatsFetch(activePhoneNumber: string, onlyUnread: boolean, se
       if (searchFilter) {
         const result = await twilioClient.getChat(
           activePhoneNumber,
-          searchFilter
+          searchFilter,
         );
         setChats(result ? [result] : []);
         return;
@@ -36,7 +41,7 @@ function useInitialChatsFetch(activePhoneNumber: string, onlyUnread: boolean, se
         activePhoneNumber,
         [],
         false,
-        onlyUnread
+        onlyUnread,
       );
       setChats(newChats);
     };
@@ -51,9 +56,7 @@ function MessagesLayout(props: {
   activePhoneNumber: string;
 }) {
   const { chats, setChats, activePhoneNumber } = props;
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(
-    null,
-  );
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [onlyUnread, setOnlyUnread] = useState(false);
   const [searchFilter, setSearchFilter] = useState<string | null>(null);
   const { twilioClient } = useAuthedTwilio();
@@ -99,10 +102,10 @@ function MessagesLayout(props: {
           activePhoneNumber={activePhoneNumber}
           chats={chats}
           selectedChatId={selectedChatId}
-          onMessageFilterChange={filters => {
+          onMessageFilterChange={(filters) => {
             setOnlyUnread(filters.onlyUnread);
           }}
-          onSearchFilterChange={contactNumber => {
+          onSearchFilterChange={(contactNumber) => {
             setSearchFilter(contactNumber || null);
           }}
           onLoadMore={async () => {
@@ -289,7 +292,7 @@ async function fetchChatsHelper(
   if (flaggedChatsResult.status === "rejected") {
     return newChats;
   }
-  
+
   // Apply flag status to any new matched chats
   const flaggedChats = flaggedChatsResult.value.data.data;
   for (const c of newChats) {

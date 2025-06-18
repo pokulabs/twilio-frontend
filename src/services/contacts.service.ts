@@ -126,7 +126,9 @@ export class ContactsService {
             }
 
             if (onlyUnread) {
-                const unread = await this.hasUnread(activeNumber, [...chats.values()]);
+                const unread = await this.hasUnread(activeNumber, [
+                    ...chats.values(),
+                ]);
                 [...chats.values()].forEach((c, i) => {
                     if (!unread[i]) {
                         chats.delete(c.chatId);
@@ -184,7 +186,9 @@ export class ContactsService {
         }
 
         if (onlyUnread) {
-            const unread = await this.hasUnread(activeNumber, [...chats.values()]);
+            const unread = await this.hasUnread(activeNumber, [
+                ...chats.values(),
+            ]);
             return [...chats.values()].filter((_, i) => unread[i]);
         }
 
@@ -230,7 +234,7 @@ export class ContactsService {
                     return false;
                 }
 
-                return earliestInboundMsg.sid !== lastInboundMsgId;;
+                return earliestInboundMsg.sid !== lastInboundMsgId;
             }),
         );
     }

@@ -35,14 +35,19 @@ function Campaigns() {
 
   if (propaganda) {
     return (
-      <Box sx={{ mt: 10, p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}>
-        Email us at <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a> to access this feature!
+      <Box
+        sx={{ mt: 10, p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}
+      >
+        Email us at <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>{" "}
+        to access this feature!
       </Box>
     );
   }
 
   return (
-    <Box sx={{ mt: 10, p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}>
+    <Box
+      sx={{ mt: 10, p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}
+    >
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         {!creatingNew && (
           <Button onClick={() => setCreatingNew(true)}>New Campaign</Button>
@@ -65,4 +70,4 @@ function Campaigns() {
   );
 }
 
-export default withLoggedIn(Campaigns, "Campaigns")
+export default withLoggedIn(Campaigns, "Campaigns");

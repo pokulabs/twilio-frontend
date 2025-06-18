@@ -41,7 +41,9 @@ export default function TwilioForm() {
       >
         <Typography level="h4">Twilio Credentials</Typography>
         <Alert variant="outlined" color="success">
-          Your credentials are stored safely in this browser, or encrypted in our database if you're signed in.<br />
+          Your credentials are stored safely in this browser, or encrypted in
+          our database if you're signed in.
+          <br />
           You can check the code!
         </Alert>
 

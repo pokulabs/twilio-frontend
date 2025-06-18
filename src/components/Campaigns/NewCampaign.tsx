@@ -82,7 +82,9 @@ export default function NewCampaign({
       <Stack gap={1}>
         <Box>
           <Typography>Upload receipients list:</Typography>
-          <Typography level="body-sm">File must include phone numbers with format: +12223334444:</Typography>
+          <Typography level="body-sm">
+            File must include phone numbers with format: +12223334444:
+          </Typography>
         </Box>
         <CsvUploader
           onRecipients={(data) => {
@@ -93,7 +95,7 @@ export default function NewCampaign({
       </Stack>
 
       <Stack gap={1}>
-      <Typography>Create message template:</Typography>
+        <Typography>Create message template:</Typography>
         <Textarea
           minRows={3}
           value={template}
