@@ -37,7 +37,7 @@ function MessagesLayout() {
         />
       ) : (
         <NewMessagesPane
-          callback={async (contactNumber: string) => {
+          callback={(activeNumber, contactNumber) => {
             // const newChats = await fetchChatsHelper(
             //   twilioClient,
             //   activePhoneNumber,

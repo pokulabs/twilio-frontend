@@ -22,7 +22,7 @@ export default function NewMessagesPane(props: {
         backgroundColor: "background.level1",
       }}
     >
-      <NewMessagePaneHeader setContactNumber={setContactNumber} />
+      <NewMessagePaneHeader activeNumber={activePhoneNumber} setContactNumber={setContactNumber} />
       <Box sx={{ mt: "auto" }}>
         <MessageInput
           onSubmit={async (content) => {

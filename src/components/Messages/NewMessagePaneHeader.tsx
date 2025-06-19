@@ -1,15 +1,15 @@
-import * as React from "react";
 import { IconButton, Stack, Typography, Input, Divider } from "@mui/joy";
 import { ArrowBackIosNewRounded } from "@mui/icons-material";
 
 import { toggleMessagesPane } from "../../utils";
 
 type MessagesPaneHeaderProps = {
+  activeNumber: string;
   setContactNumber: (contactNumber: string) => void;
 };
 
 export default function NewMessagePaneHeader(props: MessagesPaneHeaderProps) {
-  const { setContactNumber } = props;
+  const { activeNumber, setContactNumber } = props;
   return (
     <Stack
       direction="row"
@@ -36,14 +36,15 @@ export default function NewMessagePaneHeader(props: MessagesPaneHeaderProps) {
         >
           <ArrowBackIosNewRounded />
         </IconButton>
+        <Typography level="body-md" sx={{ p: 1 }}><b>From:</b> {activeNumber}</Typography>
         <Input
           placeholder="+12223334444"
           onChange={(e) => setContactNumber(e.target.value)}
           startDecorator={
-            <React.Fragment>
+            <>
               <Typography sx={{ pr: 1.5 }}>To:</Typography>
               <Divider orientation="vertical" />
-            </React.Fragment>
+            </>
           }
         />
       </Stack>
