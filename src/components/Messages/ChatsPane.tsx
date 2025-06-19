@@ -15,6 +15,7 @@ import {
   Checkbox,
   Dropdown,
   MenuButton,
+  Badge,
 } from "@mui/joy";
 import {
   EditNoteRounded,
@@ -28,10 +29,12 @@ import { toggleMessagesPane } from "../../utils";
 import { useAuthedTwilio } from "../../context/TwilioProvider";
 
 import type { ChatInfo } from "../../types";
+import { PaginationState } from "../../services/contacts.service";
 
 type ChatsPaneProps = {
   activePhoneNumber: string;
   chats: ChatInfo[];
+  paginationState: PaginationState | undefined;
   setSelectedChat: (chat: ChatInfo | null) => void;
   selectedChatId: string | null;
   onLoadMore: () => Promise<void>;
@@ -42,6 +45,7 @@ type ChatsPaneProps = {
 export default function ChatsPane(props: ChatsPaneProps) {
   const {
     chats,
+    paginationState,
     setSelectedChat,
     selectedChatId,
     activePhoneNumber,
@@ -59,8 +63,8 @@ export default function ChatsPane(props: ChatsPaneProps) {
 
   useEffect(() => {
     // Check if there are more chats to load
-    setHasMoreChats(twilioClient.hasMoreChats());
-  }, [chats]);
+    setHasMoreChats(twilioClient.hasMoreChats(paginationState));
+  }, [chats, paginationState]);
 
   const handleLoadMore = async () => {
     if (hasMore) return;
@@ -251,7 +255,9 @@ function MessageFilter({ onChange }: MessageFilterProps) {
   return (
     <Dropdown>
       <MenuButton slots={{ root: IconButton }}>
-        <FilterAltOutlined />
+        <Badge invisible={!onlyUnread}>
+          <FilterAltOutlined />
+        </Badge>
       </MenuButton>
       <Menu
         sx={{

@@ -1,9 +1,7 @@
-import axios, { AxiosInstance } from "axios";
 import { MessagesService } from "./services/messages.service";
-import { ContactsService } from "./services/contacts.service";
+import { ContactsService, PaginationState, type GetChatsOptions } from "./services/contacts.service";
 import { PhoneNumbersService } from "./services/phone-numbers.service";
 import TwilioRawClient from "./services/twilio-raw-client";
-import { storage } from "./storage";
 import { ChatInfo, PlainMessage } from "./types";
 
 class TwilioClient {
@@ -15,7 +13,6 @@ class TwilioClient {
     private messagesService: MessagesService;
     private contactsService: ContactsService;
     private phoneNumbersService: PhoneNumbersService;
-    private api: AxiosInstance;
 
     private constructor(sid: string, token: string) {
         this.sid = sid;
@@ -25,18 +22,6 @@ class TwilioClient {
         this.messagesService = new MessagesService(this.axiosInstance);
         this.contactsService = new ContactsService(this.axiosInstance);
         this.phoneNumbersService = new PhoneNumbersService(this.axiosInstance);
-
-        this.api = axios.create({
-            baseURL: import.meta.env.VITE_API_URL,
-        });
-
-        this.api.interceptors.request.use((config) => {
-            const user = storage.getUser();
-            if (user.idToken) {
-                config.headers.Authorization = `Bearer ${user.idToken}`;
-            }
-            return config;
-        });
     }
 
     static async getInstance(sid: string, token: string) {
@@ -64,25 +49,13 @@ class TwilioClient {
 
     async getChats(
         activeNumber: string,
-        {
-            loadMore = false,
-            onlyUnread = false,
-            existingChatsId = [],
-        }: {
-            loadMore?: boolean;
-            onlyUnread?: boolean;
-            existingChatsId?: string[];
-        },
+        opts: GetChatsOptions,
     ) {
-        return this.contactsService.getChats(activeNumber, {
-            loadMore,
-            onlyUnread,
-            existingChatsId,
-        });
+        return this.contactsService.getChats(activeNumber, opts);
     }
 
-    hasMoreChats() {
-        return this.contactsService.hasMoreChats();
+    hasMoreChats(state: PaginationState | undefined) {
+        return this.contactsService.hasMoreChats(state);
     }
 
     async getMessages(activeNumber: string, contactNumber: string) {

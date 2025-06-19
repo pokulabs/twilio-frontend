@@ -14,12 +14,14 @@ import { useSortedChats } from "../../hooks/use-sorted-chats";
 import type { ChatInfo } from "../../types";
 import TwilioClient from "../../twilio-client";
 import { useEffect, useState } from "react";
+import type { Filters, PaginationState } from "../../services/contacts.service";
+
 
 function useInitialChatsFetch(
   activePhoneNumber: string,
-  onlyUnread: boolean,
-  searchFilter: string | null,
+  filters: Filters,
   setChats: (chats: ChatInfo[]) => void,
+  setPaginationState: (paginationState: PaginationState | undefined) => void,
 ) {
   const { twilioClient } = useAuthedTwilio();
 
@@ -27,12 +29,18 @@ function useInitialChatsFetch(
     const loadChats = async () => {
       if (!twilioClient || !activePhoneNumber) return;
 
-      if (searchFilter) {
-        const result = await twilioClient.getChat(
+      if (filters.search) {
+        const chat = await twilioClient.getChat(
           activePhoneNumber,
-          searchFilter,
+          filters.search,
         );
-        setChats(result ? [result] : []);
+        if (chat && filters.onlyUnread) {
+          const [isUnread] = await twilioClient.hasUnread(activePhoneNumber, [chat]);
+          // Apply unread status
+          setChats(chat && isUnread ? [{ ...chat, hasUnread: true }] : []);
+        } else {
+          setChats(chat ? [chat] : []);
+        }
         return;
       }
 
@@ -40,14 +48,15 @@ function useInitialChatsFetch(
         twilioClient,
         activePhoneNumber,
         [],
-        false,
-        onlyUnread,
+        undefined,
+        filters,
       );
-      setChats(newChats);
+      setPaginationState(newChats.paginationState);
+      setChats(newChats.chats);
     };
 
     loadChats();
-  }, [twilioClient, activePhoneNumber, onlyUnread, searchFilter]);
+  }, [twilioClient, activePhoneNumber, filters]);
 }
 
 function MessagesLayout(props: {
@@ -57,8 +66,8 @@ function MessagesLayout(props: {
 }) {
   const { chats, setChats, activePhoneNumber } = props;
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
-  const [onlyUnread, setOnlyUnread] = useState(false);
-  const [searchFilter, setSearchFilter] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Filters>({});
+  const [paginationState, setPaginationState] = useState<PaginationState | undefined>(undefined);
   const { twilioClient } = useAuthedTwilio();
 
   const selectedChat = React.useMemo(
@@ -66,7 +75,7 @@ function MessagesLayout(props: {
     [chats, selectedChatId],
   );
 
-  useInitialChatsFetch(activePhoneNumber, onlyUnread, searchFilter, setChats);
+  useInitialChatsFetch(activePhoneNumber, filters, setChats, setPaginationState);
 
   return (
     <Sheet
@@ -101,25 +110,31 @@ function MessagesLayout(props: {
         <ChatsPane
           activePhoneNumber={activePhoneNumber}
           chats={chats}
+          paginationState={paginationState}
           selectedChatId={selectedChatId}
           onMessageFilterChange={(filters) => {
-            setOnlyUnread(filters.onlyUnread);
+            setFilters(prev => {
+              return { ...prev, onlyUnread: filters.onlyUnread }
+            });
           }}
           onSearchFilterChange={(contactNumber) => {
-            setSearchFilter(contactNumber || null);
+            setFilters(prev => {
+              return { ...prev, search: contactNumber ?? undefined }
+            });
           }}
           onLoadMore={async () => {
             const newChats = await fetchChatsHelper(
               twilioClient,
               activePhoneNumber,
               chats,
-              true,
-              onlyUnread,
+              paginationState,
+              filters,
             );
+            setPaginationState(newChats.paginationState);
             setChats((prevChats) => {
               const chatMap = new Map<string, ChatInfo>();
               prevChats.forEach((chat) => chatMap.set(chat.chatId, chat));
-              newChats.forEach((chat) => {
+              newChats.chats.forEach((chat) => {
                 if (!chatMap.has(chat.chatId)) {
                   chatMap.set(chat.chatId, chat);
                 }
@@ -151,14 +166,19 @@ function MessagesLayout(props: {
               twilioClient,
               activePhoneNumber,
               chats,
-              false,
-              onlyUnread,
+              undefined,
+              filters,
             );
-            setChats(newChats);
-            const chat = chats.filter(
+            setPaginationState(newChats.paginationState);
+            setChats(newChats.chats);
+            const chat = newChats.chats.find(
               (e) => e.contactNumber === contactNumber,
-            )[0];
-            setSelectedChatId(chat.chatId);
+            );
+            if (chat) {
+              setSelectedChatId(chat.chatId);
+            }
+            // TODO can reduce this to just
+            // setSelectedChatId(`${activePhoneNumber}${contactNumber}`);
           }}
           activePhoneNumber={activePhoneNumber}
         />
@@ -264,13 +284,13 @@ async function fetchChatsHelper(
   twilioClient: TwilioClient,
   activePhoneNumber: string,
   existingChats: ChatInfo[],
-  loadMore: boolean,
-  onlyUnread: boolean,
+  paginationState: PaginationState | undefined,
+  filters: Filters,
 ) {
   const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
     twilioClient.getChats(activePhoneNumber, {
-      loadMore,
-      onlyUnread,
+      paginationState,
+      filters,
       existingChatsId: existingChats.map((e) => e.chatId),
     }),
     apiClient.getFlaggedChats(),
@@ -278,10 +298,10 @@ async function fetchChatsHelper(
 
   if (newChatsResult.status === "rejected") {
     console.error("Failed to fetch chats: ", newChatsResult.reason);
-    return existingChats;
+    return { chats: existingChats };
   }
 
-  const newChats = newChatsResult.value;
+  const { chats: newChats } = newChatsResult.value;
 
   // Apply unread status
   const unreads = await twilioClient.hasUnread(activePhoneNumber, newChats);
@@ -290,7 +310,7 @@ async function fetchChatsHelper(
   });
 
   if (flaggedChatsResult.status === "rejected") {
-    return newChats;
+    return newChatsResult.value;
   }
 
   // Apply flag status to any new matched chats
@@ -304,7 +324,7 @@ async function fetchChatsHelper(
     }
   }
 
-  return newChats;
+  return newChatsResult.value;
 }
 
 export default withAuth(MessagesContainer);

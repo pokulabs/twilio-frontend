@@ -6,22 +6,28 @@ import type { ChatInfo, PlainMessage, TwilioMsg } from "../types.ts";
 
 type MessagePaginator = Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
 
-interface GetChatsOptions {
-    loadMore?: boolean;
+export type PaginationState = {
+    paginators: { inbound: MessagePaginator; outbound: MessagePaginator };
+    globalEarliestEnder: Date | undefined;
+}
+
+export type GetChatsOptions = {
     existingChatsId?: string[];
     chatsPageSize?: number;
-    onlyUnread?: boolean;
+    filters?: Filters;
+    paginationState?: PaginationState;
 }
+
+export type Filters = { search?: string; onlyUnread?: boolean; };
+
+
+type GetChatsResult = {
+    chats: ChatInfo[];
+    paginationState?: PaginationState;
+};
 
 export class ContactsService {
     private client: TwilioRawClient;
-    private paginators:
-        | {
-              inbound: MessagePaginator;
-              outbound: MessagePaginator;
-          }
-        | undefined;
-    private globalEarliestEnder: Date | undefined;
 
     constructor(client: TwilioRawClient) {
         this.client = client;
@@ -58,52 +64,63 @@ export class ContactsService {
     async getChats(
         activeNumber: string,
         {
-            loadMore = false,
-            onlyUnread = false,
             existingChatsId = [],
-            chatsPageSize = 10,
+            chatsPageSize = 6,
+            ...opts
         }: GetChatsOptions,
-    ): Promise<ChatInfo[]> {
-        if (!loadMore) {
-            return this.initializeChats(activeNumber, onlyUnread);
-        }
-
+    ): Promise<GetChatsResult> {
         const chats = new Map<string, ChatInfo>();
+        let isFirstRun = false;
 
-        // Load more call — paginate to get next batch of N chats without gaps
-        if (!this.paginators) {
-            throw new Error(
-                "Must call with loadMore=false at least once before loadMore=true.",
-            );
-        }
+        let paginators = opts.paginationState ? opts.paginationState.paginators : undefined;
+        let globalEarliestEnder = opts.paginationState ? opts.paginationState.globalEarliestEnder : undefined;;
 
-        let { inbound, outbound } = this.paginators;
+        // First-time call: initialize paginators
+        if (!paginators || !globalEarliestEnder) {
+            const [outbound, inbound] = await Promise.all([
+                this.client.getMessages({ from: activeNumber }),
+                this.client.getMessages({ to: activeNumber }),
+            ]);
 
-        while (chats.size < chatsPageSize) {
-            inbound = await this.tryAdvancePaginator(inbound);
-            outbound = await this.tryAdvancePaginator(outbound);
+            paginators = { outbound, inbound };
 
-            let cutoffDate = this.getMostRecentMessage(
+            // If no chats on this activeNumber
+            if (!outbound.items.length && !inbound.items.length) {
+                return {
+                    chats: [],
+                    paginationState: {
+                        paginators,
+                        globalEarliestEnder: undefined
+                    }
+                };
+            }
+
+            isFirstRun = true;
+            globalEarliestEnder = this.getMostRecentMessage(
                 inbound.items.at(-1),
                 outbound.items.at(-1),
             ).dateSent;
+        }
+        
+        while (chats.size < chatsPageSize) {
+            let cutoffDate = this.getMostRecentMessage(
+                paginators.inbound.items.at(-1),
+                paginators.outbound.items.at(-1),
+            ).dateSent;
 
-            // Merge filtered messages
             const merged = this.mergeSortedMessages(
-                inbound.items.filter(
-                    (m) => m.dateSent < this.globalEarliestEnder!,
-                ),
-                outbound.items.filter(
-                    (m) => m.dateSent < this.globalEarliestEnder!,
-                ),
+                paginators.inbound.items,
+                paginators.outbound.items,
                 cutoffDate,
+                // Don't filter for before on firstRun
+                isFirstRun ? new Date() : globalEarliestEnder
             );
 
             // If no messages to process and no more pages, break out
             if (
                 merged.length === 0 &&
-                !inbound.hasNextPage() &&
-                !outbound.hasNextPage()
+                !paginators.inbound.hasNextPage() &&
+                !paginators.outbound.hasNextPage()
             ) {
                 break;
             }
@@ -116,6 +133,7 @@ export class ContactsService {
                 ) {
                     continue;
                 }
+
                 chats.set(chatInfo.chatId, chatInfo);
 
                 if (chats.size >= chatsPageSize) {
@@ -125,80 +143,41 @@ export class ContactsService {
                 }
             }
 
-            if (onlyUnread) {
-                const unread = await this.hasUnread(activeNumber, [
-                    ...chats.values(),
-                ]);
-                [...chats.values()].forEach((c, i) => {
-                    if (!unread[i]) {
-                        chats.delete(c.chatId);
-                    }
-                });
+            if (opts.filters?.onlyUnread) {
+                await this.removeUnread(activeNumber, chats);
             }
 
             // Update pointers
-            this.globalEarliestEnder = cutoffDate;
+            globalEarliestEnder = cutoffDate;
 
-            this.paginators = {
-                inbound,
-                outbound,
-            };
+            [paginators.outbound, paginators.inbound] = await Promise.all([
+                this.tryAdvancePaginator(paginators.inbound, globalEarliestEnder),
+                this.tryAdvancePaginator(paginators.outbound, globalEarliestEnder),
+            ]);
+
+            isFirstRun = false;
         }
 
-        return [...chats.values()];
+        return { chats: [...chats.values()], paginationState: {
+            paginators,
+            globalEarliestEnder,
+        }};
     }
 
-    private async initializeChats(activeNumber: string, onlyUnread = false) {
-        const chats = new Map<string, ChatInfo>();
+    hasMoreChats(state: PaginationState | undefined) {
+        if (!state || !state.paginators || !state.globalEarliestEnder) return false;
 
-        // First call — just get the first pages of both
-        const [outbound, inbound] = await Promise.all([
-            this.client.getMessages({ from: activeNumber }),
-            this.client.getMessages({ to: activeNumber }),
-        ]);
-
-        this.paginators = { outbound, inbound };
-
-        // If no chats on this activeNumber
-        if (!outbound.items.length && !inbound.items.length) {
-            return [];
-        }
-
-        this.globalEarliestEnder = this.getMostRecentMessage(
+        const { inbound, outbound } = state.paginators;
+    
+        let cutoffDate = this.getMostRecentMessage(
             inbound.items.at(-1),
             outbound.items.at(-1),
         ).dateSent;
 
-        // Merge and slice just enough
-        const merged = this.mergeSortedMessages(
-            inbound.items,
-            outbound.items,
-            this.globalEarliestEnder,
-        );
-
-        // Take advantage of the known sort order, earliest to latest
-        for (const m of merged) {
-            const chatInfo = this.createChatInfo(activeNumber, m);
-            if (chats.has(chatInfo.chatId)) {
-                continue;
-            }
-            chats.set(chatInfo.chatId, chatInfo);
-        }
-
-        if (onlyUnread) {
-            const unread = await this.hasUnread(activeNumber, [
-                ...chats.values(),
-            ]);
-            return [...chats.values()].filter((_, i) => unread[i]);
-        }
-
-        return [...chats.values()];
-    }
-
-    hasMoreChats() {
         return !!(
-            this.paginators?.outbound.hasNextPage() ||
-            this.paginators?.inbound.hasNextPage()
+            cutoffDate.getTime() !== state.globalEarliestEnder.getTime() ||
+            inbound.hasNextPage() ||
+            outbound.hasNextPage()
         );
     }
 
@@ -239,6 +218,17 @@ export class ContactsService {
         );
     }
 
+    private async removeUnread(activeNumber: string, chats: Map<string, ChatInfo>) {
+        const unread = await this.hasUnread(activeNumber, [
+            ...chats.values(),
+        ]);
+        [...chats.values()].forEach((c, i) => {
+            if (!unread[i]) {
+                chats.delete(c.chatId);
+            }
+        });
+    }
+
     private createChatInfo(activeNumber: string, message: TwilioMsg): ChatInfo {
         const contactNumber =
             message.direction === "inbound" ? message.from : message.to;
@@ -270,15 +260,15 @@ export class ContactsService {
     private mergeSortedMessages(
         inbound: TwilioMsg[],
         outbound: TwilioMsg[],
-        oldestAllowedDate?: Date,
+        afterDate: Date,
+        beforeDate: Date,
     ): TwilioMsg[] {
-        const filteredInbound = oldestAllowedDate
-            ? inbound.filter((msg) => msg.dateSent >= oldestAllowedDate)
-            : inbound;
-
-        const filteredOutbound = oldestAllowedDate
-            ? outbound.filter((msg) => msg.dateSent >= oldestAllowedDate)
-            : outbound;
+        const filteredInbound = inbound
+            .filter((msg) => msg.dateSent >= afterDate)
+            .filter((msg) => msg.dateSent < beforeDate);
+        const filteredOutbound = outbound
+            .filter((msg) => msg.dateSent >= afterDate)
+            .filter((msg) => msg.dateSent < beforeDate);
 
         const result: TwilioMsg[] = [];
         let i = 0;
@@ -299,11 +289,11 @@ export class ContactsService {
         return result;
     }
 
-    private async tryAdvancePaginator(paginator: MessagePaginator) {
+    private async tryAdvancePaginator(paginator: MessagePaginator, globalEarliestEnder: Date) {
         const lastMessage = paginator.items.at(-1);
         if (
             !lastMessage ||
-            this.globalEarliestEnder?.getTime() !==
+            globalEarliestEnder?.getTime() !==
                 lastMessage.dateSent.getTime()
         ) {
             return paginator;
