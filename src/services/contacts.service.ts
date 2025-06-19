@@ -18,7 +18,11 @@ export type GetChatsOptions = {
     paginationState?: PaginationState;
 }
 
-export type Filters = { search?: string; onlyUnread?: boolean; };
+export type Filters = {
+    search?: string;
+    onlyUnread?: boolean;
+    activeNumber: string;
+};
 
 
 type GetChatsResult = {
@@ -237,6 +241,7 @@ export class ContactsService {
         return {
             chatId,
             contactNumber,
+            activeNumber,
             recentMsgId: message.sid,
             recentMsgDate: message.dateSent,
             recentMsgContent: message.body,

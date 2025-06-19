@@ -13,9 +13,7 @@ interface TwilioContextType {
   eventEmitter: EventEmitter | null;
   setCredentials: (sid: string, authToken: string) => Promise<boolean>;
   isAuthenticated: boolean;
-  activePhoneNumber: string;
   phoneNumbers: string[];
-  setActivePhoneNumber: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
   webhookUrl: string;
   setWebhookUrl: (url: string) => void;
@@ -63,7 +61,6 @@ export const TwilioProvider: React.FC<{ children: ReactNode }> = ({
   const [authToken, setAuthToken] = useState(storage.get("authToken"));
   const [twilioClient, setTwilioClient] = useState<TwilioClient | null>(null);
   const [eventEmitter, setEventEmitter] = useState<EventEmitter | null>(null);
-  const [activePhoneNumber, setActivePhoneNumber] = useState("");
   const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -90,7 +87,6 @@ export const TwilioProvider: React.FC<{ children: ReactNode }> = ({
       setEventEmitter(ee);
       setTwilioClient(client);
       setPhoneNumbers(numbers);
-      setActivePhoneNumber(numbers[0]);
       setIsAuthenticated(true);
       isSuccess = true;
       // Only save credentials in storage after validity check
@@ -132,9 +128,7 @@ export const TwilioProvider: React.FC<{ children: ReactNode }> = ({
         eventEmitter,
         setCredentials,
         isAuthenticated,
-        activePhoneNumber,
         phoneNumbers,
-        setActivePhoneNumber,
         isLoading,
         setWebhookUrl: setWebhookUrlContext,
         webhookUrl,

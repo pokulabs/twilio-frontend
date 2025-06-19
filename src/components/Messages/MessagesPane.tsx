@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Box, Sheet, Stack, Avatar } from "@mui/joy";
 
 import ChatBubble from "./ChatBubble";
@@ -10,29 +10,29 @@ import type { ChatInfo, PlainMessage } from "../../types";
 
 type MessagesPaneProps = {
   chat: ChatInfo;
-  activePhoneNumber: string;
 };
 
 export default function MessagesPane(props: MessagesPaneProps) {
-  const { chat, activePhoneNumber } = props;
+  const { chat } = props;
   const { twilioClient, eventEmitter } = useAuthedTwilio();
   const [chatMessages, setChatMessages] = React.useState<PlainMessage[]>([]);
 
   React.useEffect(() => {
-    twilioClient
-      .getMessages(activePhoneNumber, chat.contactNumber)
-      .then((chatMsgs) => {
-        setChatMessages(chatMsgs);
-        return twilioClient.updateMostRecentlySeenMessageId(
-          chat.chatId,
-          chatMsgs,
-        );
-      })
-      .catch((err) => console.error("Failed to fetch chat messages:", err));
+    const fetch = async () => {
+      try {
+        const msgs = await twilioClient.getMessages(chat.activeNumber, chat.contactNumber);
+        setChatMessages(msgs);
+        twilioClient.updateMostRecentlySeenMessageId(chat.chatId, msgs);
+      } catch (err) {
+        console.error("Failed to fetch chat messages:", err)
+      }
+    };
+
+    fetch();
 
     const subId = eventEmitter.on("new-message", (msg) => {
       const newMsgContactNumber =
-        msg.from === activePhoneNumber ? msg.to : msg.from;
+        msg.from === chat.activeNumber ? msg.to : msg.from;
       if (newMsgContactNumber === chat.contactNumber) {
         setChatMessages((prevMsgs) => [...prevMsgs, msg]);
       }
@@ -83,7 +83,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
         onSubmit={async (content) => {
           try {
             await twilioClient.sendMessage(
-              activePhoneNumber,
+              chat.activeNumber,
               chat.contactNumber,
               content,
             );

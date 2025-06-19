@@ -1,70 +1,39 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Sheet } from "@mui/joy";
 
 import MessagesPane from "./MessagesPane";
 import ChatsPane from "./ChatsPane";
 import NewMessagesPane from "./NewMessagePane";
-import { useAuthedTwilio } from "../../context/TwilioProvider";
 import withAuth from "../../context/withAuth";
 import { useWebsocketEvents } from "../../hooks/use-websocket-events";
 import { useSortedChats } from "../../hooks/use-sorted-chats";
 
 import type { ChatInfo } from "../../types";
-import { useNewMessageListener } from "../../hooks/use-new-message-listener";
 import { makeChatId } from "../../utils";
+import { Filters } from "../../services/contacts.service";
+import { useAuthedTwilio } from "../../context/TwilioProvider";
 
-function MessagesLayout(props: {
-  chats: ChatInfo[];
-  setChats: React.Dispatch<React.SetStateAction<ChatInfo[]>>;
-  activePhoneNumber: string;
-}) {
-  const { chats, setChats, activePhoneNumber } = props;
+function MessagesLayout() {
+  const { phoneNumbers } = useAuthedTwilio();
   const [selectedChat, setSelectedChat] = useState<ChatInfo | null>(null);
+  const [filters, setFilters] = useState<Filters>({ activeNumber: phoneNumbers[0] });
+  const [chats, setChats] = useSortedChats([]);
+
+  useSubscribeWsFlag(setChats);
 
   return (
-    <Sheet
-      id="messages-component"
-      sx={{
-        flex: 1,
-        width: "100%",
-        mx: "auto",
-        pt: { xs: "var(--Header-height)", md: 0 },
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "1fr",
-          sm: "minmax(min-content, min(30%, 400px)) 1fr",
-        },
-      }}
-    >
-      <Sheet
-        sx={{
-          position: { xs: "fixed", sm: "sticky" },
-          transform: {
-            xs: "translateX(calc(-100% * (var(--MessagesPane-slideIn, 0))))",
-            sm: "none",
-          },
-          transition: "transform 0.4s, width 0.4s",
-          zIndex: 100,
-          width: "100%",
-          top: 52,
-          height: { xs: "calc(100dvh - 52px)", sm: "100dvh" }, // Need this line
-          overflow: "hidden", // block parent scrolling
-        }}
-      >
-        <ChatsPane
-          activePhoneNumber={activePhoneNumber}
-          chats={chats}
-          selectedChat={selectedChat}
-          onUpdateChats={setChats}
-          onChatSelected={(chat) => {
-            setSelectedChat(chat ?? null);
-          }}
-        />
-      </Sheet>
+    <>
+      <ChatsPane
+        chats={chats}
+        selectedChat={selectedChat}
+        onUpdateChats={setChats}
+        onChatSelected={setSelectedChat}
+        filters={filters}
+        onUpdateFilters={setFilters}
+      />
       {selectedChat ? (
         <MessagesPane
           chat={selectedChat}
-          activePhoneNumber={activePhoneNumber}
         />
       ) : (
         <NewMessagesPane
@@ -85,12 +54,12 @@ function MessagesLayout(props: {
             //   setSelectedChat(chat);
             // }
             
-            setSelectedChat(chats.find(c => c.chatId === makeChatId(activePhoneNumber, contactNumber)) ?? null);
+            setSelectedChat(chats.find(c => c.chatId === makeChatId(filters.activeNumber, contactNumber)) ?? null);
           }}
-          activePhoneNumber={activePhoneNumber}
+          activePhoneNumber={filters.activeNumber}
         />
       )}
-    </Sheet>
+    </>
   );
 }
 
@@ -109,18 +78,23 @@ function useSubscribeWsFlag(
 }
 
 function MessagesContainer() {
-  const { activePhoneNumber } = useAuthedTwilio();
-  const [chats, setChats] = useSortedChats([]);
-
-  useNewMessageListener(activePhoneNumber, setChats);
-  useSubscribeWsFlag(setChats);
-
   return (
-    <MessagesLayout
-      chats={chats}
-      setChats={setChats}
-      activePhoneNumber={activePhoneNumber}
-    />
+    <Sheet
+      id="messages-component"
+      sx={{
+        flex: 1,
+        width: "100%",
+        mx: "auto",
+        pt: { xs: "var(--Header-height)", md: 0 },
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "minmax(min-content, min(30%, 400px)) 1fr",
+        },
+      }}
+    >
+      <MessagesLayout />
+    </Sheet>
   );
 }
 

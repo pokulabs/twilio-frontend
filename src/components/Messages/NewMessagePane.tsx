@@ -7,7 +7,7 @@ import NewMessagePaneHeader from "./NewMessagePaneHeader";
 
 export default function NewMessagesPane(props: {
   activePhoneNumber: string;
-  callback: (contactNumber: string) => void;
+  callback: (activeNumber: string, contactNumber: string) => void;
 }) {
   const { activePhoneNumber, callback } = props;
   const [contactNumber, setContactNumber] = React.useState("");
@@ -31,7 +31,7 @@ export default function NewMessagesPane(props: {
               contactNumber,
               content,
             );
-            callback(contactNumber);
+            callback(activePhoneNumber, contactNumber);
           }}
         />
       </Box>

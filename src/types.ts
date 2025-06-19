@@ -1,6 +1,7 @@
 export type MessageDirection = "inbound" | "outbound";
 
 export type ChatInfo = {
+    activeNumber: string;
     contactNumber: string;
     chatId: string;
     recentMsgDate: Date;
