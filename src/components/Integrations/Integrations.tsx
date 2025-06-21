@@ -2,7 +2,7 @@ import { Box, Tab, TabList, Tabs, tabClasses, TabPanel } from "@mui/joy";
 import TwilioForm from "./TwilioForm";
 import Vapi from "./Vapi";
 
-export default function WebhookIntegration() {
+export default function Integrations() {
   return (
     <Box sx={{ flex: 1, width: "100%" }}>
       <Box
@@ -38,7 +38,7 @@ export default function WebhookIntegration() {
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={0}>
               Twilio
             </Tab>
-            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
+            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={1}>
               Vapi
             </Tab>
           </TabList>
@@ -56,7 +56,7 @@ export default function WebhookIntegration() {
               <TwilioForm />
             </Box>
           </TabPanel>
-          <TabPanel value={2}>
+          <TabPanel value={1}>
             <Box
               sx={{
                 display: "flex",

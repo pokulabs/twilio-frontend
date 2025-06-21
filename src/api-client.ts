@@ -67,17 +67,19 @@ class ApiClient {
         humanNumber: string,
         agentNumber: string,
         waitTime: number,
+        usingHostedNumber: boolean,
     ) {
         return this.api.post("/account/hitl", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
+            usingHostedNumber: usingHostedNumber,
         });
     }
 
     async getAccount() {
         return this.api.get<
-            | { humanNumber: string; agentNumber: string; waitTime: number }
+            | { humanNumber: string; agentNumber: string; waitTime: number; usingHostedNumber: boolean; haatMessageCount: number; }
             | undefined
         >("/account/hitl");
     }
