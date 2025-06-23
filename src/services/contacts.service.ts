@@ -69,7 +69,7 @@ export class ContactsService {
         activeNumber: string,
         {
             existingChatsId = [],
-            chatsPageSize = 6,
+            chatsPageSize = 10,
             ...opts
         }: GetChatsOptions,
     ): Promise<GetChatsResult> {

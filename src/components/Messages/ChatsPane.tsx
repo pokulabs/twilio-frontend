@@ -16,6 +16,7 @@ import {
   Dropdown,
   MenuButton,
   Badge,
+  Box,
 } from "@mui/joy";
 import {
   EditNoteRounded,
@@ -38,7 +39,7 @@ import { useNewMessageListener } from "../../hooks/use-new-message-listener";
 
 export default function ChatsPane(props: {
   chats: ChatInfo[];
-  selectedChat: ChatInfo | null;
+  selectedChatId?: string;
   onChatSelected: React.Dispatch<React.SetStateAction<ChatInfo | null>>;
   onUpdateChats: React.Dispatch<React.SetStateAction<ChatInfo[]>>;
   filters: Filters;
@@ -46,7 +47,7 @@ export default function ChatsPane(props: {
 }) {
   const {
     chats,
-    selectedChat,
+    selectedChatId,
     onChatSelected,
     onUpdateChats,
     filters,
@@ -55,15 +56,13 @@ export default function ChatsPane(props: {
 
   const { twilioClient, phoneNumbers, whatsappNumbers } =
     useAuthedTwilio();
-  const [contactsFilter, setContactsFilter] = useState("");
   const [hasMoreLoading, setHasMoreLoading] = useState(false);
   const [hasMoreChats, setHasMoreChats] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   
   const [paginationState, setPaginationState] = useState<PaginationState | undefined>(undefined);
 
   useNewMessageListener(filters.activeNumber, onUpdateChats);
-  useInitialChatsFetch(filters.activeNumber, filters, onUpdateChats, setPaginationState);
+  const { isLoading } = useInitialChatsFetch(filters, onUpdateChats, setPaginationState);
 
   useEffect(() => {
     // Check if there are more chats to load
@@ -77,7 +76,6 @@ export default function ChatsPane(props: {
     try {
       const newChats = await fetchChatsHelper(
         twilioClient,
-        filters.activeNumber,
         chats,
         paginationState,
         filters,
@@ -95,19 +93,6 @@ export default function ChatsPane(props: {
       });
     } finally {
       setHasMoreLoading(false);
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!contactsFilter.trim() || isSearching) return;
-
-    setIsSearching(true);
-    try {
-      onUpdateFilters(prev => ({ ...prev, search: contactsFilter ?? undefined }));
-    } catch (err) {
-      console.error("Search failed:", err);
-    } finally {
-      setIsSearching(false);
     }
   };
 
@@ -199,46 +184,7 @@ export default function ChatsPane(props: {
           })}
         </Select>
         <Stack direction="row" spacing={1}>
-          <Input
-            sx={{ flex: 1 }}
-            onChange={(event) => {
-              setContactsFilter(event.target.value);
-              if (!event.target.value) {
-                onUpdateFilters(prev => ({ ...prev, search: undefined }));
-              }
-            }}
-            value={contactsFilter}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSearch();
-              }
-            }}
-            startDecorator={
-              <IconButton
-                size="sm"
-                onClick={() => {
-                  setContactsFilter("");
-                  onUpdateFilters(prev => ({ ...prev, search: undefined }));
-                }}
-              >
-                <CloseRounded />
-              </IconButton>
-            }
-            endDecorator={
-              <IconButton
-                variant="soft"
-                onClick={handleSearch}
-                disabled={isSearching || !contactsFilter.trim()}
-              >
-                {isSearching ? (
-                  <CircularProgress size="sm" />
-                ) : (
-                  <SearchRounded />
-                )}
-              </IconButton>
-            }
-            placeholder="Search for chat"
-          />
+          <SearchContact onUpdateFilters={onUpdateFilters} />
           <MessageFilter onChange={(filters => {
             onUpdateFilters(prev => ({ ...prev, onlyUnread: filters.onlyUnread }));
           })} />
@@ -253,7 +199,11 @@ export default function ChatsPane(props: {
           "--ListItem-paddingX": "1rem",
         }}
       >
-        {chats.map((chat) => (
+        {isLoading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            <CircularProgress />
+          </Box>
+        ) : chats.map((chat) => (
           <ChatListItem
             key={chat.chatId}
             chat={chat}
@@ -267,11 +217,11 @@ export default function ChatsPane(props: {
               );
               onChatSelected(chat);
             })}
-            isSelected={selectedChat?.chatId === chat.chatId}
+            isSelected={selectedChatId === chat.chatId}
           />
         ))}
 
-        {hasMoreChats && !contactsFilter && (
+        {hasMoreChats && !filters.search && !isLoading && (
           <ListItem sx={{ justifyContent: "center", py: 2 }}>
             <Button
               variant="outlined"
@@ -290,11 +240,54 @@ export default function ChatsPane(props: {
   );
 }
 
-type MessageFilterProps = {
-  onChange: (filters: { onlyUnread: boolean }) => void;
-};
+function SearchContact(props: {
+  onUpdateFilters: React.Dispatch<React.SetStateAction<Filters>>;
+}) {
+  const { onUpdateFilters } = props;
+  const [inputValue, setInputValue] = React.useState("");
 
-function MessageFilter({ onChange }: MessageFilterProps) {
+  return (
+    <Input
+      sx={{ flex: 1 }}
+      onChange={(event) => {
+        setInputValue(event.target.value);
+      }}
+      value={inputValue}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          onUpdateFilters(prev => ({ ...prev, search: inputValue }));
+        }
+      }}
+      startDecorator={
+        <IconButton
+          size="sm"
+          onClick={() => {
+            onUpdateFilters(prev => ({ ...prev, search: undefined }));
+          }}
+        >
+          <CloseRounded />
+        </IconButton>
+      }
+      endDecorator={
+        <IconButton
+          variant="soft"
+          onClick={() => {
+            onUpdateFilters(prev => ({ ...prev, search: inputValue }));
+          }}
+          disabled={!inputValue?.trim()}
+        >
+          <SearchRounded />
+        </IconButton>
+      }
+      placeholder="Search for chat"
+    />
+  );
+}
+
+function MessageFilter(props: {
+  onChange: (filters: { onlyUnread: boolean }) => void;
+}) {
+  const { onChange } = props;
   const [onlyUnread, setOnlyUnread] = useState(false);
 
   return (
@@ -330,13 +323,12 @@ function MessageFilter({ onChange }: MessageFilterProps) {
 
 export async function fetchChatsHelper(
   twilioClient: TwilioClient,
-  activePhoneNumber: string,
   existingChats: ChatInfo[],
   paginationState: PaginationState | undefined,
   filters: Filters,
 ) {
   const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
-    twilioClient.getChats(activePhoneNumber, {
+    twilioClient.getChats(filters.activeNumber, {
       paginationState,
       filters,
       existingChatsId: existingChats.map((e) => e.chatId),
@@ -352,7 +344,7 @@ export async function fetchChatsHelper(
   const { chats: newChats } = newChatsResult.value;
 
   // Apply unread status
-  const unreads = await twilioClient.hasUnread(activePhoneNumber, newChats);
+  const unreads = await twilioClient.hasUnread(filters.activeNumber, newChats);
   newChats.forEach((c, i) => {
     c.hasUnread = unreads[i];
   });

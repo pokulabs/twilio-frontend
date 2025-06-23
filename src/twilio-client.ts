@@ -1,8 +1,8 @@
 import { MessagesService } from "./services/messages.service";
-import { ContactsService, PaginationState, type GetChatsOptions } from "./services/contacts.service";
+import { ContactsService, type PaginationState, type GetChatsOptions } from "./services/contacts.service";
 import { PhoneNumbersService } from "./services/phone-numbers.service";
 import TwilioRawClient from "./services/twilio-raw-client";
-import { ChatInfo, PlainMessage } from "./types";
+import type { ChatInfo, PlainMessage } from "./types";
 
 class TwilioClient {
     axiosInstance: TwilioRawClient;

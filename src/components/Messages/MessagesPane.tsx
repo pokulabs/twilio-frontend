@@ -34,7 +34,14 @@ export default function MessagesPane(props: MessagesPaneProps) {
       const newMsgContactNumber =
         msg.from === chat.activeNumber ? msg.to : msg.from;
       if (newMsgContactNumber === chat.contactNumber) {
-        setChatMessages((prevMsgs) => [...prevMsgs, msg]);
+        setChatMessages((prevMsgs) => {
+          if (prevMsgs.at(-1)?.id === msg.id) {
+            // Overwrite the last message
+            return [...prevMsgs.slice(0, -1), msg];
+          }
+          // Append the new message
+          return [...prevMsgs, msg];
+        });
       }
     });
 

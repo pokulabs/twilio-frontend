@@ -25,7 +25,7 @@ function MessagesLayout() {
     <>
       <ChatsPane
         chats={chats}
-        selectedChat={selectedChat}
+        selectedChatId={selectedChat?.chatId}
         onUpdateChats={setChats}
         onChatSelected={setSelectedChat}
         filters={filters}
@@ -54,7 +54,7 @@ function MessagesLayout() {
             //   setSelectedChat(chat);
             // }
             
-            setSelectedChat(chats.find(c => c.chatId === makeChatId(filters.activeNumber, contactNumber)) ?? null);
+            setSelectedChat(chats.find(c => c.chatId === makeChatId(activeNumber, contactNumber)) ?? null);
           }}
           activePhoneNumber={filters.activeNumber}
         />
