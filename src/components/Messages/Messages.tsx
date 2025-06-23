@@ -9,12 +9,11 @@ import { useWebsocketEvents } from "../../hooks/use-websocket-events";
 import { useSortedChats } from "../../hooks/use-sorted-chats";
 
 import type { ChatInfo } from "../../types";
-import { makeChatId } from "../../utils";
 import { Filters } from "../../services/contacts.service";
 import { useAuthedTwilio } from "../../context/TwilioProvider";
 
 function MessagesLayout() {
-  const { phoneNumbers } = useAuthedTwilio();
+  const { phoneNumbers, twilioClient } = useAuthedTwilio();
   const [selectedChat, setSelectedChat] = useState<ChatInfo | null>(null);
   const [filters, setFilters] = useState<Filters>({ activeNumber: phoneNumbers[0] });
   const [chats, setChats] = useSortedChats([]);
@@ -38,23 +37,8 @@ function MessagesLayout() {
       ) : (
         <NewMessagesPane
           callback={(activeNumber, contactNumber) => {
-            // const newChats = await fetchChatsHelper(
-            //   twilioClient,
-            //   activePhoneNumber,
-            //   chats,
-            //   undefined,
-            //   filters,
-            // );
-            // setPaginationState(newChats.paginationState);
-            // setChats(newChats.chats);
-            // const chat = newChats.chats.find(
-            //   (e) => e.contactNumber === contactNumber,
-            // );
-            // if (chat) {
-            //   setSelectedChat(chat);
-            // }
-            
-            setSelectedChat(chats.find(c => c.chatId === makeChatId(activeNumber, contactNumber)) ?? null);
+            twilioClient.getChat(activeNumber, contactNumber)
+            .then(res => setSelectedChat(res ?? null));
           }}
           activePhoneNumber={filters.activeNumber}
         />
