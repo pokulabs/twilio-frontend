@@ -4,8 +4,8 @@ import { Alert, Input, Button, Typography, Stack } from "@mui/joy";
 
 import { useTwilio } from "../../context/TwilioProvider";
 import Whatsapp from "./Whatsapp";
-import { useAuth } from "../../context/AuthContext";
 import { apiClient } from "../../api-client";
+import { useAuth } from "react-oidc-context";
 
 export default function TwilioForm() {
   const {

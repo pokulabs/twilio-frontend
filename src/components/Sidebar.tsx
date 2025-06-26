@@ -29,12 +29,11 @@ import logo from "../assets/logo.png"; // Import the logo
 import slack from "../assets/slack.png";
 import ColorSchemeToggle from "./Messages/ColorSchemeToggle";
 import { closeSidebar, DOCS_LINK, GITHUB_LINK, SLACK_LINK } from "../utils";
-import { useAuth } from "../context/AuthContext";
-import { googleLogout } from "@react-oauth/google";
+import { useAuth } from "react-oidc-context";
 
 export default function Sidebar() {
   const location = useLocation();
-  const { logout, user, isAuthenticated } = useAuth();
+  const { signoutSilent, user, isAuthenticated } = useAuth();
 
   return (
     <Sheet
@@ -230,7 +229,7 @@ export default function Sidebar() {
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography level="title-sm">Logged in</Typography>
-              <Typography level="body-xs">{user?.email}</Typography>
+              <Typography level="body-xs">{user?.profile.preferred_username}</Typography>
             </Box>
             <IconButton
               title="Logout"
@@ -238,8 +237,7 @@ export default function Sidebar() {
               variant="plain"
               color="neutral"
               onClick={() => {
-                googleLogout();
-                logout();
+                signoutSilent();
               }}
             >
               <LogoutRounded />

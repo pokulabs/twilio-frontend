@@ -1,8 +1,7 @@
 import axios, { type AxiosInstance } from "axios";
-import { storage } from "./storage";
-import type { CredentialResponse } from "@react-oauth/google";
 import type { MessageDirection } from "./types";
 import { Recipient } from "./components/Campaigns/CsvUploader";
+import { storage } from "./storage";
 
 class ApiClient {
     private api: AxiosInstance;
@@ -15,9 +14,9 @@ class ApiClient {
         this.api.interceptors.request.use((config) => {
             const controller = new AbortController();
 
-            const user = storage.getUser();
-            if (user.idToken && import.meta.env.VITE_API_URL) {
-                config.headers.Authorization = `Bearer ${user.idToken}`;
+            const token = storage.getUser()?.access_token;
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
             } else {
                 controller.abort();
             }
@@ -147,15 +146,6 @@ class ApiClient {
 
     async createApiKey() {
         return this.api.post("/auth/key");
-    }
-
-    async login(credentialResponse: CredentialResponse) {
-        if (!import.meta.env.VITE_API_URL) {
-            throw new Error("Must supply env var: VITE_API_URL");
-        }
-        return axios.post(import.meta.env.VITE_API_URL + "/auth/google", {
-            token: credentialResponse.credential,
-        });
     }
 
     async refresh() {

@@ -23,7 +23,7 @@ import {
 import { DOCS_LINK, toggleMessagesPane } from "../../utils";
 
 import type { ChatInfo } from "../../types";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../api-client";
 

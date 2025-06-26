@@ -1,3 +1,4 @@
+import { User } from "oidc-client-ts";
 import type { WebhooksActivationStatus } from "./types";
 
 type Store = {
@@ -11,12 +12,6 @@ type Store = {
         webhooksActivationStatus: WebhooksActivationStatus;
         whatsappNumbers: string[];
     };
-    user: {
-        id: string;
-        email: string;
-        name: string;
-        idToken: string;
-    };
 };
 
 const storageDefaults: Store = {
@@ -29,12 +24,6 @@ const storageDefaults: Store = {
             "update-autonomy-state": true,
         },
         whatsappNumbers: [],
-    },
-    user: {
-        id: "",
-        email: "",
-        name: "",
-        idToken: "",
     },
 };
 
@@ -77,11 +66,6 @@ class Storage {
         const mainStore = mainStoreText ? JSON.parse(mainStoreText) : {};
         this.setDefaults(mainStore, storageDefaults.mainStore);
         localStorage.setItem("mainStore", JSON.stringify(mainStore));
-
-        const userText = localStorage.getItem("user");
-        const user = userText ? JSON.parse(userText) : {};
-        this.setDefaults(user, storageDefaults.user);
-        localStorage.setItem("user", JSON.stringify(user));
     }
 
     get<K extends keyof Store>(key: K): Store[K] {
@@ -127,24 +111,12 @@ class Storage {
     }
 
     getUser() {
-        return this.get("user");
-    }
-
-    setUser(id: string, email: string, name: string, idToken: string) {
-        const obj = {
-            ...this.get("user"),
-            id,
-            email,
-            name,
-            idToken,
-        };
-        localStorage.setItem("user", JSON.stringify(obj));
-    }
-
-    removeUser() {
-        const user = {};
-        this.setDefaults(user, storageDefaults.user);
-        localStorage.setItem("user", JSON.stringify(user));
+        const oidcStorage = localStorage.getItem(`oidc.user:${import.meta.env.VITE_AUTHORITY_URL}:${import.meta.env.VITE_CLIENT_ID}`);
+        if (!oidcStorage) {
+            return null;
+        }
+    
+        return User.fromStorageString(oidcStorage);
     }
 }
 

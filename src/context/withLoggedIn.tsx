@@ -1,7 +1,6 @@
 import React from "react";
-import { Alert, Box, Button } from "@mui/joy";
-import { Link } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+import { Alert, Box, Button, Card } from "@mui/joy";
+import { useAuth } from "react-oidc-context";
 
 const withLoggedIn = <P extends object>(
   Component: React.ComponentType<P>,
@@ -9,7 +8,7 @@ const withLoggedIn = <P extends object>(
   inline = false,
 ) => {
   return (props: P) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, signinRedirect } = useAuth();
 
     if (!isAuthenticated) {
       return (
@@ -26,21 +25,24 @@ const withLoggedIn = <P extends object>(
             maxWidth: 400,
           }}
         >
-          <Alert
-            variant="outlined"
-            color="warning"
-            sx={{ mb: 2, textAlign: "center" }}
-          >
-            To access {area}, you must first login to Poku.
-          </Alert>
-          <Button
-            variant="solid"
-            sx={{ width: "100%" }}
-            component={Link}
-            to="/account"
-          >
-            Go to Account Page
-          </Button>
+          <Card sx={{ pb: 5 }} >
+
+            <Alert
+              variant="outlined"
+              color="warning"
+              sx={{ mb: 2, textAlign: "center" }}
+            >
+              To access {area}, you must first login to Poku.
+            </Alert>
+            <Button
+              variant="solid"
+              onClick={() => {
+                signinRedirect();
+              }}
+            >
+              Login
+            </Button>
+          </Card>
         </Box>
       );
     }

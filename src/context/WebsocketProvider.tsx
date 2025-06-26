@@ -1,7 +1,7 @@
 // WebSocketProvider.tsx
 import { createContext, useContext } from "react";
 import useWebSocket, { ReadyState, SendMessage } from "react-use-websocket";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "react-oidc-context";
 
 type WSMessage = { type: string; payload: any };
 
@@ -20,14 +20,14 @@ export const WebsocketProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { token, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const url = import.meta.env.VITE_API_URL || "ws://localhost:3000";
 
   const { sendJsonMessage, lastJsonMessage, readyState } =
     useWebSocket<WSMessage>(
       url,
       {
-        queryParams: { token: token! },
+        queryParams: { token: user?.access_token! },
         shouldReconnect: () => true,
         reconnectInterval: 3000,
         share: true,
