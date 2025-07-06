@@ -144,13 +144,19 @@ export default function HumanAsATool() {
                   arrow
                   title={
                     <Stack>
-                      <Typography sx={{ mt: 1 }} level="body-xs" color="warning">
-                        ⚠️ {haatMessageLimit} messages/month limit when using a free Poku
-                        number.
+                      <Typography
+                        sx={{ mt: 1 }}
+                        level="body-xs"
+                        color="warning"
+                      >
+                        ⚠️ {haatMessageLimit} messages/month limit when using a
+                        free Poku number.
                       </Typography>
                       <Typography level="body-xs" color="warning">
                         To increase please contact us at{" "}
-                        <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
+                        <a href="mailto:hello@pokulabs.com">
+                          hello@pokulabs.com
+                        </a>
                       </Typography>
                     </Stack>
                   }
@@ -168,8 +174,6 @@ export default function HumanAsATool() {
               determinate
               value={haatMessageCount * (100 / haatMessageLimit)}
             />
-
-            
           </Box>
         )}
       </Stack>
