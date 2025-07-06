@@ -40,7 +40,7 @@ export default function NewMessagePaneHeader(props: MessagesPaneHeaderProps) {
           <b>From:</b> {activeNumber}
         </Typography>
         <Input
-          placeholder="Use format: +12223334444"
+          placeholder="Ex: +12223334444"
           onChange={(e) => setContactNumber(e.target.value)}
           startDecorator={
             <>
