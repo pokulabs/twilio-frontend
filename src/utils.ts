@@ -66,10 +66,21 @@ export function makeChatId(activeNumber: string, contactNumber: string) {
 }
 
 export function displayDateTime(d: Date) {
-    if (d.getDate() === new Date().getDate()) {
-        const time = d.toLocaleTimeString();
-        return time.split(":").slice(0, 2).join(":") + " " + time.split(" ")[1];
+    const now = new Date();
+
+    const sameDay =
+        d.getFullYear() === now.getFullYear() &&
+        d.getMonth() === now.getMonth() &&
+        d.getDate() === now.getDate();
+
+    if (sameDay) {
+        // Show time only, e.g., "10:45 AM"
+        return d.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+        });
     } else {
+        // Show date only, e.g., "7/3/2025"
         return d.toLocaleDateString();
     }
 }

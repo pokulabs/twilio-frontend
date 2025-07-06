@@ -38,9 +38,9 @@ export default function Integrations() {
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={0}>
               Twilio
             </Tab>
-            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={1}>
+            {/* <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={1}>
               Vapi
-            </Tab>
+            </Tab> */}
           </TabList>
           <TabPanel value={0}>
             <Box
@@ -56,7 +56,7 @@ export default function Integrations() {
               <TwilioForm />
             </Box>
           </TabPanel>
-          <TabPanel value={1}>
+          {/* <TabPanel value={1}>
             <Box
               sx={{
                 display: "flex",
@@ -69,7 +69,7 @@ export default function Integrations() {
             >
               <Vapi />
             </Box>
-          </TabPanel>
+          </TabPanel> */}
         </Tabs>
       </Box>
     </Box>

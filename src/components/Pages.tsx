@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { useTwilio } from "../context/TwilioProvider";
-import { useAuth } from "react-oidc-context";
+import { useAuth, useAutoSignin } from "react-oidc-context";
 import { apiClient } from "../api-client";
 
 const Pages: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setCredentials, sid, authToken } = useTwilio();
+
+  useAutoSignin();
 
   const auth = useAuth();
 

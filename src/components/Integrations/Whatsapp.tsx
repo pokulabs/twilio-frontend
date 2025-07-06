@@ -43,7 +43,7 @@ export default function Whatsapp() {
             value={number}
             onChange={(e) => handleInputChange(index, e.target.value)}
             sx={{ flexGrow: 1 }}
-            placeholder="whatsapp:+12223334444"
+            placeholder="Use format: whatsapp:+12223334444"
           />
           <IconButton
             onClick={() => handleRemoveInput(index)}

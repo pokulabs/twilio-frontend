@@ -11,9 +11,12 @@ import {
   RadioGroup,
   LinearProgress,
   Link,
+  IconButton,
+  Tooltip,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
+import { InfoOutlined } from "@mui/icons-material";
 
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
@@ -128,7 +131,36 @@ export default function HumanAsATool() {
 
         {usingHostedNumber && (
           <Box>
-            <Typography level="body-sm">
+            <Typography
+              level="body-sm"
+              endDecorator={
+                <Tooltip
+                  sx={{ maxWidth: 400, zIndex: 10000 }}
+                  enterTouchDelay={0}
+                  leaveDelay={100}
+                  leaveTouchDelay={10000}
+                  variant="outlined"
+                  placement="bottom"
+                  arrow
+                  title={
+                    <Stack>
+                      <Typography sx={{ mt: 1 }} level="body-xs" color="warning">
+                        ⚠️ {haatMessageLimit} messages/month limit when using a free Poku
+                        number.
+                      </Typography>
+                      <Typography level="body-xs" color="warning">
+                        To increase please contact us at{" "}
+                        <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
+                      </Typography>
+                    </Stack>
+                  }
+                >
+                  <IconButton size="sm">
+                    <InfoOutlined />
+                  </IconButton>
+                </Tooltip>
+              }
+            >
               Usage: {haatMessageCount} / {haatMessageLimit}
             </Typography>
 
@@ -137,14 +169,7 @@ export default function HumanAsATool() {
               value={haatMessageCount * (100 / haatMessageLimit)}
             />
 
-            <Typography sx={{ mt: 1 }} level="body-xs" color="warning">
-              ⚠️ {haatMessageLimit} messages/month limit when using a free Poku
-              number.
-            </Typography>
-            <Typography level="body-xs" color="warning">
-              To increase please contact us at{" "}
-              <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
-            </Typography>
+            
           </Box>
         )}
       </Stack>
@@ -157,7 +182,7 @@ export default function HumanAsATool() {
         <Input
           value={humanNumber}
           onChange={(e) => setHumanNumber(e.target.value || "")}
-          placeholder="+12223334444"
+          placeholder="Use format: +12223334444"
         />
       </Box>
 
