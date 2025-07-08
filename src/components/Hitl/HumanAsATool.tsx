@@ -13,6 +13,7 @@ import {
   Link,
   IconButton,
   Tooltip,
+  Checkbox,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
@@ -108,6 +109,18 @@ export default function HumanAsATool() {
           setAgentNumberSource={setUsingHostedNumber}
         />
 
+        <Checkbox
+            label="Use WhatsApp"
+            checked={hostedAgentNumber.startsWith("whatsapp:")}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setHostedAgentNumber(`whatsapp:${hostedAgentNumber}`);
+              } else {
+                setHostedAgentNumber(hostedAgentNumber.slice(9));
+              }
+            }}
+          />
+
         {!usingHostedNumber ? (
           <Select
             placeholder="Choose a number"
@@ -186,7 +199,7 @@ export default function HumanAsATool() {
         <Input
           value={humanNumber}
           onChange={(e) => setHumanNumber(e.target.value || "")}
-          placeholder="Use format: +12223334444"
+          placeholder="Ex: +12223334444"
         />
       </Box>
 
