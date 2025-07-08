@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Typography,
@@ -10,18 +10,9 @@ import {
 import { apiClient } from "../../api-client";
 import { Check, InfoOutlined } from "@mui/icons-material";
 
-export default function LlmKey() {
+export default function LlmKey(props: { isSaved: boolean; setIsSaved: React.Dispatch<React.SetStateAction<boolean>> }) {
+  const { isSaved, setIsSaved } = props;
   const [llmKey, setLlmKey] = useState("");
-  const [isSaved, setIsSaved] = useState(false);
-
-  useEffect(() => {
-    apiClient
-      .checkLlmKeyExists()
-      .then((res) => {
-        setIsSaved(res.data.hasKey);
-      })
-      .catch((err) => console.error(err));
-  }, []);
 
   const handleSave = async () => {
     await apiClient.createLlmKey(llmKey);

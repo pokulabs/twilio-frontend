@@ -15,7 +15,8 @@ import { Delete } from "@mui/icons-material";
 import { apiClient } from "../../api-client";
 import type { MessageDirection } from "../../types";
 
-export default function DecisionAgent() {
+export default function DecisionAgent(props: { hasLlmKey: boolean; }) {
+  const { hasLlmKey } = props;
   const [agents, setAgents] = useState<
     { id: string; prompt: string; messageDirection: MessageDirection }[]
   >([]);
@@ -120,7 +121,7 @@ export default function DecisionAgent() {
           value={newPrompt}
           onChange={(e) => setNewPrompt(e.target.value)}
         />
-        <Button onClick={handleCreate} disabled={!newPrompt}>
+        <Button onClick={handleCreate} disabled={!newPrompt || !hasLlmKey}>
           Add Rule
         </Button>
       </Stack>

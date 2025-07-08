@@ -9,10 +9,9 @@ import {
   Typography,
 } from "@mui/joy";
 
-import LlmKey from "./LlmKey";
-import DecisionAgent from "./Agent";
 import withLoggedIn from "../../context/withLoggedIn";
 import HumanAsATool from "./HumanAsATool";
+import Flagging from "./Flagging";
 
 function Hitl() {
   return (
@@ -89,7 +88,7 @@ function Hitl() {
                 <Box>
                   <Typography>
                     Automatically flag messages for review based on your own
-                    rules.
+                    rules, using your own OpenAI Key.
                   </Typography>
                   <Typography>
                     Learn more{" "}
@@ -103,8 +102,7 @@ function Hitl() {
                     .
                   </Typography>
                 </Box>
-                <LlmKey />
-                <DecisionAgent />
+                <Flagging />
               </Box>
             </Box>
           </TabPanel>

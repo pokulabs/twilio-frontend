@@ -1,14 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTwilio } from "../context/TwilioProvider";
-import { useAuth, useAutoSignin } from "react-oidc-context";
+import { hasAuthParams, useAuth } from "react-oidc-context";
 import { apiClient } from "../api-client";
 
 const Pages: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setCredentials, sid, authToken } = useTwilio();
 
-  useAutoSignin();
-
   const auth = useAuth();
+
+  const [hasTriedSignin, setHasTriedSignin] = useState(false);
+
+    // automatically sign-in
+    useEffect(() => {
+        if (!hasAuthParams() &&
+            !auth.isAuthenticated && !auth.activeNavigator && !auth.isLoading &&
+            !hasTriedSignin
+        ) {
+            auth.signinSilent();
+            setHasTriedSignin(true);
+        }
+    }, [auth, hasTriedSignin]);
+  
+  // auth.removeUser()
+  // auth.signinSilent();
 
   // useEffect(() => {
   //   return auth.events.addUserSignedIn(async () => {
