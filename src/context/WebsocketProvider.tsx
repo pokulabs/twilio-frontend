@@ -1,5 +1,4 @@
-// WebSocketProvider.tsx
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 import useWebSocket, { ReadyState, SendMessage } from "react-use-websocket";
 import { useAuth } from "react-oidc-context";
 
@@ -21,13 +20,18 @@ export const WebsocketProvider = ({
   children: React.ReactNode;
 }) => {
   const { user, isAuthenticated } = useAuth();
-  const url = import.meta.env.VITE_API_URL || "ws://localhost:3000";
+
+  const token = user?.access_token;
+
+  const url = useMemo(() => {
+    const base = import.meta.env.VITE_API_URL || "ws://localhost:3000";
+    return token ? `${base}?token=${encodeURIComponent(token)}` : null;
+  }, [token]);
 
   const { sendJsonMessage, lastJsonMessage, readyState } =
     useWebSocket<WSMessage>(
       url,
       {
-        queryParams: { token: user?.access_token! },
         shouldReconnect: () => true,
         reconnectInterval: 3000,
         share: true,
@@ -35,7 +39,7 @@ export const WebsocketProvider = ({
         onClose: () => console.log("WebSocket disconnected"),
         onError: (e) => console.error("WebSocket error", e),
       },
-      isAuthenticated,
+      Boolean(isAuthenticated && token),
     );
 
   return (
