@@ -5,10 +5,10 @@ import Typography from "@mui/joy/Typography";
 import type { PlainMessage } from "../../types";
 import { displayDateTime } from "../../utils";
 import React from "react";
+import { Link } from "@mui/joy";
 
 export default function ChatBubble(props: PlainMessage) {
-  const { content, timestamp, direction, status } = props;
-  const isSent = direction === "outbound";
+  const isSent = props.direction === "outbound";
   return (
     <Box sx={{ maxWidth: "60%", minWidth: "auto" }}>
       <Stack
@@ -17,8 +17,20 @@ export default function ChatBubble(props: PlainMessage) {
         sx={{ justifyContent: "space-between", mb: 0.25 }}
       >
         <Typography level="body-xs">
-          {displayDateTime(new Date(timestamp))}
+          {displayDateTime(new Date(props.timestamp))}
         </Typography>
+        {props.errorCode !== 0 && (
+          <Typography level="body-xs">
+            Error code:{" "}
+            <Link
+              href={`https://www.twilio.com/docs/api/errors/${props.errorCode}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {props.errorCode}
+            </Link>
+          </Typography>
+        )}
       </Stack>
       <Box sx={{ position: "relative" }}>
         <Sheet
@@ -50,7 +62,7 @@ export default function ChatBubble(props: PlainMessage) {
                   ? "var(--joy-palette-common-white)"
                   : "var(--joy-palette-text-primary)",
               },
-              !["delivered", "received", "read"].includes(status)
+              !["delivered", "received", "read"].includes(props.status)
                 ? {
                     color: "var(--joy-palette-danger-400)",
                   }
@@ -60,7 +72,7 @@ export default function ChatBubble(props: PlainMessage) {
               },
             ]}
           >
-            {content.split("\n").map((line, idx) => (
+            {props.content.split("\n").map((line, idx) => (
               <React.Fragment key={idx}>
                 {line}
                 <br />

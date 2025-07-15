@@ -56,6 +56,7 @@ export class MessagesService {
             to: e.to,
             id: e.sid,
             status: e.status,
+            errorCode: e.errorCode,
         }));
 
         return msgs;

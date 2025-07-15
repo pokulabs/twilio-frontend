@@ -23,6 +23,7 @@ export type PlainMessage = {
     to: string;
     id: string;
     status: MessageStatus;
+    errorCode: number;
 };
 
 export type RawMsg = {
