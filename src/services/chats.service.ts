@@ -70,6 +70,7 @@ export class ContactsService {
         { existingChatsId = [], chatsPageSize = 10, ...opts }: GetChatsOptions,
     ): Promise<GetChatsResult> {
         const chats = new Map<string, ChatInfo>();
+        const processedForUnread = new Set<string>();
         let isFirstRun = false;
 
         let paginators = opts.paginationState
@@ -108,6 +109,8 @@ export class ContactsService {
         }
 
         while (chats.size < chatsPageSize) {
+            const newlyAddedChats = new Map<string, ChatInfo>();
+
             let cutoffDate = this.getMostRecentMessage(
                 paginators.inbound.items.at(-1),
                 paginators.outbound.items.at(-1),
@@ -140,6 +143,7 @@ export class ContactsService {
                 }
 
                 chats.set(chatInfo.chatId, chatInfo);
+                newlyAddedChats.set(chatInfo.chatId, chatInfo);
 
                 if (chats.size >= chatsPageSize) {
                     // Ended early so back up the pointer (make more recent in the array)
@@ -149,7 +153,15 @@ export class ContactsService {
             }
 
             if (opts.filters?.onlyUnread) {
-                await this.removeUnread(activeNumber, chats);
+                const unread = await this.filterToUnread(activeNumber, newlyAddedChats);
+
+                for (const chatId of newlyAddedChats.keys()) {
+                    processedForUnread.add(chatId);
+            
+                    if (!unread.has(chatId)) {
+                        chats.delete(chatId);
+                    }
+                }
             }
 
             // Update pointers
@@ -236,16 +248,20 @@ export class ContactsService {
         );
     }
 
-    private async removeUnread(
+    private async filterToUnread(
         activeNumber: string,
         chats: Map<string, ChatInfo>,
     ) {
         const unread = await this.hasUnread(activeNumber, [...chats.values()]);
+        
+        const filtered = new Map<string, ChatInfo>();
         [...chats.values()].forEach((c, i) => {
-            if (!unread[i]) {
-                chats.delete(c.chatId);
+            if (unread[i]) {
+                filtered.set(c.chatId, c);
             }
         });
+    
+        return filtered;
     }
 
     private createChatInfo(activeNumber: string, message: TwilioMsg): ChatInfo {
