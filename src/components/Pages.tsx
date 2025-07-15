@@ -10,19 +10,19 @@ const Pages: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const [hasTriedSignin, setHasTriedSignin] = useState(false);
 
-    // automatically sign-in
-    useEffect(() => {
-        if (!hasAuthParams() &&
-            !auth.isAuthenticated && !auth.activeNavigator && !auth.isLoading &&
-            !hasTriedSignin
-        ) {
-            auth.signinSilent();
-            setHasTriedSignin(true);
-        }
-    }, [auth, hasTriedSignin]);
-  
-  // auth.removeUser()
-  // auth.signinSilent();
+  // automatically sign-in
+  useEffect(() => {
+    if (
+      !hasAuthParams() &&
+      !auth.isAuthenticated &&
+      !auth.activeNavigator &&
+      !auth.isLoading &&
+      !hasTriedSignin
+    ) {
+      auth.signinSilent();
+      setHasTriedSignin(true);
+    }
+  }, [auth, hasTriedSignin]);
 
   // useEffect(() => {
   //   return auth.events.addUserSignedIn(async () => {

@@ -27,10 +27,7 @@ export default function ApiKey() {
       </Typography>
 
       <Typography level="body-md" sx={{ mb: 2 }}>
-        You can generate an API key below.{" "}
-      </Typography>
-      <Typography level="body-md" sx={{ mb: 2 }}>
-        <strong>Generating an API key will invalidate any previous one.</strong>
+        Generating an API key will invalidate any previous one.
       </Typography>
 
       {apiKey ? (

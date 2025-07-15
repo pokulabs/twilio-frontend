@@ -13,16 +13,18 @@ import {
   Link,
   IconButton,
   Tooltip,
+  Divider,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import { InfoOutlined } from "@mui/icons-material";
+import { Link as RLink } from "react-router-dom";
 
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
   const [humanNumber, setHumanNumber] = useState("");
   const [agentNumber, setAgentNumber] = useState("");
-  const [hostedAgentNumber, setHostedAgentNumber] = useState("+16286001841");
+  const [hostedAgentNumber] = useState("+16286001841");
   const [waitTime, setWaitTime] = useState(60);
   const [usingHostedNumber, setUsingHostedNumber] = useState(true);
   const [haatMessageCount, setHaatMessageCount] = useState(0);
@@ -30,6 +32,7 @@ export default function HumanAsATool() {
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "success" | "error"
   >("idle");
+  const [hasTwilioCreds, setHasTwilioCreds] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,9 +48,7 @@ export default function HumanAsATool() {
         }
 
         const twilioCredsExist = await apiClient.checkTwilioCredsExist();
-        if (twilioCredsExist.data.hasKey) {
-          // TODO
-        }
+        setHasTwilioCreds(twilioCredsExist.data.hasKey);
       } catch (err) {
         console.error(err);
       }
@@ -108,68 +109,22 @@ export default function HumanAsATool() {
           setAgentNumberSource={setUsingHostedNumber}
         />
 
-        {!usingHostedNumber ? (
-          <Select
-            placeholder="Choose a number"
-            value={agentNumber || ""}
-            onChange={(_event, newPhoneNumber) =>
-              setAgentNumber(newPhoneNumber!)
-            }
-          >
-            {phoneNumbers.concat(whatsappNumbers).map((e) => (
-              <Option key={e} value={e}>
-                {e}
-              </Option>
-            ))}
-          </Select>
-        ) : (
-          <Input
-            disabled={true}
-            value={`Poku's agent number: ` + hostedAgentNumber}
-          />
-        )}
+        <AgentNumberSelector
+          usingHostedNumber={usingHostedNumber}
+          agentNumber={agentNumber}
+          setAgentNumber={setAgentNumber}
+          hostedAgentNumber={hostedAgentNumber}
+          phoneNumbers={phoneNumbers}
+          whatsappNumbers={whatsappNumbers}
+          hasTwilioCreds={hasTwilioCreds}
+        />
 
         {usingHostedNumber && (
           <Box>
-            <Typography
-              level="body-sm"
-              endDecorator={
-                <Tooltip
-                  sx={{ maxWidth: 400, zIndex: 10000 }}
-                  enterTouchDelay={0}
-                  leaveDelay={100}
-                  leaveTouchDelay={10000}
-                  variant="outlined"
-                  placement="bottom"
-                  arrow
-                  title={
-                    <Stack>
-                      <Typography
-                        sx={{ mt: 1 }}
-                        level="body-xs"
-                        color="warning"
-                      >
-                        ⚠️ {haatMessageLimit} messages/month limit when using a
-                        free Poku number.
-                      </Typography>
-                      <Typography level="body-xs" color="warning">
-                        To increase please contact us at{" "}
-                        <a href="mailto:hello@pokulabs.com">
-                          hello@pokulabs.com
-                        </a>
-                      </Typography>
-                    </Stack>
-                  }
-                >
-                  <IconButton size="sm">
-                    <InfoOutlined />
-                  </IconButton>
-                </Tooltip>
-              }
-            >
-              Usage: {haatMessageCount} / {haatMessageLimit}
-            </Typography>
-
+            <HostedNumberLimitWarning
+              count={haatMessageCount}
+              limit={haatMessageLimit}
+            />
             <LinearProgress
               determinate
               value={haatMessageCount * (100 / haatMessageLimit)}
@@ -178,29 +133,12 @@ export default function HumanAsATool() {
         )}
       </Stack>
 
-      <Box>
-        <Typography level="h4">Human Number</Typography>
-        <Typography level="body-sm">
-          The number your agent will contact
-        </Typography>
-        <Input
-          value={humanNumber}
-          onChange={(e) => setHumanNumber(e.target.value || "")}
-          placeholder="Use format: +12223334444"
-        />
-      </Box>
+      <HumanNumberInput
+        value={humanNumber}
+        onChange={(val) => setHumanNumber(val)}
+      />
 
-      <Box>
-        <Typography level="h4">Wait Time</Typography>
-        <Typography level="body-sm">
-          How long (in seconds) the agent will wait for a human response
-        </Typography>
-        <Input
-          type="number"
-          value={waitTime}
-          onChange={(e) => setWaitTime(+e.target.value)}
-        />
-      </Box>
+      <WaitTimeInput value={waitTime} onChange={(val) => setWaitTime(val)} />
 
       <Button
         onClick={handleSave}
@@ -291,6 +229,139 @@ function NumberType(props: {
           />
         ))}
       </RadioGroup>
+    </Box>
+  );
+}
+
+function HostedNumberLimitWarning({
+  count,
+  limit,
+}: {
+  count: number;
+  limit: number;
+}) {
+  return (
+    <Typography
+      level="body-sm"
+      endDecorator={
+        <Tooltip
+          sx={{ maxWidth: 400, zIndex: 10000 }}
+          enterTouchDelay={0}
+          leaveDelay={100}
+          leaveTouchDelay={10000}
+          variant="outlined"
+          placement="bottom"
+          arrow
+          title={
+            <Stack>
+              <Typography sx={{ mt: 1 }} level="body-xs" color="warning">
+                ⚠️ {limit} messages/month limit when using a free Poku number.
+              </Typography>
+              <Typography level="body-xs" color="warning">
+                To increase please contact{" "}
+                <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
+              </Typography>
+            </Stack>
+          }
+        >
+          <IconButton size="sm">
+            <InfoOutlined />
+          </IconButton>
+        </Tooltip>
+      }
+    >
+      Usage: {count} / {limit}
+    </Typography>
+  );
+}
+
+function AgentNumberSelector(props: {
+  usingHostedNumber: boolean;
+  agentNumber: string;
+  setAgentNumber: (val: string) => void;
+  hostedAgentNumber: string;
+  phoneNumbers: string[];
+  whatsappNumbers: string[];
+  hasTwilioCreds: boolean;
+}) {
+  if (props.usingHostedNumber) {
+    return (
+      <Input
+        readOnly
+        value={props.hostedAgentNumber}
+        startDecorator={
+          <>
+            <Typography sx={{ pr: 1.5 }}>Poku's number:</Typography>
+            <Divider orientation="vertical" />
+          </>
+        }
+      />
+    );
+  }
+
+  if (!props.hasTwilioCreds) {
+    return (
+      <Typography color="danger">
+        Please go to{" "}
+        <Link component={RLink} to="/integrations">
+          Integrations
+        </Link>{" "}
+        to add your Twilio credentials and use your own number.
+      </Typography>
+    );
+  }
+
+  return (
+    <Select
+      placeholder="Choose a number"
+      value={props.agentNumber || ""}
+      onChange={(_event, newPhoneNumber) =>
+        props.setAgentNumber(newPhoneNumber || "")
+      }
+    >
+      {props.phoneNumbers.concat(props.whatsappNumbers).map((e) => (
+        <Option key={e} value={e}>
+          {e}
+        </Option>
+      ))}
+    </Select>
+  );
+}
+
+function HumanNumberInput(props: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  return (
+    <Box>
+      <Typography level="h4">Human Number</Typography>
+      <Typography level="body-sm">
+        The number your agent will contact
+      </Typography>
+      <Input
+        value={props.value}
+        onChange={(e) => props.onChange(e.target.value || "")}
+        placeholder="Use format: +12223334444"
+      />
+    </Box>
+  );
+}
+
+function WaitTimeInput(props: {
+  value: number;
+  onChange: (val: number) => void;
+}) {
+  return (
+    <Box>
+      <Typography level="h4">Wait Time</Typography>
+      <Typography level="body-sm">
+        How long (in seconds) the agent will wait for a human response
+      </Typography>
+      <Input
+        type="number"
+        value={props.value}
+        onChange={(e) => props.onChange(+e.target.value)}
+      />
     </Box>
   );
 }

@@ -38,8 +38,8 @@ function Campaigns() {
       <Box
         sx={{ mt: 10, p: 4, width: "100%", maxWidth: creatingNew ? 500 : 1000 }}
       >
-        Campaigns allow you to bulk send text messages. Email us at <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>{" "}
-        for access!
+        Campaigns allow you to bulk send text messages. Email us at{" "}
+        <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a> for access!
       </Box>
     );
   }

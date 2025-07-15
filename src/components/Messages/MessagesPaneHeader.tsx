@@ -24,7 +24,6 @@ import { DOCS_LINK, toggleMessagesPane } from "../../utils";
 
 import type { ChatInfo } from "../../types";
 import { useAuth } from "react-oidc-context";
-import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../api-client";
 
 type MessagesPaneHeaderProps = {
@@ -86,9 +85,8 @@ type ToggleProps = {
 };
 
 function Toggle({ chat }: ToggleProps) {
-  const navigate = useNavigate();
   const [isDisabled, setIsDisabled] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, signinRedirect } = useAuth();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -155,7 +153,7 @@ function Toggle({ chat }: ToggleProps) {
                 <Link
                   component="button"
                   onClick={() => {
-                    navigate("/account");
+                    signinRedirect();
                   }}
                 >
                   logged in

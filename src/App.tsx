@@ -49,10 +49,10 @@ export default function App() {
                   <Sidebar />
                   <Header />
                   <Routes>
-                    <Route path="/" element={<Messages />} />
+                    <Route path="/messages" element={<Messages />} />
                     <Route path="/campaigns" element={<Campaigns />} />
                     <Route path="/integrations" element={<Integrations />} />
-                    <Route path="/account" element={<Account />} />
+                    <Route path="/" element={<Account />} />
                     <Route path="/hitl" element={<Hitl />} />
                   </Routes>
                 </Box>

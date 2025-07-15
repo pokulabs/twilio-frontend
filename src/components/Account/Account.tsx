@@ -1,9 +1,12 @@
-import { Box } from "@mui/joy";
-
+import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
-import withLoggedIn from "../../context/withLoggedIn";
+import { useAuth } from "react-oidc-context";
+import LoginButton from "../LoginButton";
+import { Link } from "react-router-dom";
 
 function Account() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <Box
       sx={{
@@ -12,12 +15,68 @@ function Account() {
         flexDirection: "column",
         p: 4,
         width: "100%",
-        maxWidth: 500,
+        maxWidth: 900,
+        gap: 3,
       }}
     >
-      <ApiKey />
+      <Typography level="h4" sx={{ mt: 4, mb: 2, textAlign: "center" }}>
+        Welcome to Poku!
+      </Typography>
+
+      <Stack direction="row" spacing={3}>
+        <Card sx={{ flex: 1 }}>
+          <Typography level="title-md" sx={{ mb: 1 }}>
+            Human-in-the-Loop Tools
+          </Typography>
+          <Typography level="body-sm" sx={{ mb: 1 }}>
+            Enable your AI agent to text a human for help, and resume its
+            workflow or conversation seamlessly.
+          </Typography>
+          <Typography level="body-sm" sx={{ mb: 2 }}>
+            New Feature: Add a human approval step before your agent uses a
+            custom tool or function.
+          </Typography>
+
+          <Stack sx={{ mt: "auto" }}>
+            {isAuthenticated ? (
+              <Button variant="outlined" component={Link} to="/hitl">
+                Human Intervention
+              </Button>
+            ) : (
+              <LoginButton path="/hitl" text="Login" />
+            )}
+          </Stack>
+        </Card>
+
+        <Card sx={{ flex: 1 }}>
+          <Typography level="title-md" sx={{ mb: 1 }}>
+            Twilio SMS Inbox
+          </Typography>
+          <Typography level="body-sm">
+            A free, consolidated inbox for your Twilio (SMS & WhatsApp)
+            messages. Send, receive, and track conversations in a clean chat
+            interface.
+          </Typography>
+          <Typography level="body-sm" sx={{ mb: 2 }}>
+            No Poku account required!
+          </Typography>
+
+          <Button
+            variant="outlined"
+            component={Link}
+            to="/messages"
+            sx={{ mt: "auto" }}
+          >
+            Messages
+          </Button>
+        </Card>
+      </Stack>
+
+      <Divider />
+
+      <Stack sx={{ maxWidth: 500 }}>{isAuthenticated && <ApiKey />}</Stack>
     </Box>
   );
 }
 
-export default withLoggedIn(Account, "Account");
+export default Account;

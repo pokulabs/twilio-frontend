@@ -31,7 +31,7 @@ export default function Whatsapp() {
 
   return (
     <Box>
-      <Typography level="h4" sx={{ mb: 2 }}>
+      <Typography level="title-md" sx={{ mb: 2 }}>
         Whatsapp Numbers
       </Typography>
       {inputsToRender.map((number, index) => (

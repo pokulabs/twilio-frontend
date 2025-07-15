@@ -153,11 +153,14 @@ export class ContactsService {
             }
 
             if (opts.filters?.onlyUnread) {
-                const unread = await this.filterToUnread(activeNumber, newlyAddedChats);
+                const unread = await this.filterToUnread(
+                    activeNumber,
+                    newlyAddedChats,
+                );
 
                 for (const chatId of newlyAddedChats.keys()) {
                     processedForUnread.add(chatId);
-            
+
                     if (!unread.has(chatId)) {
                         chats.delete(chatId);
                     }
@@ -253,14 +256,14 @@ export class ContactsService {
         chats: Map<string, ChatInfo>,
     ) {
         const unread = await this.hasUnread(activeNumber, [...chats.values()]);
-        
+
         const filtered = new Map<string, ChatInfo>();
         [...chats.values()].forEach((c, i) => {
             if (unread[i]) {
                 filtered.set(c.chatId, c);
             }
         });
-    
+
         return filtered;
     }
 

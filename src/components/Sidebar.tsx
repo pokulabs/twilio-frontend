@@ -113,8 +113,8 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               component={Link}
-              to="/"
-              selected={location.pathname === "/"}
+              to="/messages"
+              selected={location.pathname === "/messages"}
             >
               <QuestionAnswerRounded />
               <ListItemContent>
@@ -161,8 +161,8 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               component={Link}
-              to="/account"
-              selected={location.pathname === "/account"}
+              to="/"
+              selected={location.pathname === "/"}
             >
               <AccountCircle />
               <ListItemContent>
@@ -177,10 +177,11 @@ export default function Sidebar() {
           sx={{
             mt: "auto",
             flexGrow: 0,
-            mb: 2,
-            gap: 1,
+            mb: 1,
+            gap: 2,
             "--ListItem-radius": (theme) => theme.vars.radius.sm,
           }}
+          orientation="horizontal"
         >
           <ListItem>
             <ListItemButton
@@ -188,11 +189,9 @@ export default function Sidebar() {
               href={DOCS_LINK}
               target="_blank"
               rel="noopener noreferrer"
+              title="Documentation"
             >
               <DescriptionRounded />
-              <ListItemContent>
-                <Typography level="title-sm">Documentation</Typography>
-              </ListItemContent>
             </ListItemButton>
           </ListItem>
           <ListItem>
@@ -201,11 +200,9 @@ export default function Sidebar() {
               href={SLACK_LINK}
               target="_blank"
               rel="noopener noreferrer"
+              title="Slack"
             >
               <Avatar size="sm" src={slack} sx={{ width: 18, height: 18 }} />
-              <ListItemContent>
-                <Typography level="title-sm">Slack</Typography>
-              </ListItemContent>
             </ListItemButton>
           </ListItem>
           <ListItem>
@@ -214,11 +211,9 @@ export default function Sidebar() {
               href={GITHUB_LINK}
               target="_blank"
               rel="noopener noreferrer"
+              title="GitHub"
             >
               <GitHub />
-              <ListItemContent>
-                <Typography level="title-sm">GitHub</Typography>
-              </ListItemContent>
             </ListItemButton>
           </ListItem>
         </List>

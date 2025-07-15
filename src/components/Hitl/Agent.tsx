@@ -15,7 +15,7 @@ import { Delete } from "@mui/icons-material";
 import { apiClient } from "../../api-client";
 import type { MessageDirection } from "../../types";
 
-export default function DecisionAgent(props: { hasLlmKey: boolean; }) {
+export default function DecisionAgent(props: { hasLlmKey: boolean }) {
   const { hasLlmKey } = props;
   const [agents, setAgents] = useState<
     { id: string; prompt: string; messageDirection: MessageDirection }[]

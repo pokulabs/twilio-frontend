@@ -10,7 +10,10 @@ import {
 import { apiClient } from "../../api-client";
 import { Check, InfoOutlined } from "@mui/icons-material";
 
-export default function LlmKey(props: { isSaved: boolean; setIsSaved: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function LlmKey(props: {
+  isSaved: boolean;
+  setIsSaved: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const { isSaved, setIsSaved } = props;
   const [llmKey, setLlmKey] = useState("");
 
