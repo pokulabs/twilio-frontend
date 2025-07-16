@@ -31,9 +31,13 @@ export default function Whatsapp() {
 
   return (
     <Box>
-      <Typography level="title-md" sx={{ mb: 2 }}>
-        Whatsapp Numbers
+      <Typography level="title-md">
+        Twilio WhatsApp
       </Typography>
+      <Typography level="body-sm" sx={{ mb: 2 }}>
+        Using Twilio WhatsApp numbers? Please manually add them below.
+      </Typography>
+
       {inputsToRender.map((number, index) => (
         <Box
           key={index}

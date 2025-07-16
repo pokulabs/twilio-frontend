@@ -37,12 +37,11 @@ export function TwilioForm() {
   return (
     <Stack direction="column" spacing={2}>
       <Typography level="h4">Twilio Credentials</Typography>
-      <Alert variant="outlined" color="success">
-        Your credentials are stored safely in this browser, or encrypted in our
-        database if you're signed in.
-        <br />
-        You can check the code!
-      </Alert>
+      <Typography level="body-sm">
+        A free, consolidated inbox for your Twilio
+        messages. Send and receive messages, and track conversations in a clean chat
+        interface.
+      </Typography>
 
       <Input
         placeholder="Twilio SID"

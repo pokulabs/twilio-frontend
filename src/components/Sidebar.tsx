@@ -23,6 +23,7 @@ import {
   DescriptionRounded,
   SportsMartialArtsRounded,
   CampaignRounded,
+  Email,
 } from "@mui/icons-material";
 
 import logo from "../assets/logo.png"; // Import the logo
@@ -214,6 +215,15 @@ export default function Sidebar() {
               title="GitHub"
             >
               <GitHub />
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              component="a"
+              href="mailto:hello@pokulabs.com"
+              title="hello@pokulabs.com"
+            >
+              <Email />
             </ListItemButton>
           </ListItem>
         </List>

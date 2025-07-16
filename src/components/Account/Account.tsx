@@ -29,11 +29,11 @@ function Account() {
             Human-in-the-Loop Tools
           </Typography>
           <Typography level="body-sm" sx={{ mb: 1 }}>
-            Enable your AI agent to text a human for help, and resume its
-            workflow or conversation seamlessly.
+            Enable your AI agent to text a human for help in real-time during
+            any conversation or workflow.
           </Typography>
           <Typography level="body-sm" sx={{ mb: 2 }}>
-            New Feature: Add a human approval step before your agent uses a
+            Add a human approval step before your agent uses a
             custom tool or function.
           </Typography>
 
@@ -54,7 +54,7 @@ function Account() {
           </Typography>
           <Typography level="body-sm">
             A free, consolidated inbox for your Twilio (SMS & WhatsApp)
-            messages. Send, receive, and track conversations in a clean chat
+            messages. Send and receive messages, and track conversations in a clean chat
             interface.
           </Typography>
           <Typography level="body-sm" sx={{ mb: 2 }}>
