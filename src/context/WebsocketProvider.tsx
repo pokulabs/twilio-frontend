@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import useWebSocket, { ReadyState, SendMessage } from "react-use-websocket";
 import { useAuth } from "react-oidc-context";
 
@@ -20,18 +20,21 @@ export const WebsocketProvider = ({
   children: React.ReactNode;
 }) => {
   const { user, isAuthenticated } = useAuth();
+  const [token, setToken] = useState(user?.access_token);
 
-  const token = user?.access_token;
+  useEffect(() => {
+    if (user?.access_token) {
+      setToken(user.access_token);
+    }
+  }, [user?.access_token]);
 
-  const url = useMemo(() => {
-    const base = import.meta.env.VITE_API_URL || "ws://localhost:3000";
-    return token ? `${base}?token=${encodeURIComponent(token)}` : null;
-  }, [token]);
+  const url = import.meta.env.VITE_API_URL || "ws://localhost:3000";
 
   const { sendJsonMessage, lastJsonMessage, readyState } =
     useWebSocket<WSMessage>(
       url,
       {
+        queryParams: { token: token! },
         shouldReconnect: () => true,
         reconnectInterval: 3000,
         share: true,
