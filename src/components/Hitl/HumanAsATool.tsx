@@ -19,6 +19,7 @@ import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import { InfoOutlined } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
+import Steps from "./Steps";
 
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
@@ -97,9 +98,11 @@ export default function HumanAsATool() {
         </Typography>
       </Box>
 
+      <Steps />
+
       <Stack spacing={1}>
         <Box>
-          <Typography level="h4">Agent Number</Typography>
+          <Typography level="title-md">Agent Number</Typography>
           <Typography level="body-sm">
             The number your agent will reach out from
           </Typography>
@@ -334,7 +337,7 @@ function HumanNumberInput(props: {
 }) {
   return (
     <Box>
-      <Typography level="h4">Human Number</Typography>
+      <Typography level="title-md">Human Number</Typography>
       <Typography level="body-sm">
         The number your agent will contact
       </Typography>
@@ -353,7 +356,7 @@ function WaitTimeInput(props: {
 }) {
   return (
     <Box>
-      <Typography level="h4">Wait Time</Typography>
+      <Typography level="title-md">Wait Time</Typography>
       <Typography level="body-sm">
         How long (in seconds) the agent will wait for a human response
       </Typography>
