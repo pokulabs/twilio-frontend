@@ -125,7 +125,7 @@ export default function Steps() {
                 <strong>API Endpoint:</strong>{" "}
                 <code>POST https://api.pokulabs.com/hitl</code>
                 <br />
-                <strong>Timeout (ms):</strong> <code>120000</code>
+                <strong>Timeout (ms):</strong> <code>60000</code>
               </Typography>
               <Typography sx={{ mt: 2 }}>
                 <strong>Headers:</strong>
@@ -133,7 +133,13 @@ export default function Steps() {
                 <code>Authorization: Bearer YOUR_POKU_API_KEY</code>
               </Typography>
               <Typography sx={{ mt: 2 }}>
-                <strong>JSON Parameters:</strong>
+                <strong>Parameters:</strong>
+                <br />
+                <code>message:</code> The message you want to send to a human
+                and get help with
+                <br />
+                <code>context:</code> Any additional information about the
+                conversation the human should know
               </Typography>
               <img
                 src="/assets/retell-json.png"
@@ -168,9 +174,11 @@ export default function Steps() {
                 <strong>Server URL:</strong>{" "}
                 <code>https://mcp.pokulabs.com/stream</code>
                 <br />
-                <strong>Timeout:</strong> <code>120 seconds</code>
+                <strong>Timeout (seconds):</strong> <code>60</code>
+              </Typography>
+              <Typography sx={{ mt: 2 }}>
+                <strong>Headers:</strong>
                 <br />
-                <strong>HTTP Headers:</strong>{" "}
                 <code>Authorization: Bearer YOUR_POKU_API_KEY</code>
               </Typography>
               <img

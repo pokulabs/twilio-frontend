@@ -114,7 +114,7 @@ export default function HumanAsATool() {
                 placement="bottom"
                 arrow
                 title={
-                  <Typography level="body-xs">
+                  <Typography>
                     Your AI agent will text a human for help using the number
                     you choose below. You can choose to use a number provided by
                     Poku or a Twilio number you own that is approved for SMS
@@ -281,10 +281,10 @@ function HostedNumberLimitWarning({
           arrow
           title={
             <Stack>
-              <Typography sx={{ mt: 1 }} level="body-xs" color="warning">
-                ⚠️ {limit} messages/month limit when using a free Poku number.
+              <Typography sx={{ mt: 1 }} color="warning">
+                ⚠️ {limit} msgs/month limit when using a free Poku number.
               </Typography>
-              <Typography level="body-xs" color="warning">
+              <Typography color="warning">
                 To increase please contact{" "}
                 <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
               </Typography>
@@ -373,7 +373,7 @@ function HumanNumberInput(props: {
             placement="bottom"
             arrow
             title={
-              <Typography level="body-xs">
+              <Typography>
                 Who would you like your AI agent to reach out to in case of an
                 escalation? Enter the number of the human staff member below.
                 This is the person who will respond to the AI agent in case of
@@ -418,11 +418,11 @@ function WaitTimeInput(props: {
             placement="bottom"
             arrow
             title={
-              <Typography level="body-xs">
+              <Typography>
                 How long (in seconds) should the AI agent wait for a response
                 from the human? We suggest at least 60 seconds to give the human
                 staff member enough time to review the message and write a
-                response.
+                response. Max of 600 seconds (10 minutes).
               </Typography>
             }
           >
