@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   Typography,
@@ -19,6 +19,7 @@ import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import { InfoOutlined } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
+import Steps from "./Steps";
 
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
@@ -97,11 +98,37 @@ export default function HumanAsATool() {
         </Typography>
       </Box>
 
+      <Steps />
+
       <Stack spacing={1}>
         <Box>
-          <Typography level="h4">Agent Number</Typography>
-          <Typography level="body-sm">
-            The number your agent will reach out from
+          <Typography
+            level="title-md"
+            endDecorator={
+              <Tooltip
+                sx={{ maxWidth: 400, zIndex: 10000 }}
+                enterTouchDelay={0}
+                leaveDelay={100}
+                leaveTouchDelay={10000}
+                variant="outlined"
+                placement="bottom"
+                arrow
+                title={
+                  <Typography>
+                    Your AI agent will text a human for help using the number
+                    you choose below. You can choose to use a number provided by
+                    Poku or a Twilio number you own that is approved for SMS
+                    messages.
+                  </Typography>
+                }
+              >
+                <IconButton size="sm">
+                  <InfoOutlined />
+                </IconButton>
+              </Tooltip>
+            }
+          >
+            Agent Number
           </Typography>
         </Box>
         <NumberType
@@ -176,8 +203,8 @@ function NumberType(props: {
         }
         sx={{
           width: "100%",
-          minHeight: 48,
-          padding: "6px",
+          minHeight: 35,
+          padding: "4px",
           borderRadius: "12px",
           bgcolor: "neutral.softBg",
           "--RadioGroup-gap": "4px",
@@ -219,12 +246,7 @@ function NumberType(props: {
                     },
                   }),
                 },
-              }),
-              label: ({ checked }) => ({
-                sx: {
-                  fontWeight: checked ? "bold" : "normal",
-                },
-              }),
+              })
             }}
           />
         ))}
@@ -254,10 +276,10 @@ function HostedNumberLimitWarning({
           arrow
           title={
             <Stack>
-              <Typography sx={{ mt: 1 }} level="body-xs" color="warning">
-                ⚠️ {limit} messages/month limit when using a free Poku number.
+              <Typography sx={{ mt: 1 }} color="warning">
+                ⚠️ {limit} msgs/month limit when using a free Poku number.
               </Typography>
-              <Typography level="body-xs" color="warning">
+              <Typography color="warning">
                 To increase please contact{" "}
                 <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
               </Typography>
@@ -334,9 +356,33 @@ function HumanNumberInput(props: {
 }) {
   return (
     <Box>
-      <Typography level="h4">Human Number</Typography>
-      <Typography level="body-sm">
-        The number your agent will contact
+      <Typography
+        level="title-md"
+        endDecorator={
+          <Tooltip
+            sx={{ maxWidth: 400, zIndex: 10000 }}
+            enterTouchDelay={0}
+            leaveDelay={100}
+            leaveTouchDelay={10000}
+            variant="outlined"
+            placement="bottom"
+            arrow
+            title={
+              <Typography>
+                Who would you like your AI agent to reach out to in case of an
+                escalation? Enter the number of the human staff member below.
+                This is the person who will respond to the AI agent in case of
+                an escalation.
+              </Typography>
+            }
+          >
+            <IconButton size="sm">
+              <InfoOutlined />
+            </IconButton>
+          </Tooltip>
+        }
+      >
+        Human Number
       </Typography>
       <Input
         value={props.value}
@@ -351,16 +397,47 @@ function WaitTimeInput(props: {
   value: number;
   onChange: (val: number) => void;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
     <Box>
-      <Typography level="h4">Wait Time</Typography>
-      <Typography level="body-sm">
-        How long (in seconds) the agent will wait for a human response
+      <Typography
+        level="title-md"
+        endDecorator={
+          <Tooltip
+            sx={{ maxWidth: 400, zIndex: 10000 }}
+            enterTouchDelay={0}
+            leaveDelay={100}
+            leaveTouchDelay={10000}
+            variant="outlined"
+            placement="bottom"
+            arrow
+            title={
+              <Typography>
+                How long (in seconds) should the AI agent wait for a response
+                from the human? If available, set your AI agent's tool connection timeout to at least this long.
+              </Typography>
+            }
+          >
+            <IconButton size="sm">
+              <InfoOutlined />
+            </IconButton>
+          </Tooltip>
+        }
+      >
+        Wait Time (seconds)
       </Typography>
       <Input
         type="number"
         value={props.value}
         onChange={(e) => props.onChange(+e.target.value)}
+        slotProps={{
+          input: {
+            ref: inputRef,
+            min: 1,
+            max: 600,
+          },
+        }}
       />
     </Box>
   );
