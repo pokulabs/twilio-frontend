@@ -203,8 +203,8 @@ function NumberType(props: {
         }
         sx={{
           width: "100%",
-          minHeight: 48,
-          padding: "6px",
+          minHeight: 35,
+          padding: "4px",
           borderRadius: "12px",
           bgcolor: "neutral.softBg",
           "--RadioGroup-gap": "4px",
@@ -246,12 +246,7 @@ function NumberType(props: {
                     },
                   }),
                 },
-              }),
-              label: ({ checked }) => ({
-                sx: {
-                  fontWeight: checked ? "bold" : "normal",
-                },
-              }),
+              })
             }}
           />
         ))}
@@ -420,9 +415,7 @@ function WaitTimeInput(props: {
             title={
               <Typography>
                 How long (in seconds) should the AI agent wait for a response
-                from the human? We suggest at least 60 seconds to give the human
-                staff member enough time to review the message and write a
-                response. Max of 600 seconds (10 minutes).
+                from the human? If available, set your AI agent's tool connection timeout to at least this long.
               </Typography>
             }
           >
