@@ -1,7 +1,7 @@
 import React from "react";
 import { Alert, Box, Card } from "@mui/joy";
-import { useAuth } from "react-oidc-context";
 import LoginButton from "../components/LoginButton";
+import { authClient } from "./Auth";
 
 const withLoggedIn = <P extends object>(
   Component: React.ComponentType<P>,
@@ -9,9 +9,9 @@ const withLoggedIn = <P extends object>(
   inline = false,
 ) => {
   return (props: P) => {
-    const { isAuthenticated } = useAuth();
+    const { data } = authClient.useSession();
 
-    if (!isAuthenticated) {
+    if (!data) {
       return (
         <Box
           component="form"

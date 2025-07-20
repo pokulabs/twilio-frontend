@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Alert, Input, Button, Typography, Stack } from "@mui/joy";
-import { useAuth } from "react-oidc-context";
 
 import { useTwilio } from "../../context/TwilioProvider";
 import Whatsapp from "./Whatsapp";
 import { apiClient } from "../../api-client";
+import { authClient } from "../../context/Auth";
 
 export function TwilioIntegrationForm() {
   return (
@@ -23,13 +23,13 @@ export function TwilioForm() {
     authToken: authTokenContext,
     isLoading,
   } = useTwilio();
-  const { isAuthenticated: isLoggedIn } = useAuth();
+  const { data } = authClient.useSession();
   const [sid, setSid] = React.useState(sidContext);
   const [authToken, setAuthToken] = React.useState(authTokenContext);
 
   const handleSubmit = async () => {
     await setCredentials(sid, authToken);
-    if (isLoggedIn) {
+    if (!!data) {
       await apiClient.createTwilioKey(sid, authToken);
     }
   };

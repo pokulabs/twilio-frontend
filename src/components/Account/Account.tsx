@@ -1,11 +1,11 @@
 import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
-import { useAuth } from "react-oidc-context";
 import LoginButton from "../LoginButton";
 import { Link } from "react-router-dom";
+import { authClient } from "../../context/Auth";
 
 function Account() {
-  const { isAuthenticated } = useAuth();
+  const { data } = authClient.useSession();
 
   return (
     <Box
@@ -38,7 +38,7 @@ function Account() {
           </Typography>
 
           <Stack sx={{ mt: "auto" }}>
-            {isAuthenticated ? (
+            {!!data ? (
               <Button variant="outlined" component={Link} to="/hitl">
                 Human Intervention
               </Button>
@@ -74,7 +74,7 @@ function Account() {
 
       <Divider />
 
-      <Stack sx={{ maxWidth: 500 }}>{isAuthenticated && <ApiKey />}</Stack>
+      <Stack sx={{ maxWidth: 500 }}>{!!data && <ApiKey />}</Stack>
     </Box>
   );
 }

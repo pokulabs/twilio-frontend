@@ -1,24 +1,28 @@
 import { Button } from "@mui/joy";
-import { useAuth } from "react-oidc-context";
+import { authClient } from "../context/Auth";
 
 export default function LoginButton(props: {
   path?: string;
   variant?: "solid" | "outlined";
   text?: string;
 }) {
-  const { isAuthenticated, signinRedirect } = useAuth();
+  const { data } = authClient.useSession();
 
   return (
     <Button
-      disabled={isAuthenticated}
+      disabled={!!data}
       variant={props.variant ?? "solid"}
       onClick={() => {
-        signinRedirect({
-          redirect_uri: `${window.location.origin}${props.path ?? window.location.pathname}`,
-        });
+        authClient.signIn.social({
+          provider: "google",
+          callbackURL: import.meta.env.VITE_UI_URL
+        })
+        // signinRedirect({
+        //   redirect_uri: `${window.location.origin}${props.path ?? window.location.pathname}`,
+        // });
       }}
     >
-      {props.text ?? (isAuthenticated ? "Logged In" : "Login")}
+      {props.text ?? (data ? "Logged In" : "Login")}
     </Button>
   );
 }
