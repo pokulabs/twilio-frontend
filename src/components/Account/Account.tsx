@@ -33,8 +33,8 @@ function Account() {
             any conversation or workflow.
           </Typography>
           <Typography level="body-sm" sx={{ mb: 2 }}>
-            Add a human approval step before your agent uses a
-            custom tool or function.
+            Add a human approval step before your agent uses a custom tool or
+            function.
           </Typography>
 
           <Stack sx={{ mt: "auto" }}>
@@ -54,8 +54,8 @@ function Account() {
           </Typography>
           <Typography level="body-sm">
             A free, consolidated inbox for your Twilio (SMS & WhatsApp)
-            messages. Send and receive messages, and track conversations in a clean chat
-            interface.
+            messages. Send and receive messages, and track conversations in a
+            clean chat interface.
           </Typography>
           <Typography level="body-sm" sx={{ mb: 2 }}>
             No Poku account required!

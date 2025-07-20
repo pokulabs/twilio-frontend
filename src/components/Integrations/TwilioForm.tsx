@@ -8,7 +8,7 @@ import { apiClient } from "../../api-client";
 
 export function TwilioIntegrationForm() {
   return (
-    <Stack direction="column" spacing={6}>
+    <Stack direction="column" spacing={4}>
       <TwilioForm />
       <Whatsapp />
     </Stack>
@@ -35,12 +35,11 @@ export function TwilioForm() {
   };
 
   return (
-    <Stack direction="column" spacing={2}>
+    <Stack direction="column" gap={1}>
       <Typography level="h4">Twilio Credentials</Typography>
-      <Typography level="body-sm">
-        A free, consolidated inbox for your Twilio
-        messages. Send and receive messages, and track conversations in a clean chat
-        interface.
+      <Typography level="body-sm" sx={{ mb: 2 }}>
+        A free, consolidated inbox for your Twilio messages. Send and receive
+        messages, and track conversations in a clean chat interface.
       </Typography>
 
       <Input

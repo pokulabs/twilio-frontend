@@ -26,7 +26,7 @@ import {
   Email,
 } from "@mui/icons-material";
 
-import logo from "../assets/logo.png"; // Import the logo
+import logo from "../assets/logo.png";
 import slack from "../assets/slack.png";
 import ColorSchemeToggle from "./Messages/ColorSchemeToggle";
 import { closeSidebar, DOCS_LINK, GITHUB_LINK, SLACK_LINK } from "../utils";
