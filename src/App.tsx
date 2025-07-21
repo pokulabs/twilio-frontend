@@ -13,6 +13,7 @@ import { TwilioProvider } from "./context/TwilioProvider";
 import { WebsocketProvider } from "./context/WebsocketProvider";
 import Campaigns from "./components/Campaigns/Campaigns";
 import { WebStorageStateStore } from "oidc-client-ts";
+import Login from "./components/Login";
 
 export default function App() {
   return (
@@ -53,6 +54,7 @@ export default function App() {
                     <Route path="/integrations" element={<Integrations />} />
                     <Route path="/" element={<Account />} />
                     <Route path="/hitl" element={<Hitl />} />
+                    <Route path="/login" element={<Login />} />
                   </Routes>
                 </Box>
               </Pages>

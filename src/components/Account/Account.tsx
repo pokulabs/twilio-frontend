@@ -1,6 +1,5 @@
 import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
-import LoginButton from "../LoginButton";
 import { Link } from "react-router-dom";
 import { authClient } from "../../context/Auth";
 
@@ -43,7 +42,9 @@ function Account() {
                 Human Intervention
               </Button>
             ) : (
-              <LoginButton path="/hitl" text="Login" />
+              <Button component={Link} to="/login?redirect=%2Fhitl">
+                Login
+              </Button>
             )}
           </Stack>
         </Card>
