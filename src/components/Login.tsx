@@ -89,7 +89,7 @@ export default function Login(
                   </Typography>
                 </Box>
 
-                <FormControl sx={{ mb: 1 }}>
+                {/* <FormControl sx={{ mb: 1 }}>
                   <FormLabel>Email</FormLabel>
                   <Input
                     type="email"
@@ -103,7 +103,7 @@ export default function Login(
                   Continue with Email
                 </Button>
 
-                <Divider>or</Divider>
+                <Divider>or</Divider> */}
 
                 <Button
                   variant="soft"
