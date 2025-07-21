@@ -2,6 +2,7 @@ import axios, { type AxiosInstance } from "axios";
 import type { MessageDirection } from "./types";
 import { Recipient } from "./components/Campaigns/CsvUploader";
 import { storage } from "./storage";
+import { authClient } from "./context/Auth";
 
 class ApiClient {
     private api: AxiosInstance;
@@ -11,10 +12,13 @@ class ApiClient {
             baseURL: import.meta.env.VITE_API_URL,
         });
 
-        this.api.interceptors.request.use((config) => {
+        this.api.interceptors.request.use(async (config) => {
             const controller = new AbortController();
 
-            const token = storage.getUser()?.access_token;
+            config.withCredentials = true;
+
+            const sesh = await authClient.getSession()
+            const token = sesh.data?.session.token;
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             } else {

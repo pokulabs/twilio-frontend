@@ -1,14 +1,14 @@
 import * as React from "react";
 import { Alert, Input, Button, Typography, Stack } from "@mui/joy";
-import { useAuth } from "react-oidc-context";
 
 import { useTwilio } from "../../context/TwilioProvider";
 import Whatsapp from "./Whatsapp";
 import { apiClient } from "../../api-client";
+import { authClient } from "../../context/Auth";
 
 export function TwilioIntegrationForm() {
   return (
-    <Stack direction="column" spacing={6}>
+    <Stack direction="column" spacing={4}>
       <TwilioForm />
       <Whatsapp />
     </Stack>
@@ -23,24 +23,23 @@ export function TwilioForm() {
     authToken: authTokenContext,
     isLoading,
   } = useTwilio();
-  const { isAuthenticated: isLoggedIn } = useAuth();
+  const { data } = authClient.useSession();
   const [sid, setSid] = React.useState(sidContext);
   const [authToken, setAuthToken] = React.useState(authTokenContext);
 
   const handleSubmit = async () => {
     await setCredentials(sid, authToken);
-    if (isLoggedIn) {
+    if (!!data) {
       await apiClient.createTwilioKey(sid, authToken);
     }
   };
 
   return (
-    <Stack direction="column" spacing={2}>
+    <Stack direction="column" gap={1}>
       <Typography level="h4">Twilio Credentials</Typography>
-      <Typography level="body-sm">
-        A free, consolidated inbox for your Twilio
-        messages. Send and receive messages, and track conversations in a clean chat
-        interface.
+      <Typography level="body-sm" sx={{ mb: 2 }}>
+        A free, consolidated inbox for your Twilio messages. Send and receive
+        messages, and track conversations in a clean chat interface.
       </Typography>
 
       <Input

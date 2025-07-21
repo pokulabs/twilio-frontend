@@ -12,29 +12,28 @@ import Hitl from "./components/Hitl/Hitl";
 import { TwilioProvider } from "./context/TwilioProvider";
 import { WebsocketProvider } from "./context/WebsocketProvider";
 import Campaigns from "./components/Campaigns/Campaigns";
-import { AuthProvider as KCAuthProvider } from "react-oidc-context";
 import { WebStorageStateStore } from "oidc-client-ts";
 
 export default function App() {
   return (
-    <KCAuthProvider
-      {...{
-        authority: import.meta.env.VITE_AUTHORITY_URL,
-        client_id: import.meta.env.VITE_CLIENT_ID,
-        redirect_uri: `${window.location.origin}${window.location.pathname}`,
-        post_logout_redirect_uri: window.location.origin,
-        monitorSession: true,
-        onSigninCallback: () => {
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname,
-          );
-        },
-        scope: "openid profile email",
-        userStore: new WebStorageStateStore({ store: window.localStorage }),
-      }}
-    >
+    // <KCAuthProvider
+    //   {...{
+    //     authority: import.meta.env.VITE_AUTHORITY_URL,
+    //     client_id: import.meta.env.VITE_CLIENT_ID,
+    //     redirect_uri: `${window.location.origin}${window.location.pathname}`,
+    //     post_logout_redirect_uri: window.location.origin,
+    //     monitorSession: true,
+    //     onSigninCallback: () => {
+    //       window.history.replaceState(
+    //         {},
+    //         document.title,
+    //         window.location.pathname,
+    //       );
+    //     },
+    //     scope: "openid profile email",
+    //     userStore: new WebStorageStateStore({ store: window.localStorage }),
+    //   }}
+    // >
       <TwilioProvider>
         <WebsocketProvider>
           <CssVarsProvider disableTransitionOnChange>
@@ -61,6 +60,6 @@ export default function App() {
           </CssVarsProvider>
         </WebsocketProvider>
       </TwilioProvider>
-    </KCAuthProvider>
+    // </KCAuthProvider>
   );
 }

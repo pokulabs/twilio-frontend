@@ -1,11 +1,11 @@
 import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
-import { useAuth } from "react-oidc-context";
 import LoginButton from "../LoginButton";
 import { Link } from "react-router-dom";
+import { authClient } from "../../context/Auth";
 
 function Account() {
-  const { isAuthenticated } = useAuth();
+  const { data } = authClient.useSession();
 
   return (
     <Box
@@ -33,12 +33,12 @@ function Account() {
             any conversation or workflow.
           </Typography>
           <Typography level="body-sm" sx={{ mb: 2 }}>
-            Add a human approval step before your agent uses a
-            custom tool or function.
+            Add a human approval step before your agent uses a custom tool or
+            function.
           </Typography>
 
           <Stack sx={{ mt: "auto" }}>
-            {isAuthenticated ? (
+            {!!data ? (
               <Button variant="outlined" component={Link} to="/hitl">
                 Human Intervention
               </Button>
@@ -54,8 +54,8 @@ function Account() {
           </Typography>
           <Typography level="body-sm">
             A free, consolidated inbox for your Twilio (SMS & WhatsApp)
-            messages. Send and receive messages, and track conversations in a clean chat
-            interface.
+            messages. Send and receive messages, and track conversations in a
+            clean chat interface.
           </Typography>
           <Typography level="body-sm" sx={{ mb: 2 }}>
             No Poku account required!
@@ -74,7 +74,7 @@ function Account() {
 
       <Divider />
 
-      <Stack sx={{ maxWidth: 500 }}>{isAuthenticated && <ApiKey />}</Stack>
+      <Stack sx={{ maxWidth: 500 }}>{!!data && <ApiKey />}</Stack>
     </Box>
   );
 }

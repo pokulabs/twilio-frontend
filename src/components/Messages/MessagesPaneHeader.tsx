@@ -23,8 +23,8 @@ import {
 import { DOCS_LINK, toggleMessagesPane } from "../../utils";
 
 import type { ChatInfo } from "../../types";
-import { useAuth } from "react-oidc-context";
 import { apiClient } from "../../api-client";
+import { authClient } from "../../context/Auth";
 
 type MessagesPaneHeaderProps = {
   chat: ChatInfo;
@@ -86,10 +86,10 @@ type ToggleProps = {
 
 function Toggle({ chat }: ToggleProps) {
   const [isDisabled, setIsDisabled] = useState(false);
-  const { isAuthenticated, signinRedirect } = useAuth();
+  const { data } = authClient.useSession();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!data) {
       return;
     }
 
@@ -108,7 +108,7 @@ function Toggle({ chat }: ToggleProps) {
   return (
     <Stack spacing={1} direction="row">
       <Switch
-        disabled={!isAuthenticated}
+        disabled={!data}
         color={isDisabled ? "warning" : "primary"}
         startDecorator={
           <SportsMartialArtsRounded
@@ -120,7 +120,7 @@ function Toggle({ chat }: ToggleProps) {
         }
         checked={!isDisabled}
         onChange={(e) => {
-          if (!isAuthenticated) {
+          if (!data) {
             return;
           }
 
@@ -147,13 +147,15 @@ function Toggle({ chat }: ToggleProps) {
             between <Typography color="primary">AI mode</Typography> and{" "}
             <Typography color="warning">human intervention mode</Typography>.
             <br />
-            {!isAuthenticated && (
+            {!data && (
               <>
                 Must be{" "}
                 <Link
                   component="button"
                   onClick={() => {
-                    signinRedirect();
+                    authClient.signIn.social({
+                      provider: "google",
+                    });
                   }}
                 >
                   logged in

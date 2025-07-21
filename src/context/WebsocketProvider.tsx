@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import useWebSocket, { ReadyState, SendMessage } from "react-use-websocket";
-import { useAuth } from "react-oidc-context";
+import { authClient } from "./Auth";
 
 type WSMessage = { type: string; payload: any };
 
@@ -19,14 +19,14 @@ export const WebsocketProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { user, isAuthenticated } = useAuth();
-  const [token, setToken] = useState(user?.access_token);
+  const { data } = authClient.useSession();
+  const [token, setToken] = useState(data?.session.token);
 
   useEffect(() => {
-    if (user?.access_token) {
-      setToken(user.access_token);
+    if (data?.session.token) {
+      setToken(data.session.token);
     }
-  }, [user?.access_token]);
+  }, [data?.session.token]);
 
   const url = import.meta.env.VITE_API_URL || "ws://localhost:3000";
 
@@ -42,7 +42,7 @@ export const WebsocketProvider = ({
         onClose: () => console.log("WebSocket disconnected"),
         onError: (e) => console.error("WebSocket error", e),
       },
-      Boolean(isAuthenticated && token),
+      Boolean(data && token),
     );
 
   return (
