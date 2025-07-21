@@ -70,4 +70,4 @@ function Campaigns() {
   );
 }
 
-export default withLoggedIn(Campaigns, "Campaigns");
+export default withLoggedIn(Campaigns);

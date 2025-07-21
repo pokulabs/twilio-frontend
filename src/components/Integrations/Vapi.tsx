@@ -105,4 +105,4 @@ function Vapi() {
   );
 }
 
-export default withLoggedIn(Vapi, "the Vapi Integration", true);
+export default withLoggedIn(Vapi);
