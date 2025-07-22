@@ -1,10 +1,10 @@
 import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
 import { Link } from "react-router-dom";
-import { authClient } from "../../context/Auth";
+import { useAuth } from "../../hooks/use-auth";
 
 function Account() {
-  const { data } = authClient.useSession();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Box
@@ -37,7 +37,7 @@ function Account() {
           </Typography>
 
           <Stack sx={{ mt: "auto" }}>
-            {!!data ? (
+            {isAuthenticated ? (
               <Button variant="outlined" component={Link} to="/hitl">
                 Human Intervention
               </Button>
@@ -75,7 +75,7 @@ function Account() {
 
       <Divider />
 
-      <Stack sx={{ maxWidth: 500 }}>{!!data && <ApiKey />}</Stack>
+      <Stack sx={{ maxWidth: 500 }}>{isAuthenticated && <ApiKey />}</Stack>
     </Box>
   );
 }

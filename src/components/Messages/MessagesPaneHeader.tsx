@@ -19,12 +19,13 @@ import {
   InfoOutlined,
   SportsMartialArtsRounded,
 } from "@mui/icons-material";
+import { Link as RLink } from "react-router-dom";
 
-import { DOCS_LINK, toggleMessagesPane } from "../../utils";
+import { toggleMessagesPane } from "../../utils";
 
 import type { ChatInfo } from "../../types";
 import { apiClient } from "../../api-client";
-import { authClient } from "../../context/Auth";
+import { useAuth } from "../../hooks/use-auth";
 
 type MessagesPaneHeaderProps = {
   chat: ChatInfo;
@@ -86,10 +87,10 @@ type ToggleProps = {
 
 function Toggle({ chat }: ToggleProps) {
   const [isDisabled, setIsDisabled] = useState(false);
-  const { data } = authClient.useSession();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (!data) {
+    if (!isAuthenticated) {
       return;
     }
 
@@ -108,7 +109,7 @@ function Toggle({ chat }: ToggleProps) {
   return (
     <Stack spacing={1} direction="row">
       <Switch
-        disabled={!data}
+        disabled={!isAuthenticated}
         color={isDisabled ? "warning" : "primary"}
         startDecorator={
           <SportsMartialArtsRounded
@@ -120,7 +121,7 @@ function Toggle({ chat }: ToggleProps) {
         }
         checked={!isDisabled}
         onChange={(e) => {
-          if (!data) {
+          if (!isAuthenticated) {
             return;
           }
 
@@ -147,19 +148,14 @@ function Toggle({ chat }: ToggleProps) {
             between <Typography color="primary">AI mode</Typography> and{" "}
             <Typography color="warning">human intervention mode</Typography>.
             <br />
-            {!data && (
+            {!isAuthenticated && (
               <>
                 Must be{" "}
-                <Link
-                  component="button"
-                  onClick={() => {
-                    authClient.signIn.social({
-                      provider: "google",
-                    });
-                  }}
+                <RLink
+                  to="/login"
                 >
                   logged in
-                </Link>{" "}
+                </RLink>{" "}
                 to use <br />
               </>
             )}

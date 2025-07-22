@@ -1,8 +1,7 @@
 import axios, { type AxiosInstance } from "axios";
 import type { MessageDirection } from "./types";
 import { Recipient } from "./components/Campaigns/CsvUploader";
-import { storage } from "./storage";
-import { authClient } from "./context/Auth";
+import { checkIsAuthenticated } from "./services/auth";
 
 class ApiClient {
     private api: AxiosInstance;
@@ -10,20 +9,26 @@ class ApiClient {
     constructor() {
         this.api = axios.create({
             baseURL: import.meta.env.VITE_API_URL,
+            // Need this for cookie based session auth
+            withCredentials: true,
         });
 
         this.api.interceptors.request.use(async (config) => {
             const controller = new AbortController();
 
-            config.withCredentials = true;
-
-            const sesh = await authClient.getSession()
-            const token = sesh.data?.session.token;
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            } else {
+            const isAuthenticated = await checkIsAuthenticated();
+            if (!isAuthenticated) {
                 controller.abort();
             }
+
+            /**
+             * Old code for authenticating via token in header
+             */
+            // if (token) {
+            //     config.headers.Authorization = `Bearer ${token}`;
+            // } else {
+            //     controller.abort();
+            // }
 
             return {
                 ...config,

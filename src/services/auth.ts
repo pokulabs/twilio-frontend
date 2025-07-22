@@ -7,3 +7,8 @@ export const authClient = createAuthClient({
         magicLinkClient()
     ]
 });
+
+export async function checkIsAuthenticated() {
+    const res = await authClient.getSession();
+    return !!res.data;
+}

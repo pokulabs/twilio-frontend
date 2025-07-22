@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Card,
@@ -13,17 +13,14 @@ import {
   Stack,
 } from "@mui/joy";
 import logo from "../assets/logo.png";
-import { authClient } from "../context/Auth";
 import { useSearchParams } from "react-router-dom";
+import { useAuth } from "../hooks/use-auth";
 
 
-export default function Login(
-  // area: string,
-  // inline = false,
-) {
+export default function Login() {
     const [email, setEmail] = useState("");
     const [magicLinkSent, setMagicLinkSent] = useState(false);
-    const { data } = authClient.useSession();
+    const { isAuthenticated, signInMagicLink, signInGoogle } = useAuth();
     const [searchParams] = useSearchParams();
     const redirect = searchParams.get("redirect") || "/";
 
@@ -32,25 +29,20 @@ export default function Login(
       if (!email) return;
 
       try {
-        await authClient.signIn.magicLink({
-          email,
-          callbackURL: import.meta.env.VITE_UI_URL + redirect,
-        });
+        await signInMagicLink(email, redirect);
         setMagicLinkSent(true);
       } catch (err) {
         console.error("Failed to send magic link", err);
-        // Optionally show an error message to the user
       }
     };
 
-    if (!data) {
+    if (!isAuthenticated) {
       return (
         <Box
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems:  "center",
-            // minHeight: inline ? "auto" : "100vh",
             p: 2,
             width: "100%",
           }}
@@ -110,10 +102,7 @@ export default function Login(
                   color="neutral"
                   startDecorator={<GoogleIcon />}
                   onClick={() => {
-                    authClient.signIn.social({
-                      provider: "google",
-                      callbackURL: import.meta.env.VITE_UI_URL + redirect
-                    })
+                    signInGoogle(redirect);
                   }}
                 >
                   Continue with Google

@@ -1,23 +1,23 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { authClient } from "./Auth";
+import { useAuth } from "../hooks/use-auth";
 
 const withLoggedIn = <P extends object>(
   Component: React.ComponentType<P>,
 ) => {
   return (props: P) => {
-    const { data, isPending } = authClient.useSession();
+    const { isAuthenticated, isLoading } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!isPending && !data) {
+      if (!isLoading && !isAuthenticated) {
         const currentPath = encodeURIComponent(location.pathname + location.search);
         navigate(`/login?redirect=${currentPath}`);
       }
-    }, [data, isPending, location, navigate]);
+    }, [isAuthenticated, isLoading, location, navigate]);
 
-    if (!data) return null;
+    if (!isAuthenticated) return null;
 
     return <Component {...props} />;
   };

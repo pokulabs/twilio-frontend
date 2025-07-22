@@ -5,9 +5,7 @@ import { apiClient } from "../api-client";
 const Pages: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { setCredentials, sid, authToken } = useTwilio();
 
-  // const auth = useAuth();
-
-  const [hasTriedSignin, setHasTriedSignin] = useState(false);
+  // const [hasTriedSignin, setHasTriedSignin] = useState(false);
 
   // automatically sign-in
   // useEffect(() => {

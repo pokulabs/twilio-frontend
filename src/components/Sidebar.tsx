@@ -30,11 +30,11 @@ import logo from "../assets/logo.png";
 import slack from "../assets/slack.png";
 import ColorSchemeToggle from "./Messages/ColorSchemeToggle";
 import { closeSidebar, DOCS_LINK, GITHUB_LINK, SLACK_LINK } from "../utils";
-import { authClient } from "../context/Auth";
+import { useAuth } from "../hooks/use-auth";
 
 export default function Sidebar() {
   const location = useLocation();
-  const { data } = authClient.useSession();
+  const { isAuthenticated, userEmail, signOut } = useAuth();
 
   return (
     <Sheet
@@ -228,14 +228,14 @@ export default function Sidebar() {
           </ListItem>
         </List>
       </Box>
-      {!!data && (
+      {isAuthenticated && (
         <>
           <Divider />
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography level="title-sm">Logged in</Typography>
               <Typography level="body-xs">
-                {data?.user.email}
+                {userEmail}
               </Typography>
             </Box>
             <IconButton
@@ -244,7 +244,7 @@ export default function Sidebar() {
               variant="plain"
               color="neutral"
               onClick={() => {
-                authClient.signOut();
+                signOut();
               }}
             >
               <LogoutRounded />
