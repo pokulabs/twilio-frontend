@@ -11,7 +11,7 @@ function transform(rawMsg: RawMsg): TwilioMsg {
         dateSent: new Date(rawMsg.date_sent),
         dateUpdated: new Date(rawMsg.date_updated),
         direction: rawMsg.direction as any,
-        errorCode: parseInt(rawMsg.error_code ?? "0"),
+        errorCode:  typeof rawMsg.error_code === "number" ? rawMsg.error_code : 0,
         errorMessage: rawMsg.error_message ?? "",
         from: rawMsg.from,
         messagingServiceSid: rawMsg.messaging_service_sid ?? "",
