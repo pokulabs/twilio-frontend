@@ -14,11 +14,14 @@ import { useAuthedTwilio } from "../../context/TwilioProvider";
 
 function MessagesLayout() {
   const { phoneNumbers, twilioClient } = useAuthedTwilio();
-  const [selectedChat, setSelectedChat] = useState<ChatInfo | null>(null);
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({
     activeNumber: phoneNumbers[0],
   });
   const [chats, setChats] = useSortedChats([]);
+
+  const selectedChat = chats.find((c) => c.chatId === selectedChatId) ?? null;
+
 
   useSubscribeWsFlag(setChats);
 
@@ -28,7 +31,7 @@ function MessagesLayout() {
         chats={chats}
         selectedChatId={selectedChat?.chatId}
         onUpdateChats={setChats}
-        onChatSelected={setSelectedChat}
+        onChatSelected={setSelectedChatId}
         filters={filters}
         onUpdateFilters={setFilters}
       />
@@ -39,7 +42,7 @@ function MessagesLayout() {
           callback={(activeNumber, contactNumber) => {
             twilioClient
               .getChat(activeNumber, contactNumber)
-              .then((res) => setSelectedChat(res ?? null));
+              .then((res) => setSelectedChatId(res?.chatId ?? null));
           }}
           activePhoneNumber={filters.activeNumber}
         />

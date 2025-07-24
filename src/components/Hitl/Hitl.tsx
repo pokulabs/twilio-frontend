@@ -93,7 +93,7 @@ function Hitl() {
                   <Typography>
                     Learn more{" "}
                     <Link
-                      href="https://docs.google.com/presentation/d/1PMpEqUr7KLtKtcKFnwFGmj_yTf4-D3BwpWkIU9AmiJs/edit?slide=id.g36abfac4763_0_47#slide=id.g36abfac4763_0_47"
+                      href="https://www.pokulabs.com/guides/conversation-flagging"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

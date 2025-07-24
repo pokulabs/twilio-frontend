@@ -39,7 +39,7 @@ import { useNewMessageListener } from "../../hooks/use-new-message-listener";
 export default function ChatsPane(props: {
   chats: ChatInfo[];
   selectedChatId?: string;
-  onChatSelected: React.Dispatch<React.SetStateAction<ChatInfo | null>>;
+  onChatSelected: React.Dispatch<React.SetStateAction<string | null>>;
   onUpdateChats: React.Dispatch<React.SetStateAction<ChatInfo[]>>;
   filters: Filters;
   onUpdateFilters: React.Dispatch<React.SetStateAction<Filters>>;
@@ -221,7 +221,7 @@ export default function ChatsPane(props: {
                     c.chatId === chat.chatId ? { ...c, hasUnread: false } : c,
                   ),
                 );
-                onChatSelected(chat);
+                onChatSelected(chat.chatId);
               }}
               isSelected={selectedChatId === chat.chatId}
             />
