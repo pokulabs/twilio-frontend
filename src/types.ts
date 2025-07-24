@@ -34,7 +34,7 @@ export type RawMsg = {
     date_sent: string;
     date_updated: string;
     direction: string;
-    error_code: string | null;
+    error_code: number | null;
     error_message: string | null;
     from: string;
     messaging_service_sid: string | null;
