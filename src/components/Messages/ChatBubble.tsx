@@ -19,7 +19,7 @@ export default function ChatBubble(props: PlainMessage) {
         <Typography level="body-xs">
           {displayDateTime(new Date(props.timestamp))}
         </Typography>
-        {!props.errorCode && (
+        {props.errorCode && (
           <Typography level="body-xs">
             Error code:{" "}
             <Link
