@@ -35,33 +35,33 @@ export default function App() {
     //     userStore: new WebStorageStateStore({ store: window.localStorage }),
     //   }}
     // >
-      <TwilioProvider>
-        <WebsocketProvider>
-          <CssVarsProvider disableTransitionOnChange>
-            <CssBaseline />
-            <Router>
-              <Pages>
-                <Box
-                  sx={{
-                    display: "flex",
-                  }}
-                >
-                  <Sidebar />
-                  <Header />
-                  <Routes>
-                    <Route path="/messages" element={<Messages />} />
-                    <Route path="/campaigns" element={<Campaigns />} />
-                    <Route path="/integrations" element={<Integrations />} />
-                    <Route path="/" element={<Account />} />
-                    <Route path="/hitl" element={<Hitl />} />
-                    <Route path="/login" element={<Login />} />
-                  </Routes>
-                </Box>
-              </Pages>
-            </Router>
-          </CssVarsProvider>
-        </WebsocketProvider>
-      </TwilioProvider>
+    <TwilioProvider>
+      <WebsocketProvider>
+        <CssVarsProvider disableTransitionOnChange>
+          <CssBaseline />
+          <Router>
+            <Pages>
+              <Box
+                sx={{
+                  display: "flex",
+                }}
+              >
+                <Sidebar />
+                <Header />
+                <Routes>
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/campaigns" element={<Campaigns />} />
+                  <Route path="/integrations" element={<Integrations />} />
+                  <Route path="/" element={<Account />} />
+                  <Route path="/hitl" element={<Hitl />} />
+                  <Route path="/login" element={<Login />} />
+                </Routes>
+              </Box>
+            </Pages>
+          </Router>
+        </CssVarsProvider>
+      </WebsocketProvider>
+    </TwilioProvider>
     // </KCAuthProvider>
   );
 }

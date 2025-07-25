@@ -21,7 +21,7 @@ export class EventEmitter {
     async init() {
         const msgs = await this.twilioClient.getMessages({ limit: 1 });
         this.lastKnownMsgId = msgs.items[0]?.sid;
-        
+
         setInterval(this.checkForNewMessage.bind(this), POLL_INTERVAL);
     }
 

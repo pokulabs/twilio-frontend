@@ -22,7 +22,6 @@ function MessagesLayout() {
 
   const selectedChat = chats.find((c) => c.chatId === selectedChatId) ?? null;
 
-
   useSubscribeWsFlag(setChats);
 
   return (

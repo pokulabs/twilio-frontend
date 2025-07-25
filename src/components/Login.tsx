@@ -16,104 +16,102 @@ import logo from "../assets/logo.png";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 
-
 export default function Login() {
-    const [email, setEmail] = useState("");
-    const [magicLinkSent, setMagicLinkSent] = useState(false);
-    const { isAuthenticated, signInMagicLink, signInGoogle } = useAuth();
-    const [searchParams] = useSearchParams();
-    const redirect = searchParams.get("redirect") || "/";
+  const [email, setEmail] = useState("");
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const { isAuthenticated, signInMagicLink, signInGoogle } = useAuth();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/";
 
+  const handleEmailLogin = async () => {
+    if (!email) return;
 
-    const handleEmailLogin = async () => {
-      if (!email) return;
+    try {
+      await signInMagicLink(email, redirect);
+      setMagicLinkSent(true);
+    } catch (err) {
+      console.error("Failed to send magic link", err);
+    }
+  };
 
-      try {
-        await signInMagicLink(email, redirect);
-        setMagicLinkSent(true);
-      } catch (err) {
-        console.error("Failed to send magic link", err);
-      }
-    };
-
-    if (!isAuthenticated) {
-      return (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems:  "center",
-            p: 2,
-            width: "100%",
-          }}
-        >
-          <Card variant="outlined" sx={{ width: 400, p: 3 }}>
-            {magicLinkSent ? (
-              <Box sx={{ textAlign: "center", py: 4 }}>
-                <Typography level="title-lg" sx={{ mb: 1 }}>
-                  📬 Check your email
-                </Typography>
-                <Typography>
-                  We've sent a login link to <strong>{email}</strong>
-                </Typography>
-              </Box>
-            ) : (
-              <Stack spacing={2}>
-                <Box sx={{ textAlign: "center", mb: 2 }}>
-                  <Box
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: "50%",
-                      backgroundColor: "neutral.softBg",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      mx: "auto",
-                      mb: 1,
-                    }}
-                  >
-                    <Avatar src={logo} size="sm" />
-                  </Box>
-                  <Typography level="title-lg">Welcome to Poku</Typography>
-                  <Typography level="body-sm" textColor="text.secondary">
-                    Please sign in or sign up below.
-                  </Typography>
-                </Box>
-
-                <FormControl sx={{ mb: 1 }}>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    type="email"
-                    placeholder="you@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </FormControl>
-
-                <Button variant="solid" onClick={handleEmailLogin}>
-                  Continue with Email
-                </Button>
-
-                <Divider>or</Divider>
-
-                <Button
-                  variant="soft"
-                  color="neutral"
-                  startDecorator={<GoogleIcon />}
-                  onClick={() => {
-                    signInGoogle(redirect);
+  if (!isAuthenticated) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          p: 2,
+          width: "100%",
+        }}
+      >
+        <Card variant="outlined" sx={{ width: 400, p: 3 }}>
+          {magicLinkSent ? (
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <Typography level="title-lg" sx={{ mb: 1 }}>
+                📬 Check your email
+              </Typography>
+              <Typography>
+                We've sent a login link to <strong>{email}</strong>
+              </Typography>
+            </Box>
+          ) : (
+            <Stack spacing={2}>
+              <Box sx={{ textAlign: "center", mb: 2 }}>
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "50%",
+                    backgroundColor: "neutral.softBg",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mx: "auto",
+                    mb: 1,
                   }}
                 >
-                  Continue with Google
-                </Button>
-              </Stack>
-            )}
-          </Card>
-        </Box>
-      );
-    }
-};
+                  <Avatar src={logo} size="sm" />
+                </Box>
+                <Typography level="title-lg">Welcome to Poku</Typography>
+                <Typography level="body-sm" textColor="text.secondary">
+                  Please sign in or sign up below.
+                </Typography>
+              </Box>
+
+              <FormControl sx={{ mb: 1 }}>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  type="email"
+                  placeholder="you@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </FormControl>
+
+              <Button variant="solid" onClick={handleEmailLogin}>
+                Continue with Email
+              </Button>
+
+              <Divider>or</Divider>
+
+              <Button
+                variant="soft"
+                color="neutral"
+                startDecorator={<GoogleIcon />}
+                onClick={() => {
+                  signInGoogle(redirect);
+                }}
+              >
+                Continue with Google
+              </Button>
+            </Stack>
+          )}
+        </Card>
+      </Box>
+    );
+  }
+}
 
 function GoogleIcon() {
   return (

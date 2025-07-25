@@ -150,13 +150,7 @@ function Toggle({ chat }: ToggleProps) {
             <br />
             {!isAuthenticated && (
               <>
-                Must be{" "}
-                <RLink
-                  to="/login"
-                >
-                  logged in
-                </RLink>{" "}
-                to use <br />
+                Must be <RLink to="/login">logged in</RLink> to use <br />
               </>
             )}
             Learn more{" "}

@@ -20,6 +20,6 @@ export function useAuth() {
                 email,
                 callbackURL: import.meta.env.VITE_UI_URL + redirect,
             });
-        }
-    }
+        },
+    };
 }

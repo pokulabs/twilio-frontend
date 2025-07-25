@@ -246,7 +246,7 @@ function NumberType(props: {
                     },
                   }),
                 },
-              })
+              }),
             }}
           />
         ))}
@@ -415,7 +415,8 @@ function WaitTimeInput(props: {
             title={
               <Typography>
                 How long (in seconds) should the AI agent wait for a response
-                from the human? If available, set your AI agent's tool connection timeout to at least this long.
+                from the human? If available, set your AI agent's tool
+                connection timeout to at least this long.
               </Typography>
             }
           >
