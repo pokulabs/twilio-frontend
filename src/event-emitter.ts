@@ -20,7 +20,8 @@ export class EventEmitter {
 
     async init() {
         const msgs = await this.twilioClient.getMessages({ limit: 1 });
-        this.lastKnownMsgId = msgs.items[0].sid;
+        this.lastKnownMsgId = msgs.items[0]?.sid;
+        
         setInterval(this.checkForNewMessage.bind(this), POLL_INTERVAL);
     }
 
@@ -54,9 +55,9 @@ export class EventEmitter {
         try {
             if (!this.twilioClient) return;
             const msgs = await this.twilioClient.getMessages({ limit: 1 });
-            if (msgs.items[0].sid !== this.lastKnownMsgId) {
+            if (msgs.items[0]?.sid !== this.lastKnownMsgId) {
                 const interveningMsgs = await this.fetchInterveningMsgs();
-                this.lastKnownMsgId = msgs.items[0].sid;
+                this.lastKnownMsgId = msgs.items[0]?.sid;
                 this.emitNewMsgs(interveningMsgs);
             }
         } catch (err) {
@@ -116,6 +117,7 @@ export class EventEmitter {
                     to: msg.to,
                     id: msg.sid,
                     status: msg.status,
+                    errorCode: msg.errorCode,
                 });
             }
         }
