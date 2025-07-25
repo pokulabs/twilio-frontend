@@ -9,7 +9,7 @@ import withLoggedIn from "../../context/withLoggedIn";
 function Campaigns() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [creatingNew, setCreatingNew] = useState(false);
-  const [propaganda, setPropaganda] = useState(true);
+  const [propaganda, setPropaganda] = useState(false);
 
   const fetchCampaigns = async () => {
     try {
