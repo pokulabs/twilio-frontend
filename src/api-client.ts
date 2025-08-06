@@ -180,6 +180,12 @@ class ApiClient {
     async getCampaigns() {
         return this.api.get("/campaigns");
     }
+
+    async getEnrichedData(contactNumbers: string[]) {
+        return this.api.post("chats/enriched-data", {
+            contactNumbers: contactNumbers,
+        });
+    }
 }
 
 export const apiClient = new ApiClient();

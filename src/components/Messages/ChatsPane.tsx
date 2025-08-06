@@ -349,7 +349,7 @@ export async function fetchChatsHelper(
     return { chats: existingChats };
   }
 
-  const { chats: newChats } = newChatsResult.value;
+  let { chats: newChats } = newChatsResult.value;
 
   // Apply unread status
   const unreads = await twilioClient.hasUnread(filters.activeNumber, newChats);
@@ -369,6 +369,21 @@ export async function fetchChatsHelper(
       c.isFlagged = found.isFlagged;
       c.flaggedReason = found.flaggedReason;
       c.flaggedMessage = found.flaggedMessage;
+    }
+  }
+
+  // Apply enriched data
+  if (newChats.length > 0) {
+    const contactNumbers = newChats.map(c => c.contactNumber);
+    try {
+      const enrichedData = await apiClient.getEnrichedData(contactNumbers);
+      for (const c of newChats) {
+        if (enrichedData.data[c.contactNumber]) {
+          c.enrichedData = enrichedData.data[c.contactNumber];
+        }
+      }
+    } catch (err) {
+      console.error("Failed to enrich chats:", err);
     }
   }
 

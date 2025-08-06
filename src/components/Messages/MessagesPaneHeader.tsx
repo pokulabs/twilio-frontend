@@ -16,6 +16,7 @@ import {
 import {
   ArrowBackIosNewRounded,
   AutoAwesome,
+  ContactsRounded,
   InfoOutlined,
   SportsMartialArtsRounded,
 } from "@mui/icons-material";
@@ -68,6 +69,31 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
         >
           {chat.contactNumber}
         </Typography>
+        {/* Enriched data if available */}
+        {chat.enrichedData && (
+          <Tooltip
+            sx={{ maxWidth: 400, zIndex: 10000 }}
+            enterTouchDelay={0}
+            leaveDelay={100}
+            leaveTouchDelay={10000}
+            variant="outlined"
+            placement="bottom"
+            arrow
+            title={
+              <Stack spacing={0.5}>
+                {Object.entries(chat.enrichedData).map(([key, value]) => (
+                  <Typography key={key} level="body-sm">
+                    <b>{key}:</b> {value.startsWith("http") ? <Link href={value} target="_blank">{value}</Link> : value}
+                  </Typography>
+                ))}
+              </Stack>
+            }
+          >
+            <IconButton>
+              <ContactsRounded />
+            </IconButton>
+          </Tooltip>
+        )}
         {chat.isFlagged && (
           <Resolve
             chatId={chat.chatId}
