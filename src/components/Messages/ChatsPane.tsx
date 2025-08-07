@@ -374,7 +374,7 @@ export async function fetchChatsHelper(
 
   // Apply enriched data
   if (newChats.length > 0) {
-    const contactNumbers = newChats.map(c => c.contactNumber);
+    const contactNumbers = newChats.map((c) => c.contactNumber);
     try {
       const enrichedData = await apiClient.getEnrichedData(contactNumbers);
       for (const c of newChats) {

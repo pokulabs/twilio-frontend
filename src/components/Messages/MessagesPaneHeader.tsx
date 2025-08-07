@@ -80,9 +80,11 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
             placement="bottom"
             arrow
             title={
-              <Stack spacing={0.5} sx={{whiteSpace: "pre-wrap"}}>
+              <Stack spacing={0.5} sx={{ whiteSpace: "pre-wrap" }}>
                 <div>
-                  <Link href={chat.enrichedData.url} target="_blank">{chat.enrichedData.displayName}</Link>
+                  <Link href={chat.enrichedData.url} target="_blank">
+                    {chat.enrichedData.displayName}
+                  </Link>
                 </div>
                 <Typography level="body-sm">
                   {chat.enrichedData.card}

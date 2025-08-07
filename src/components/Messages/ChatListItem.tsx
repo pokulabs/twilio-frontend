@@ -58,7 +58,9 @@ export default function ChatListItem(props: ChatListItemProps) {
               alignItems="center"
               justifyContent="space-between"
             >
-              <Typography level="title-sm">{chat.enrichedData?.displayName || chat.contactNumber}</Typography>
+              <Typography level="title-sm">
+                {chat.enrichedData?.displayName || chat.contactNumber}
+              </Typography>
               <Typography level="body-xs" noWrap>
                 {displayDateTime(chat.recentMsgDate)}
               </Typography>

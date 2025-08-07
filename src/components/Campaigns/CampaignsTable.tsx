@@ -13,7 +13,15 @@ import {
 import { Line } from "react-chartjs-2";
 
 // Register only what we need
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
   // Aggregate data by day
@@ -87,10 +95,18 @@ export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
                 <td>{displayDateTime(new Date(r.createdTime))}</td>
                 <td>{r.name}</td>
                 <td>{r.status}</td>
-                <td>{r.queuedMessages}/{r.messageCount}</td>
-                <td>{r.pendingMessages}/{r.messageCount}</td>
-                <td>{r.failedMessages}/{r.messageCount}</td>
-                <td>{r.deliveredMessages}/{r.messageCount}</td>
+                <td>
+                  {r.queuedMessages}/{r.messageCount}
+                </td>
+                <td>
+                  {r.pendingMessages}/{r.messageCount}
+                </td>
+                <td>
+                  {r.failedMessages}/{r.messageCount}
+                </td>
+                <td>
+                  {r.deliveredMessages}/{r.messageCount}
+                </td>
               </tr>
             ))}
           </tbody>
