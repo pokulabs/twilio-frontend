@@ -13,7 +13,11 @@ export type ChatInfo = {
     isFlagged?: boolean;
     flaggedReason?: string;
     flaggedMessage?: string;
-    enrichedData?: Record<string, string>;
+    enrichedData?: {
+        displayName: string;
+        card: string;
+        url: string;
+    };
 };
 
 export type PlainMessage = {

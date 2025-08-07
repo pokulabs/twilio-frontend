@@ -80,12 +80,13 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
             placement="bottom"
             arrow
             title={
-              <Stack spacing={0.5}>
-                {Object.entries(chat.enrichedData).map(([key, value]) => (
-                  <Typography key={key} level="body-sm">
-                    <b>{key}:</b> {value.startsWith("http") ? <Link href={value} target="_blank">{value}</Link> : value}
-                  </Typography>
-                ))}
+              <Stack spacing={0.5} sx={{whiteSpace: "pre-wrap"}}>
+                <div>
+                  <Link href={chat.enrichedData.url} target="_blank">{chat.enrichedData.displayName}</Link>
+                </div>
+                <Typography level="body-sm">
+                  {chat.enrichedData.card}
+                </Typography>
               </Stack>
             }
           >
