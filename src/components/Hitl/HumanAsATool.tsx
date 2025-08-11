@@ -83,7 +83,7 @@ export default function HumanAsATool() {
     <Stack spacing={3}>
       <Box>
         <Typography>
-          Enable your AI agent to loop in a human for help via SMS.
+          Enable your AI agent to loop in a human for help via SMS. Works with any agent that can use MCP.
         </Typography>
         <Typography>
           Learn more{" "}
