@@ -182,7 +182,7 @@ class ApiClient {
     }
 
     async getEnrichedData(contactNumbers: string[]) {
-        return this.api.post("chats/enriched-data", {
+        return this.api.post("/chats/enriched-data", {
             contactNumbers: contactNumbers,
         });
     }
