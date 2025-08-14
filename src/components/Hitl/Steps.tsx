@@ -30,7 +30,7 @@ const mapToolApprovalExamples = {
 
 export default function Steps() {
   const [selectedTool, setSelectedTool] = useState(0);
-  const [toolApprovalExample, setToolApprovalExample] = useState("");
+
   return (
     <Box>
       <Typography sx={{ mb: 1 }}>
