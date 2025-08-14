@@ -65,7 +65,7 @@ export default function HumanAsATool() {
     try {
       await apiClient.saveAccount(
         humanNumber,
-        agentNumber,
+        medium.endsWith("_poku") ? hostedAgentNumber : agentNumber,
         waitTime,
         medium,
       );
@@ -349,21 +349,19 @@ function AgentNumberSelector(props: {
   }
 
   return (
-    <>
-      <Select
-        placeholder="Choose a number"
-        value={props.agentNumber || ""}
-        onChange={(_event, newPhoneNumber) =>
-          props.setAgentNumber(newPhoneNumber || "")
-        }
-      >
-        {props.phoneNumbers.concat(props.whatsappNumbers).map((e) => (
-          <Option key={e} value={e}>
-            {e}
-          </Option>
-        ))}
-      </Select>
-    </>
+    <Select
+      placeholder="Choose a number"
+      value={props.agentNumber || ""}
+      onChange={(_event, newPhoneNumber) =>
+        props.setAgentNumber(newPhoneNumber || "")
+      }
+    >
+      {props.phoneNumbers.concat(props.whatsappNumbers).map((e) => (
+        <Option key={e} value={e}>
+          {e}
+        </Option>
+      ))}
+    </Select>
   );
 }
 
