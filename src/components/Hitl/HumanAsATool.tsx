@@ -14,12 +14,14 @@ import {
   IconButton,
   Tooltip,
   Divider,
+  Checkbox,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import { InfoOutlined } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
 import Steps from "./Steps";
+import type { Medium } from "../../types";
 
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
@@ -27,7 +29,7 @@ export default function HumanAsATool() {
   const [agentNumber, setAgentNumber] = useState("");
   const [hostedAgentNumber] = useState("+16286001841");
   const [waitTime, setWaitTime] = useState(60);
-  const [usingHostedNumber, setUsingHostedNumber] = useState(true);
+  const [medium, setMedium] = useState<Medium>("sms_poku");
   const [haatMessageCount, setHaatMessageCount] = useState(0);
   const [haatMessageLimit, setHaatMessageLimit] = useState(0);
   const [saveStatus, setSaveStatus] = useState<
@@ -43,7 +45,7 @@ export default function HumanAsATool() {
           setHumanNumber(res.data.humanNumber || "");
           setAgentNumber(res.data.agentNumber || "");
           setWaitTime(res.data.waitTime || 60);
-          setUsingHostedNumber(res.data.usingHostedNumber ?? true);
+          setMedium(res.data.medium ?? "sms_poku");
           setHaatMessageCount(res.data.haatMessageCount);
           setHaatMessageLimit(res.data.haatMessageLimit);
         }
@@ -63,9 +65,9 @@ export default function HumanAsATool() {
     try {
       await apiClient.saveAccount(
         humanNumber,
-        usingHostedNumber ? hostedAgentNumber : agentNumber,
+        medium.endsWith("_poku") ? hostedAgentNumber : agentNumber,
         waitTime,
-        usingHostedNumber,
+        medium,
       );
       if (sid && authToken) {
         await apiClient.createTwilioKey(sid, authToken);
@@ -132,12 +134,13 @@ export default function HumanAsATool() {
           </Typography>
         </Box>
         <NumberType
-          agentNumberSource={usingHostedNumber}
-          setAgentNumberSource={setUsingHostedNumber}
+          medium={medium}
+          setMedium={setMedium}
         />
 
         <AgentNumberSelector
-          usingHostedNumber={usingHostedNumber}
+          medium={medium}
+          setMedium={setMedium}
           agentNumber={agentNumber}
           setAgentNumber={setAgentNumber}
           hostedAgentNumber={hostedAgentNumber}
@@ -146,7 +149,7 @@ export default function HumanAsATool() {
           hasTwilioCreds={hasTwilioCreds}
         />
 
-        {usingHostedNumber && (
+        {medium.endsWith("_poku") && (
           <Box>
             <HostedNumberLimitWarning
               count={haatMessageCount}
@@ -171,9 +174,9 @@ export default function HumanAsATool() {
         onClick={handleSave}
         disabled={
           !humanNumber ||
-          (!agentNumber && !usingHostedNumber) ||
-          (!sid && !usingHostedNumber) ||
-          (!authToken && !usingHostedNumber) ||
+          (!agentNumber && !medium.endsWith("_poku")) ||
+          (!sid && !medium.endsWith("_poku")) ||
+          (!authToken && !medium.endsWith("_poku")) ||
           saveStatus === "saving"
         }
       >
@@ -190,17 +193,21 @@ export default function HumanAsATool() {
 }
 
 function NumberType(props: {
-  agentNumberSource: boolean;
-  setAgentNumberSource: React.Dispatch<React.SetStateAction<boolean>>;
+  medium: Medium;
+  setMedium: React.Dispatch<React.SetStateAction<Medium>>;
 }) {
   return (
     <Box sx={{ display: "flex", gap: 2 }}>
       <RadioGroup
         orientation="horizontal"
-        value={props.agentNumberSource}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-          props.setAgentNumberSource(event.target.value === "true")
-        }
+        value={props.medium.endsWith("_poku") ? "poku" : "non-poku"}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          if (event.target.value === "poku") {
+            props.setMedium("sms_poku");
+          } else {
+            props.setMedium("sms");
+          }
+        }}
         sx={{
           width: "100%",
           minHeight: 35,
@@ -213,11 +220,11 @@ function NumberType(props: {
       >
         {[
           {
-            value: true,
+            value: "poku",
             label: "Free Poku number",
           },
           {
-            value: false,
+            value: "non-poku",
             label: "Your Twilio number",
           },
         ].map((item) => (
@@ -298,7 +305,8 @@ function HostedNumberLimitWarning({
 }
 
 function AgentNumberSelector(props: {
-  usingHostedNumber: boolean;
+  medium: Medium;
+  setMedium: (val: Medium) => void;
   agentNumber: string;
   setAgentNumber: (val: string) => void;
   hostedAgentNumber: string;
@@ -306,18 +314,25 @@ function AgentNumberSelector(props: {
   whatsappNumbers: string[];
   hasTwilioCreds: boolean;
 }) {
-  if (props.usingHostedNumber) {
+  if (props.medium.endsWith("_poku")) {
     return (
-      <Input
-        readOnly
-        value={props.hostedAgentNumber}
-        startDecorator={
-          <>
-            <Typography sx={{ pr: 1.5 }}>Poku's number:</Typography>
-            <Divider orientation="vertical" />
-          </>
-        }
-      />
+      <>
+        <Checkbox
+          label="Use WhatsApp"
+          checked={props.medium === "whatsapp_poku"}
+          onChange={(e) => props.setMedium(e.target.checked ? "whatsapp_poku" : "sms_poku")}
+        />
+        <Input
+          readOnly
+          value={props.hostedAgentNumber}
+          startDecorator={
+            <>
+              <Typography sx={{ pr: 1.5 }}>Poku's number:</Typography>
+              <Divider orientation="vertical" />
+            </>
+          }
+        />
+      </>
     );
   }
 
@@ -387,7 +402,7 @@ function HumanNumberInput(props: {
       <Input
         value={props.value}
         onChange={(e) => props.onChange(e.target.value || "")}
-        placeholder="Use format: +12223334444"
+        placeholder="Ex: +12223334444"
       />
     </Box>
   );

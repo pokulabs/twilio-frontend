@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from "axios";
-import type { MessageDirection } from "./types";
+import type { Medium, MessageDirection } from "./types";
 import { Recipient } from "./components/Campaigns/CsvUploader";
 import { checkIsAuthenticated } from "./services/auth";
 
@@ -75,13 +75,13 @@ class ApiClient {
         humanNumber: string,
         agentNumber: string,
         waitTime: number,
-        usingHostedNumber: boolean,
+        medium: Medium,
     ) {
         return this.api.post("/account/hitl", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
-            usingHostedNumber: usingHostedNumber,
+            medium: medium,
         });
     }
 
@@ -91,7 +91,7 @@ class ApiClient {
                   humanNumber: string;
                   agentNumber: string;
                   waitTime: number;
-                  usingHostedNumber: boolean;
+                  medium: Medium;
                   haatMessageCount: number;
                   haatMessageLimit: number;
               }

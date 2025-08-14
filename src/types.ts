@@ -1,3 +1,4 @@
+export type Medium = "sms" | "sms_poku" | "whatsapp_poku" | "slack";
 export type MessageDirection = "inbound" | "outbound";
 
 export type ChatInfo = {
