@@ -9,6 +9,7 @@ import {
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { Check, InfoOutlined } from "@mui/icons-material";
+import { InfoTooltip } from "../shared/InfoTooltip";
 
 export default function LlmKey(props: {
   isSaved: boolean;
@@ -27,14 +28,7 @@ export default function LlmKey(props: {
       <Typography
         level="h4"
         endDecorator={
-          <Tooltip
-            sx={{ maxWidth: 400, zIndex: 10000 }}
-            enterTouchDelay={0}
-            leaveDelay={100}
-            leaveTouchDelay={10000}
-            variant="outlined"
-            placement="bottom"
-            arrow
+          <InfoTooltip
             title={
               <Typography level="body-md" color="neutral">
                 <b>Why we need this</b>
@@ -44,11 +38,7 @@ export default function LlmKey(props: {
                 that match the criteria you set below.
               </Typography>
             }
-          >
-            <IconButton>
-              <InfoOutlined />
-            </IconButton>
-          </Tooltip>
+          />
         }
       >
         OpenAI API Key

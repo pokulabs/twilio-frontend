@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import { apiClient } from "../../api-client";
 import withLoggedIn from "../../context/withLoggedIn";
+import { InfoTooltip } from "../shared/InfoTooltip";
 
 function Vapi() {
   const [vapiKey, setVapiKey] = useState("");
@@ -52,14 +53,7 @@ function Vapi() {
       <Typography
         level="h4"
         endDecorator={
-          <Tooltip
-            sx={{ maxWidth: 400, zIndex: 10000 }}
-            enterTouchDelay={0}
-            leaveDelay={100}
-            leaveTouchDelay={10000}
-            variant="outlined"
-            placement="bottom"
-            arrow
+          <InfoTooltip
             title={
               <Typography level="body-md" color="neutral">
                 <b>Why we need this</b>
@@ -68,11 +62,7 @@ function Vapi() {
                 inject real-time messages into them.
               </Typography>
             }
-          >
-            <IconButton>
-              <InfoOutlined />
-            </IconButton>
-          </Tooltip>
+          />
         }
       >
         Vapi API Key

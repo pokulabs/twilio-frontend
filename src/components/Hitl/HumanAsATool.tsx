@@ -22,6 +22,7 @@ import { InfoOutlined } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
 import Steps from "./Steps";
 import type { Medium } from "../../types";
+import { InfoTooltip } from "../shared/InfoTooltip";
 
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
@@ -107,27 +108,9 @@ export default function HumanAsATool() {
           <Typography
             level="title-md"
             endDecorator={
-              <Tooltip
-                sx={{ maxWidth: 400, zIndex: 10000 }}
-                enterTouchDelay={0}
-                leaveDelay={100}
-                leaveTouchDelay={10000}
-                variant="outlined"
-                placement="bottom"
-                arrow
-                title={
-                  <Typography>
-                    Your AI agent will text a human for help using the number
-                    you choose below. You can choose to use a number provided by
-                    Poku or a Twilio number you own that is approved for SMS
-                    messages.
-                  </Typography>
-                }
-              >
-                <IconButton size="sm">
-                  <InfoOutlined />
-                </IconButton>
-              </Tooltip>
+              <InfoTooltip
+                title="Your AI agent will text a human for help using the number you choose below..."
+              />
             }
           >
             Agent Number
@@ -273,14 +256,7 @@ function HostedNumberLimitWarning({
     <Typography
       level="body-sm"
       endDecorator={
-        <Tooltip
-          sx={{ maxWidth: 400, zIndex: 10000 }}
-          enterTouchDelay={0}
-          leaveDelay={100}
-          leaveTouchDelay={10000}
-          variant="outlined"
-          placement="bottom"
-          arrow
+        <InfoTooltip
           title={
             <Stack>
               <Typography sx={{ mt: 1 }} color="warning">
@@ -292,11 +268,7 @@ function HostedNumberLimitWarning({
               </Typography>
             </Stack>
           }
-        >
-          <IconButton size="sm">
-            <InfoOutlined />
-          </IconButton>
-        </Tooltip>
+        />
       }
     >
       Usage: {count} / {limit}
@@ -374,14 +346,7 @@ function HumanNumberInput(props: {
       <Typography
         level="title-md"
         endDecorator={
-          <Tooltip
-            sx={{ maxWidth: 400, zIndex: 10000 }}
-            enterTouchDelay={0}
-            leaveDelay={100}
-            leaveTouchDelay={10000}
-            variant="outlined"
-            placement="bottom"
-            arrow
+          <InfoTooltip
             title={
               <Typography>
                 Who would you like your AI agent to reach out to in case of an
@@ -390,11 +355,7 @@ function HumanNumberInput(props: {
                 an escalation.
               </Typography>
             }
-          >
-            <IconButton size="sm">
-              <InfoOutlined />
-            </IconButton>
-          </Tooltip>
+          />
         }
       >
         Human Number
@@ -419,14 +380,7 @@ function WaitTimeInput(props: {
       <Typography
         level="title-md"
         endDecorator={
-          <Tooltip
-            sx={{ maxWidth: 400, zIndex: 10000 }}
-            enterTouchDelay={0}
-            leaveDelay={100}
-            leaveTouchDelay={10000}
-            variant="outlined"
-            placement="bottom"
-            arrow
+          <InfoTooltip
             title={
               <Typography>
                 How long (in seconds) should the AI agent wait for a response
@@ -434,11 +388,7 @@ function WaitTimeInput(props: {
                 connection timeout to at least this long.
               </Typography>
             }
-          >
-            <IconButton size="sm">
-              <InfoOutlined />
-            </IconButton>
-          </Tooltip>
+          />
         }
       >
         Wait Time (seconds)

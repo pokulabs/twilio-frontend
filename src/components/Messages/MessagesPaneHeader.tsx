@@ -27,6 +27,7 @@ import { toggleMessagesPane } from "../../utils";
 import type { ChatInfo } from "../../types";
 import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
+import { InfoTooltip } from "../shared/InfoTooltip";
 
 type MessagesPaneHeaderProps = {
   chat: ChatInfo;
@@ -163,14 +164,7 @@ function Toggle({ chat }: ToggleProps) {
             .catch((err) => console.error(err));
         }}
       />
-      <Tooltip
-        sx={{ maxWidth: 400 }}
-        enterTouchDelay={0}
-        leaveDelay={100}
-        leaveTouchDelay={10000}
-        variant="outlined"
-        placement="bottom"
-        arrow
+      <InfoTooltip
         title={
           <Typography color="neutral">
             If you have an AI agent that uses Poku, use this toggle to switch
@@ -193,11 +187,7 @@ function Toggle({ chat }: ToggleProps) {
             .
           </Typography>
         }
-      >
-        <IconButton>
-          <InfoOutlined />
-        </IconButton>
-      </Tooltip>
+      />
     </Stack>
   );
 }
