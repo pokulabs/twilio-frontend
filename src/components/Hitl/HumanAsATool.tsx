@@ -11,42 +11,75 @@ import {
   RadioGroup,
   LinearProgress,
   Link,
-  IconButton,
-  Tooltip,
-  Divider,
   Checkbox,
+  radioClasses,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
-import { InfoOutlined } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
 import Steps from "./Steps";
 import type { Medium } from "../../types";
 import { InfoTooltip } from "../shared/InfoTooltip";
+import { SLACK_LINK } from "../../utils";
+
+type UiChannel = "slack" | "whatsapp" | "sms";
+
+function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium {
+  if (uc === "slack") {
+    return uc;
+  } else if (uc === "whatsapp") {
+    return "whatsapp_poku";
+  } else if (uc === "sms") {
+    if (ownTwilio) {
+      return "sms";
+    } else {
+      return "sms_poku";
+    }
+  } else {
+    throw new Error("Couldn't find uiChannel");
+  }
+}
 
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
-  const [humanNumber, setHumanNumber] = useState("");
+  
   const [agentNumber, setAgentNumber] = useState("");
   const [hostedAgentNumber] = useState("+16286001841");
   const [waitTime, setWaitTime] = useState(60);
-  const [medium, setMedium] = useState<Medium>("sms_poku");
   const [haatMessageCount, setHaatMessageCount] = useState(0);
   const [haatMessageLimit, setHaatMessageLimit] = useState(0);
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "success" | "error"
   >("idle");
   const [hasTwilioCreds, setHasTwilioCreds] = useState(false);
+  
+  const [uiChannel, setUiChannel] = useState<UiChannel>("slack");
+  const [usingOwnTwilio, setUsingOwnTwilio] = useState(false);
+  const [humanNumbers, setHumanNumbers] = useState<{
+    slack?: string;
+    whatsapp?: string;
+    sms?: string;
+  }>({});
+  const currentHumanNumber = humanNumbers[uiChannel] || "";
+  const updateHumanNumber = (val: string) => {
+    setHumanNumbers((prev) => ({ ...prev, [uiChannel]: val }));
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await apiClient.getAccount();
         if (res.data) {
-          setHumanNumber(res.data.humanNumber || "");
+          const localUiChannel = res.data.medium?.split("_")[0] as UiChannel ?? "sms";
+          setHumanNumbers((prev) => ({
+            ...prev,
+            [localUiChannel]: res.data?.humanNumber || "",
+          }));
           setAgentNumber(res.data.agentNumber || "");
           setWaitTime(res.data.waitTime || 60);
-          setMedium(res.data.medium ?? "sms_poku");
+          setUiChannel(localUiChannel);
+          setUsingOwnTwilio(res.data.medium === "sms");
           setHaatMessageCount(res.data.haatMessageCount);
           setHaatMessageLimit(res.data.haatMessageLimit);
         }
@@ -65,10 +98,10 @@ export default function HumanAsATool() {
     setSaveStatus("saving");
     try {
       await apiClient.saveAccount(
-        humanNumber,
-        medium.endsWith("_poku") ? hostedAgentNumber : agentNumber,
+        currentHumanNumber,
+        usingOwnTwilio ? hostedAgentNumber : agentNumber,
         waitTime,
-        medium,
+        mapUiChannelToMedium(uiChannel, usingOwnTwilio),
       );
       if (sid && authToken) {
         await apiClient.createTwilioKey(sid, authToken);
@@ -103,63 +136,69 @@ export default function HumanAsATool() {
 
       <Steps />
 
-      <Stack spacing={1}>
-        <Box>
-          <Typography
-            level="title-md"
-            endDecorator={
-              <InfoTooltip
-                title="Your AI agent will text a human for help using the number you choose below..."
-              />
-            }
-          >
-            Agent Number
-          </Typography>
-        </Box>
-        <NumberType
-          medium={medium}
-          setMedium={setMedium}
+      <Box>
+        <Typography level="body-sm" sx={{ mb: 1 }} endDecorator={
+          <InfoTooltip title={
+            <Stack>
+              <Typography level="body-sm" sx={{ mt: 1 }} color="warning">
+                {haatMessageLimit} msgs/month limit when not using own Twilio numbers.
+              </Typography>
+              <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
+                To increase please contact{" "}
+                <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
+              </Typography>
+            </Stack>
+          } />
+        }>
+          Usage: {haatMessageCount} / {haatMessageLimit}
+        </Typography>
+        <LinearProgress
+          determinate
+          value={haatMessageCount * (100 / haatMessageLimit)}
         />
+      </Box>
 
-        <AgentNumberSelector
-          medium={medium}
-          setMedium={setMedium}
-          agentNumber={agentNumber}
-          setAgentNumber={setAgentNumber}
-          hostedAgentNumber={hostedAgentNumber}
-          phoneNumbers={phoneNumbers}
-          whatsappNumbers={whatsappNumbers}
-          hasTwilioCreds={hasTwilioCreds}
-        />
+    <Box sx={{ display: "flex" }}>
+      <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} />
+    </Box>
 
-        {medium.endsWith("_poku") && (
-          <Box>
-            <HostedNumberLimitWarning
-              count={haatMessageCount}
-              limit={haatMessageLimit}
-            />
-            <LinearProgress
-              determinate
-              value={haatMessageCount * (100 / haatMessageLimit)}
-            />
-          </Box>
-        )}
-      </Stack>
 
-      <HumanNumberInput
-        value={humanNumber}
-        onChange={(val) => setHumanNumber(val)}
-      />
+      {
+        uiChannel === "slack" ? (
+          <SlackInput
+            value={currentHumanNumber}
+            onChange={updateHumanNumber}
+          />
+        ) : uiChannel === "sms" ? (
+          <SmsInput
+            usingOwnTwilio={usingOwnTwilio}
+            setUsingOwnTwilio={setUsingOwnTwilio}
+            value={currentHumanNumber}
+            onChange={updateHumanNumber}
+            agentNumber={agentNumber}
+            setAgentNumber={setAgentNumber}
+            hasTwilioCreds={hasTwilioCreds}
+            phoneNumbers={phoneNumbers}
+            whatsappNumbers={whatsappNumbers}
+          />
+        ) : (
+          <HumanNumberInput
+            value={currentHumanNumber}
+            onChange={updateHumanNumber}
+          />
+        )
+      }
+      
 
       <WaitTimeInput value={waitTime} onChange={(val) => setWaitTime(val)} />
 
       <Button
         onClick={handleSave}
         disabled={
-          !humanNumber ||
-          (!agentNumber && !medium.endsWith("_poku")) ||
-          (!sid && !medium.endsWith("_poku")) ||
-          (!authToken && !medium.endsWith("_poku")) ||
+          !currentHumanNumber ||
+          (!agentNumber && !usingOwnTwilio) ||
+          (!sid && !usingOwnTwilio) ||
+          (!authToken && !usingOwnTwilio) ||
           saveStatus === "saving"
         }
       >
@@ -175,169 +214,133 @@ export default function HumanAsATool() {
   );
 }
 
-function NumberType(props: {
-  medium: Medium;
-  setMedium: React.Dispatch<React.SetStateAction<Medium>>;
-}) {
-  return (
-    <Box sx={{ display: "flex", gap: 2 }}>
-      <RadioGroup
-        orientation="horizontal"
-        value={props.medium.endsWith("_poku") ? "poku" : "non-poku"}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          if (event.target.value === "poku") {
-            props.setMedium("sms_poku");
-          } else {
-            props.setMedium("sms");
-          }
-        }}
-        sx={{
-          width: "100%",
-          minHeight: 35,
-          padding: "4px",
-          borderRadius: "12px",
-          bgcolor: "neutral.softBg",
-          "--RadioGroup-gap": "4px",
-          "--Radio-actionRadius": "8px",
-        }}
-      >
-        {[
-          {
-            value: "poku",
-            label: "Free Poku number",
-          },
-          {
-            value: "non-poku",
-            label: "Your Twilio number",
-          },
-        ].map((item) => (
-          <Radio
-            key={item.value.toString()}
-            color="neutral"
-            value={item.value}
-            disableIcon
-            label={item.label}
-            variant="plain"
-            sx={{
-              px: 2,
-              alignItems: "center",
-              flex: 1,
-              justifyContent: "center",
-              textAlign: "center",
-            }}
-            slotProps={{
-              action: ({ checked }) => ({
-                sx: {
-                  ...(checked && {
-                    bgcolor: "background.surface",
-                    boxShadow: "sm",
-                    "&:hover": {
-                      bgcolor: "background.surface",
-                    },
-                  }),
-                },
-              }),
-            }}
-          />
-        ))}
-      </RadioGroup>
-    </Box>
-  );
-}
-
-function HostedNumberLimitWarning({
-  count,
-  limit,
+function SmsInput({
+  value,
+  onChange,
+  usingOwnTwilio,
+  setUsingOwnTwilio,
+  hasTwilioCreds,
+  agentNumber,
+  setAgentNumber,
+  phoneNumbers,
+  whatsappNumbers,
 }: {
-  count: number;
-  limit: number;
-}) {
-  return (
-    <Typography
-      level="body-sm"
-      endDecorator={
-        <InfoTooltip
-          title={
-            <Stack>
-              <Typography sx={{ mt: 1 }} color="warning">
-                ⚠️ {limit} msgs/month limit when using a free Poku number.
-              </Typography>
-              <Typography color="warning">
-                To increase please contact{" "}
-                <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
-              </Typography>
-            </Stack>
-          }
-        />
-      }
-    >
-      Usage: {count} / {limit}
-    </Typography>
-  );
-}
-
-function AgentNumberSelector(props: {
-  medium: Medium;
-  setMedium: (val: Medium) => void;
+  value: string;
+  onChange: (val: string) => void;
+  usingOwnTwilio: boolean;
+  setUsingOwnTwilio: (val: boolean) => void;
+  hasTwilioCreds: boolean;
   agentNumber: string;
   setAgentNumber: (val: string) => void;
-  hostedAgentNumber: string;
-  phoneNumbers: string[];
+  phoneNumbers: string[]
   whatsappNumbers: string[];
-  hasTwilioCreds: boolean;
 }) {
-  if (props.medium.endsWith("_poku")) {
-    return (
-      <>
-        <Checkbox
-          label="Use WhatsApp"
-          checked={props.medium === "whatsapp_poku"}
-          onChange={(e) => props.setMedium(e.target.checked ? "whatsapp_poku" : "sms_poku")}
-        />
-        <Input
-          readOnly
-          value={props.hostedAgentNumber}
-          startDecorator={
-            <>
-              <Typography sx={{ pr: 1.5 }}>Poku's number:</Typography>
-              <Divider orientation="vertical" />
-            </>
-          }
-        />
-      </>
-    );
-  }
-
-  if (!props.hasTwilioCreds) {
-    return (
-      <Typography color="danger">
-        Please go to{" "}
-        <Link component={RLink} to="/integrations">
-          Integrations
-        </Link>{" "}
-        to add your Twilio credentials and use your own number.
-      </Typography>
-    );
-  }
-
   return (
-    <Select
-      placeholder="Choose a number"
-      value={props.agentNumber || ""}
-      onChange={(_event, newPhoneNumber) =>
-        props.setAgentNumber(newPhoneNumber || "")
-      }
-    >
-      {props.phoneNumbers.concat(props.whatsappNumbers).map((e) => (
-        <Option key={e} value={e}>
-          {e}
-        </Option>
-      ))}
-    </Select>
+    <>
+      <Box>
+        <Checkbox
+          label="Use Own Twilio"
+          checked={usingOwnTwilio}
+          onChange={(e) => setUsingOwnTwilio(e.target.checked)}
+        />
+
+        {!hasTwilioCreds && <Typography color="danger">
+          Please go to{" "}
+          <Link component={RLink} to="/integrations">
+            Integrations
+          </Link>{" "}
+          to add your Twilio credentials and use your own number.
+        </Typography>}
+
+        {usingOwnTwilio && <Select
+          placeholder="Choose a number"
+          value={agentNumber || ""}
+          onChange={(_event, newPhoneNumber) =>
+            setAgentNumber(newPhoneNumber || "")
+          }
+        >
+          {phoneNumbers.concat(whatsappNumbers).map((e) => (
+            <Option key={e} value={e}>
+              {e}
+            </Option>
+          ))}
+        </Select>
+        }
+      </Box>
+
+      <Box>
+        <Typography
+          level="title-md"
+          endDecorator={
+            <InfoTooltip
+              title={
+                <Typography>
+                  Who would you like your AI agent to reach out to in case of an
+                  escalation? Enter the number of the human staff member below.
+                  This is the person who will respond to the AI agent in case of
+                  an escalation.
+                </Typography>
+              }
+            />
+          }
+        >
+          Human Number
+        </Typography>
+        
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value || "")}
+          placeholder="Ex: U08LGBTCBNH"
+        />
+      </Box>
+    </>
   );
 }
 
-function HumanNumberInput(props: {
+function SlackInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  return (
+    <>
+      <Typography level="body-sm">
+        Join our <Link href={SLACK_LINK}>Slack channel</Link> and reply in a thread to your agent.
+      </Typography>
+      <Box>
+        <Typography
+          level="title-md"
+          endDecorator={
+            <InfoTooltip
+              title={
+                <Typography>
+                  In Slack, go to your user profile. Then click the 3 vertical dots button.
+                  Select "Copy Member ID" and paste it in here.
+                  This is the person your AI will reach out to in case of an interaction.
+                </Typography>
+              }
+            />
+          }
+        >
+          Slack User ID
+        </Typography>
+        
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value || "")}
+          placeholder="Ex: U08LGBTCBNH"
+        />
+      </Box>
+    </>
+  );
+}
+
+function HumanNumberInput({
+  value,
+  onChange,
+}: {
   value: string;
   onChange: (val: string) => void;
 }) {
@@ -360,9 +363,10 @@ function HumanNumberInput(props: {
       >
         Human Number
       </Typography>
+      
       <Input
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value || "")}
+        value={value}
+        onChange={(e) => onChange(e.target.value || "")}
         placeholder="Ex: +12223334444"
       />
     </Box>
@@ -384,7 +388,7 @@ function WaitTimeInput(props: {
             title={
               <Typography>
                 How long (in seconds) should the AI agent wait for a response
-                from the human? If available, set your AI agent's tool
+                from the human? If available, set your AI agent"s tool
                 connection timeout to at least this long.
               </Typography>
             }
@@ -406,5 +410,75 @@ function WaitTimeInput(props: {
         }}
       />
     </Box>
+  );
+}
+
+
+function MediumSelector({
+  uiChannel: uiChannel,
+  setUiChannel: setUiChannel,
+}: {
+  uiChannel: UiChannel;
+  setUiChannel: (m: UiChannel) => void;
+}) {
+  return (
+    <RadioGroup
+      orientation="horizontal"
+      aria-label="Alignment"
+      name="alignment"
+      variant="outlined"
+      value={uiChannel}
+      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+        setUiChannel(event.target.value as UiChannel)
+      }
+      sx={{ display: "inline-flex", width: "fit-content" }}
+    >
+      {[ "sms", "whatsapp", "slack"].map((item) => (
+        <Box
+          key={item}
+          sx={(theme) => ({
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: 100,
+            height: 40,
+            "&:not([data-first-child])": {
+              borderLeft: "1px solid",
+              borderColor: "divider",
+            },
+            [`&[data-first-child] .${radioClasses.action}`]: {
+              borderTopLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+              borderBottomLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+            },
+            [`&[data-last-child] .${radioClasses.action}`]: {
+              borderTopRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+              borderBottomRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+            },
+          })}
+        >
+          <Radio
+            value={item}
+            disableIcon
+            overlay
+            label={
+              {
+                slack: "Slack",
+                whatsapp: "WhatsApp",
+                sms: "SMS",
+              }[item]
+            }
+            variant={uiChannel === item ? "solid" : "plain"}
+            slotProps={{
+              input: { "aria-label": item },
+              action: {
+                sx: { borderRadius: 0, transition: "none" },
+              },
+              label: { sx: { lineHeight: 0 } },
+            }}
+          />
+        </Box>
+      ))}
+    </RadioGroup>
   );
 }
