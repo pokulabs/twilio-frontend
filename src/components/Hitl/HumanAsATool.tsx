@@ -182,7 +182,7 @@ export default function HumanAsATool() {
             whatsappNumbers={whatsappNumbers}
           />
         ) : (
-          <HumanNumberInput
+          <WhatsappInput
             value={currentHumanNumber}
             onChange={updateHumanNumber}
           />
@@ -290,7 +290,7 @@ function SmsInput({
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value || "")}
-          placeholder="Ex: U08LGBTCBNH"
+          placeholder="Ex: +12223334444"
         />
       </Box>
     </>
@@ -337,7 +337,7 @@ function SlackInput({
   );
 }
 
-function HumanNumberInput({
+function WhatsappInput({
   value,
   onChange,
 }: {
