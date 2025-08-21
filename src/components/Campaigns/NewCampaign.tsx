@@ -11,6 +11,7 @@ import {
   Option,
   Input,
   Box,
+  Autocomplete,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
@@ -44,14 +45,6 @@ export default function NewCampaign({
     `Create your template here—use {{ColumnName}} to personalize each message.\n\nExample:\nHi {{FirstName}}, thanks for visiting {{Company}}!`,
   );
 
-  const handleCheckboxChange = (number: string) => {
-    setSenderNumbers((prev) =>
-      prev.includes(number)
-        ? prev.filter((n) => n !== number)
-        : [...prev, number],
-    );
-  };
-
   return (
     <Stack spacing={2}>
       <Typography level="h4" gutterBottom>
@@ -64,20 +57,15 @@ export default function NewCampaign({
         onChange={(e) => setCampaignName(e.target.value)}
       />
 
-      <Stack gap={1}>
-        <Typography>Select number(s) to send campaign from:</Typography>
-        <Grid container>
-          {phoneNumbers.concat(whatsappNumbers).map((number) => (
-            <Grid xs={6} key={number}>
-              <Checkbox
-                label={number}
-                checked={senderNumbers.includes(number)}
-                onChange={() => handleCheckboxChange(number)}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </Stack>
+      <Autocomplete
+        value={senderNumbers}
+        onChange={(event, newValue) => setSenderNumbers(newValue)}
+        multiple
+        disableCloseOnSelect
+        options={phoneNumbers.concat(whatsappNumbers)}
+        placeholder="Select number(s) to send campaign from"
+      />
+
 
       <Stack gap={1}>
         <Box>
