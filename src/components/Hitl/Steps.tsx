@@ -104,8 +104,8 @@ export default function Steps() {
         </Typography>
       ) : (
         <Typography level="body-sm" sx={{ mt: 1 }}>
-          Require human approval over text before executing a
-          custom tool call.
+          Require human approval before executing an MCP
+          tool call.
         </Typography>
       )}
       
@@ -266,9 +266,8 @@ export default function Steps() {
       )}
 
       <Typography sx={{ mt: 2 }}>
-        <b>Step {selectedTool === 0 ? "4" : "3"}.</b> Provide the numbers your
-        agent will reach out to and from when it contacts a human. Configure
-        below.
+        <b>Step {selectedTool === 0 ? "4" : "3"}.</b> Configure the channel your
+        agent will use to contact a human.
       </Typography>
     </Box>
   );

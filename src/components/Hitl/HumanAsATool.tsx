@@ -119,7 +119,7 @@ export default function HumanAsATool() {
     <Stack spacing={3}>
       <Box>
         <Typography>
-          Enable your AI agent to loop in a human for help via SMS. Works with any agent that can use MCP.
+          Enable your AI agent to loop in a human for help. Works with any agent that can use MCP.
         </Typography>
         <Typography>
           Learn more{" "}
@@ -239,12 +239,12 @@ function SmsInput({
     <>
       <Box>
         <Checkbox
-          label="Use Own Twilio"
+          label="Send from my own Twilio number"
           checked={usingOwnTwilio}
           onChange={(e) => setUsingOwnTwilio(e.target.checked)}
         />
 
-        {!hasTwilioCreds && <Typography color="danger">
+        {usingOwnTwilio && !hasTwilioCreds && <Typography color="danger">
           Please go to{" "}
           <Link component={RLink} to="/integrations">
             Integrations
@@ -252,7 +252,7 @@ function SmsInput({
           to add your Twilio credentials and use your own number.
         </Typography>}
 
-        {usingOwnTwilio && <Select
+        {usingOwnTwilio && hasTwilioCreds && <Select
           placeholder="Choose a number"
           value={agentNumber || ""}
           onChange={(_event, newPhoneNumber) =>
@@ -316,9 +316,9 @@ function SlackInput({
             <InfoTooltip
               title={
                 <Typography>
+                  This is the human your AI will reach out to in case of an interaction.
                   In Slack, go to your user profile. Then click the 3 vertical dots button.
-                  Select "Copy Member ID" and paste it in here.
-                  This is the person your AI will reach out to in case of an interaction.
+                  Select "Copy Member ID" and paste it here.
                 </Typography>
               }
             />
@@ -431,7 +431,10 @@ function MediumSelector({
       onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
         setUiChannel(event.target.value as UiChannel)
       }
-      sx={{ display: "inline-flex", width: "fit-content" }}
+      sx={{
+        display: "flex",
+        width: "100%",
+      }}
     >
       {[ "sms", "whatsapp", "slack"].map((item) => (
         <Box
@@ -441,8 +444,8 @@ function MediumSelector({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            width: 100,
-            height: 40,
+            flex: 1,
+            height: 35,
             "&:not([data-first-child])": {
               borderLeft: "1px solid",
               borderColor: "divider",
