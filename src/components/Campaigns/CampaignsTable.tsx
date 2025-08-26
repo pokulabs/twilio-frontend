@@ -1,4 +1,4 @@
-import { Typography, Stack, Table } from "@mui/joy";
+import { Typography, Stack, Table, Button, IconButton } from "@mui/joy";
 import { displayDateTime } from "../../utils";
 import {
   Chart as ChartJS,
@@ -11,6 +11,8 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { apiClient } from "../../api-client";
+import { DownloadRounded } from "@mui/icons-material";
 
 // Register only what we need
 ChartJS.register(
@@ -87,6 +89,7 @@ export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
               <th>Pending</th>
               <th>Failed</th>
               <th>Delivered</th>
+              <th>Download</th>
             </tr>
           </thead>
           <tbody>
@@ -106,6 +109,17 @@ export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
                 </td>
                 <td>
                   {r.deliveredMessages}/{r.messageCount}
+                </td>
+                <td>
+                  <IconButton
+                    variant="outlined"
+                    size="sm"
+                    onClick={() => {
+                      apiClient.downloadCampaignMessagesCsv(r.id);
+                    }}
+                  >
+                    <DownloadRounded />
+                  </IconButton>
                 </td>
               </tr>
             ))}
