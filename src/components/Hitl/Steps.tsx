@@ -37,7 +37,6 @@ export default function Steps() {
         <b>Step 1.</b> Choose a human-in-the-loop feature
       </Typography>
 
-
       <Box sx={{ display: "flex", gap: 2 }}>
         <RadioGroup
           orientation="horizontal"
@@ -104,11 +103,10 @@ export default function Steps() {
         </Typography>
       ) : (
         <Typography level="body-sm" sx={{ mt: 1 }}>
-          Require human approval before executing an MCP
-          tool call.
+          Require human approval before executing an MCP tool call.
         </Typography>
       )}
-      
+
       {selectedTool === 0 ? (
         <AccordionGroup>
           <Accordion sx={{ mt: 2, p: 0 }}>
@@ -187,7 +185,8 @@ export default function Steps() {
               </Typography>
               <CodeBlock text="https://mcp-proxy.pokulabs.com?url=<YOUR_MCP_URL>" />
               <Typography>
-                Replace <code>{"<YOUR_MCP_URL>"}</code> with the url of the MCP server you want to gate with human approval.
+                Replace <code>{"<YOUR_MCP_URL>"}</code> with the url of the MCP
+                server you want to gate with human approval.
               </Typography>
               <Typography sx={{ mt: 1 }}>
                 <strong>Timeout:</strong>
@@ -199,18 +198,21 @@ export default function Steps() {
               </Typography>
               <CodeBlock text="Poku-Authorization: Bearer <YOUR_POKU_KEY>" />
               <Typography sx={{ mt: 1 }}></Typography>
-              <CodeBlock text="Authorization: Bearer <YOUR_MCP_AUTH_KEY>" optional/>
+              <CodeBlock
+                text="Authorization: Bearer <YOUR_MCP_AUTH_KEY>"
+                optional
+              />
               <Typography sx={{ mt: 1 }}></Typography>
               <ToolApprovalExamples />
 
               <Typography sx={{ mt: 1 }}>
-                <b>2.3</b> Select the tool(s) you want to gate with human approval.
+                <b>2.3</b> Select the tool(s) you want to gate with human
+                approval.
               </Typography>
             </AccordionDetails>
           </Accordion>
         </AccordionGroup>
       )}
-      
 
       {selectedTool === 0 && (
         <AccordionGroup>
@@ -242,8 +244,7 @@ export default function Steps() {
                 <br />
                 - first get user consent to be put on hold by asking "Is it ok
                 if I put you on a brief hold while I check with my manager?"
-                <br />
-                - if user says yes, use <b>contact_human</b> tool.
+                <br />- if user says yes, use <b>contact_human</b> tool.
                 <br />
                 Tool calls are exempt from all style rules (filler words, length
                 caps, etc.).
@@ -273,21 +274,29 @@ export default function Steps() {
   );
 }
 
-function CodeBlock({ text, optional = false }: { text: string; optional?: boolean }) {
+function CodeBlock({
+  text,
+  optional = false,
+}: {
+  text: string;
+  optional?: boolean;
+}) {
   return (
-    <Box sx={{
-      whiteSpace: "nowrap",
-      overflowX: "auto",
-      display: "flex",
-      alignItems: "center",
-      gap: 1,
-    }}>
-        {optional &&<Typography>
-           (Optional)
-        </Typography>}
-        <Typography sx={{ lineHeight: 2 }} fontFamily="monospace" variant="soft">{text}</Typography>
+    <Box
+      sx={{
+        whiteSpace: "nowrap",
+        overflowX: "auto",
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+      }}
+    >
+      {optional && <Typography>(Optional)</Typography>}
+      <Typography sx={{ lineHeight: 2 }} fontFamily="monospace" variant="soft">
+        {text}
+      </Typography>
     </Box>
-  )
+  );
 }
 
 function ContactHumanExamples() {
@@ -295,28 +304,40 @@ function ContactHumanExamples() {
 
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
         {Object.entries(mapContactHumanExamples).map(([key, img]) => (
           <Box
             key={key}
             onClick={() => setContactHumanExample(key)}
             sx={{
-              cursor: 'pointer',
-              border: contactHumanExample === key ? '2px solid blue' : '1px solid silver',
+              cursor: "pointer",
+              border:
+                contactHumanExample === key
+                  ? "2px solid blue"
+                  : "1px solid silver",
               borderRadius: 4,
-              overflow: 'hidden',
+              overflow: "hidden",
             }}
           >
-            <img src={img} style={{ width: 80, height: 50, objectFit: 'cover' }} />
-            <Typography level="body-xs" sx={{ textAlign: 'center' }}>{key}</Typography>
+            <img
+              src={img}
+              style={{ width: 80, height: 50, objectFit: "cover" }}
+            />
+            <Typography level="body-xs" sx={{ textAlign: "center" }}>
+              {key}
+            </Typography>
           </Box>
         ))}
       </Box>
 
       {contactHumanExample && (
         <img
-          src={mapContactHumanExamples[contactHumanExample as keyof typeof mapContactHumanExamples]}
-          style={{ width: '100%', maxWidth: 400, border: '1px solid silver' }}
+          src={
+            mapContactHumanExamples[
+              contactHumanExample as keyof typeof mapContactHumanExamples
+            ]
+          }
+          style={{ width: "100%", maxWidth: 400, border: "1px solid silver" }}
         />
       )}
     </>
@@ -328,28 +349,40 @@ function ToolApprovalExamples() {
 
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
         {Object.entries(mapToolApprovalExamples).map(([key, img]) => (
           <Box
             key={key}
             onClick={() => setToolApprovalExample(key)}
             sx={{
-              cursor: 'pointer',
-              border: toolApprovalExample === key ? '2px solid blue' : '1px solid silver',
+              cursor: "pointer",
+              border:
+                toolApprovalExample === key
+                  ? "2px solid blue"
+                  : "1px solid silver",
               borderRadius: 4,
-              overflow: 'hidden',
+              overflow: "hidden",
             }}
           >
-            <img src={img} style={{ width: 80, height: 50, objectFit: 'cover' }} />
-            <Typography level="body-xs" sx={{ textAlign: 'center' }}>{key}</Typography>
+            <img
+              src={img}
+              style={{ width: 80, height: 50, objectFit: "cover" }}
+            />
+            <Typography level="body-xs" sx={{ textAlign: "center" }}>
+              {key}
+            </Typography>
           </Box>
         ))}
       </Box>
 
       {toolApprovalExample && (
         <img
-          src={mapToolApprovalExamples[toolApprovalExample as keyof typeof mapToolApprovalExamples]}
-          style={{ width: '100%', maxWidth: 400, border: '1px solid silver' }}
+          src={
+            mapToolApprovalExamples[
+              toolApprovalExample as keyof typeof mapToolApprovalExamples
+            ]
+          }
+          style={{ width: "100%", maxWidth: 400, border: "1px solid silver" }}
         />
       )}
     </>

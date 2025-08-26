@@ -66,7 +66,6 @@ export default function NewCampaign({
         placeholder="Select number(s) to send campaign from"
       />
 
-
       <Stack gap={1}>
         <Box>
           <Typography>Upload receipients list:</Typography>

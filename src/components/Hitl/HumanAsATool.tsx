@@ -42,7 +42,7 @@ function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium {
 
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
-  
+
   const [agentNumber, setAgentNumber] = useState("");
   const [hostedAgentNumber] = useState("+16286001841");
   const [waitTime, setWaitTime] = useState(60);
@@ -52,7 +52,7 @@ export default function HumanAsATool() {
     "idle" | "saving" | "success" | "error"
   >("idle");
   const [hasTwilioCreds, setHasTwilioCreds] = useState(false);
-  
+
   const [uiChannel, setUiChannel] = useState<UiChannel>("slack");
   const [usingOwnTwilio, setUsingOwnTwilio] = useState(false);
   const [humanNumbers, setHumanNumbers] = useState<{
@@ -65,13 +65,13 @@ export default function HumanAsATool() {
     setHumanNumbers((prev) => ({ ...prev, [uiChannel]: val }));
   };
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await apiClient.getAccount();
         if (res.data) {
-          const localUiChannel = res.data.medium?.split("_")[0] as UiChannel ?? "sms";
+          const localUiChannel =
+            (res.data.medium?.split("_")[0] as UiChannel) ?? "sms";
           setHumanNumbers((prev) => ({
             ...prev,
             [localUiChannel]: res.data?.humanNumber || "",
@@ -119,7 +119,8 @@ export default function HumanAsATool() {
     <Stack spacing={3}>
       <Box>
         <Typography>
-          Enable your AI agent to loop in a human for help. Works with any agent that can use MCP.
+          Enable your AI agent to loop in a human for help. Works with any agent
+          that can use MCP.
         </Typography>
         <Typography>
           Learn more{" "}
@@ -137,19 +138,26 @@ export default function HumanAsATool() {
       <Steps />
 
       <Box>
-        <Typography level="body-sm" sx={{ mb: 1 }} endDecorator={
-          <InfoTooltip title={
-            <Stack>
-              <Typography level="body-sm" sx={{ mt: 1 }} color="warning">
-                {haatMessageLimit} msgs/month limit when not using own Twilio numbers.
-              </Typography>
-              <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
-                To increase please contact{" "}
-                <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
-              </Typography>
-            </Stack>
-          } />
-        }>
+        <Typography
+          level="body-sm"
+          sx={{ mb: 1 }}
+          endDecorator={
+            <InfoTooltip
+              title={
+                <Stack>
+                  <Typography level="body-sm" sx={{ mt: 1 }} color="warning">
+                    {haatMessageLimit} msgs/month limit when not using own
+                    Twilio numbers.
+                  </Typography>
+                  <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
+                    To increase please contact{" "}
+                    <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
+                  </Typography>
+                </Stack>
+              }
+            />
+          }
+        >
           Usage: {haatMessageCount} / {haatMessageLimit}
         </Typography>
         <LinearProgress
@@ -158,37 +166,30 @@ export default function HumanAsATool() {
         />
       </Box>
 
-    <Box sx={{ display: "flex" }}>
-      <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} />
-    </Box>
+      <Box sx={{ display: "flex" }}>
+        <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} />
+      </Box>
 
-
-      {
-        uiChannel === "slack" ? (
-          <SlackInput
-            value={currentHumanNumber}
-            onChange={updateHumanNumber}
-          />
-        ) : uiChannel === "sms" ? (
-          <SmsInput
-            usingOwnTwilio={usingOwnTwilio}
-            setUsingOwnTwilio={setUsingOwnTwilio}
-            value={currentHumanNumber}
-            onChange={updateHumanNumber}
-            agentNumber={agentNumber}
-            setAgentNumber={setAgentNumber}
-            hasTwilioCreds={hasTwilioCreds}
-            phoneNumbers={phoneNumbers}
-            whatsappNumbers={whatsappNumbers}
-          />
-        ) : (
-          <WhatsappInput
-            value={currentHumanNumber}
-            onChange={updateHumanNumber}
-          />
-        )
-      }
-      
+      {uiChannel === "slack" ? (
+        <SlackInput value={currentHumanNumber} onChange={updateHumanNumber} />
+      ) : uiChannel === "sms" ? (
+        <SmsInput
+          usingOwnTwilio={usingOwnTwilio}
+          setUsingOwnTwilio={setUsingOwnTwilio}
+          value={currentHumanNumber}
+          onChange={updateHumanNumber}
+          agentNumber={agentNumber}
+          setAgentNumber={setAgentNumber}
+          hasTwilioCreds={hasTwilioCreds}
+          phoneNumbers={phoneNumbers}
+          whatsappNumbers={whatsappNumbers}
+        />
+      ) : (
+        <WhatsappInput
+          value={currentHumanNumber}
+          onChange={updateHumanNumber}
+        />
+      )}
 
       <WaitTimeInput value={waitTime} onChange={(val) => setWaitTime(val)} />
 
@@ -232,7 +233,7 @@ function SmsInput({
   hasTwilioCreds: boolean;
   agentNumber: string;
   setAgentNumber: (val: string) => void;
-  phoneNumbers: string[]
+  phoneNumbers: string[];
   whatsappNumbers: string[];
 }) {
   return (
@@ -244,28 +245,31 @@ function SmsInput({
           onChange={(e) => setUsingOwnTwilio(e.target.checked)}
         />
 
-        {usingOwnTwilio && !hasTwilioCreds && <Typography color="danger">
-          Please go to{" "}
-          <Link component={RLink} to="/integrations">
-            Integrations
-          </Link>{" "}
-          to add your Twilio credentials and use your own number.
-        </Typography>}
+        {usingOwnTwilio && !hasTwilioCreds && (
+          <Typography color="danger">
+            Please go to{" "}
+            <Link component={RLink} to="/integrations">
+              Integrations
+            </Link>{" "}
+            to add your Twilio credentials and use your own number.
+          </Typography>
+        )}
 
-        {usingOwnTwilio && hasTwilioCreds && <Select
-          placeholder="Choose a number"
-          value={agentNumber || ""}
-          onChange={(_event, newPhoneNumber) =>
-            setAgentNumber(newPhoneNumber || "")
-          }
-        >
-          {phoneNumbers.concat(whatsappNumbers).map((e) => (
-            <Option key={e} value={e}>
-              {e}
-            </Option>
-          ))}
-        </Select>
-        }
+        {usingOwnTwilio && hasTwilioCreds && (
+          <Select
+            placeholder="Choose a number"
+            value={agentNumber || ""}
+            onChange={(_event, newPhoneNumber) =>
+              setAgentNumber(newPhoneNumber || "")
+            }
+          >
+            {phoneNumbers.concat(whatsappNumbers).map((e) => (
+              <Option key={e} value={e}>
+                {e}
+              </Option>
+            ))}
+          </Select>
+        )}
       </Box>
 
       <Box>
@@ -286,7 +290,7 @@ function SmsInput({
         >
           Human Number
         </Typography>
-        
+
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value || "")}
@@ -307,7 +311,8 @@ function SlackInput({
   return (
     <>
       <Typography level="body-sm">
-        Join our <Link href={SLACK_LINK}>Slack channel</Link> and reply in a thread to your agent.
+        Join our <Link href={SLACK_LINK}>Slack channel</Link> and reply in a
+        thread to your agent.
       </Typography>
       <Box>
         <Typography
@@ -316,9 +321,10 @@ function SlackInput({
             <InfoTooltip
               title={
                 <Typography>
-                  This is the human your AI will reach out to in case of an interaction.
-                  In Slack, go to your user profile. Then click the 3 vertical dots button.
-                  Select "Copy Member ID" and paste it here.
+                  This is the human your AI will reach out to in case of an
+                  interaction. In Slack, go to your user profile. Then click the
+                  3 vertical dots button. Select "Copy Member ID" and paste it
+                  here.
                 </Typography>
               }
             />
@@ -326,7 +332,7 @@ function SlackInput({
         >
           Slack User ID
         </Typography>
-        
+
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value || "")}
@@ -363,7 +369,7 @@ function WhatsappInput({
       >
         Human Number
       </Typography>
-      
+
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value || "")}
@@ -413,7 +419,6 @@ function WaitTimeInput(props: {
   );
 }
 
-
 function MediumSelector({
   uiChannel: uiChannel,
   setUiChannel: setUiChannel,
@@ -436,7 +441,7 @@ function MediumSelector({
         width: "100%",
       }}
     >
-      {[ "sms", "whatsapp", "slack"].map((item) => (
+      {["sms", "whatsapp", "slack"].map((item) => (
         <Box
           key={item}
           sx={(theme) => ({

@@ -3,8 +3,8 @@ import { InfoOutlined } from "@mui/icons-material";
 import { ReactNode } from "react";
 
 type InfoTooltipProps = {
-  title: ReactNode;           // The tooltip content
-  size?: "sm" | "md" | "lg";  // Pass through to IconButton
+  title: ReactNode; // The tooltip content
+  size?: "sm" | "md" | "lg"; // Pass through to IconButton
 };
 
 export function InfoTooltip({ title, size = "sm" }: InfoTooltipProps) {
@@ -17,7 +17,9 @@ export function InfoTooltip({ title, size = "sm" }: InfoTooltipProps) {
       variant="outlined"
       placement="bottom"
       arrow
-      title={typeof title === "string" ? <Typography>{title}</Typography> : title}
+      title={
+        typeof title === "string" ? <Typography>{title}</Typography> : title
+      }
     >
       <IconButton size={size}>
         <InfoOutlined />
