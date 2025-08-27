@@ -206,6 +206,10 @@ class ApiClient {
         link.click();
         link.remove();
     }
+
+    async sendTestMessage() {
+        return this.api.post("/account/test");
+    }
 }
 
 export const apiClient = new ApiClient();

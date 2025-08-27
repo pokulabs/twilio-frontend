@@ -193,18 +193,33 @@ export default function HumanAsATool() {
 
       <WaitTimeInput value={waitTime} onChange={(val) => setWaitTime(val)} />
 
-      <Button
-        onClick={handleSave}
-        disabled={
-          !currentHumanNumber ||
-          (!agentNumber && !usingOwnTwilio) ||
-          (!sid && !usingOwnTwilio) ||
-          (!authToken && !usingOwnTwilio) ||
-          saveStatus === "saving"
-        }
-      >
-        Save
-      </Button>
+      <Stack gap={1}>
+        <Button
+          onClick={handleSave}
+          disabled={
+            !currentHumanNumber ||
+            (!agentNumber && !usingOwnTwilio) ||
+            (!sid && !usingOwnTwilio) ||
+            (!authToken && !usingOwnTwilio) ||
+            saveStatus === "saving"
+          }
+        >
+          Save
+        </Button>
+        <Button
+          onClick={() => apiClient.sendTestMessage()}
+          variant="outlined"
+          disabled={
+            !currentHumanNumber ||
+            (!agentNumber && !usingOwnTwilio) ||
+            (!sid && !usingOwnTwilio) ||
+            (!authToken && !usingOwnTwilio) ||
+            saveStatus === "saving"
+          }
+        >
+          Send Test Message
+        </Button>
+      </Stack>
       {saveStatus === "success" && (
         <Typography color="success">Settings saved!</Typography>
       )}
