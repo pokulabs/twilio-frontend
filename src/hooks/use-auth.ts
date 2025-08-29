@@ -1,12 +1,28 @@
+import { useEffect, useState } from "react";
 import { authClient } from "../services/auth";
 
 export function useAuth() {
     const { data, isPending, error } = authClient.useSession();
+    const [isAdmin, setIsAdmin] = useState(false);
+    
+    useEffect(() => {
+        authClient.admin.hasPermission({
+            permissions: {
+                user: ["create"]
+            }
+        })
+        .then(res => {
+            if (res.data?.success) {
+                setIsAdmin(true);
+            }
+        })
+    }, []);
 
     return {
         userEmail: data?.user.email,
         isLoading: isPending,
         isAuthenticated: !!data,
+        isAdmin: isAdmin,
         errorMessage: error?.message,
         signOut: authClient.signOut,
         signInGoogle: (redirect: string) => {
@@ -21,5 +37,10 @@ export function useAuth() {
                 callbackURL: import.meta.env.VITE_UI_URL + redirect,
             });
         },
+        impersonateUser(userId: string) {
+            return authClient.admin.impersonateUser({
+                userId: userId
+            });
+        }
     };
 }
