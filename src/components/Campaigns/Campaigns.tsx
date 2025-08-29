@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/joy";
+import { Box, Button, Typography, CircularProgress } from "@mui/joy";
 import NewCampaign from "./NewCampaign";
 import CampaignsTable from "./CampaignsTable";
 import { useEffect, useState } from "react";
@@ -10,8 +10,10 @@ function Campaigns() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [creatingNew, setCreatingNew] = useState(false);
   const [propaganda, setPropaganda] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchCampaigns = async () => {
+    setLoading(true);
     try {
       const res = await apiClient.getCampaigns();
       setCampaigns(res.data);
@@ -21,6 +23,8 @@ function Campaigns() {
       } else {
         console.error(err);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,6 +63,10 @@ function Campaigns() {
           onComplete={handleCloseNewCampaign}
           onCancel={handleCloseNewCampaign}
         />
+      ) : loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>
       ) : campaigns.length > 0 ? (
         <CampaignsTable campaigns={campaigns} />
       ) : (
