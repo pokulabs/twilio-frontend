@@ -65,7 +65,7 @@ export function makeChatId(activeNumber: string, contactNumber: string) {
     return activeNumber + contactNumber;
 }
 
-export function displayDateTime(d: Date) {
+export function displayDynamicDateTime(d: Date) {
     const now = new Date();
 
     const sameDay =
@@ -75,14 +75,26 @@ export function displayDateTime(d: Date) {
 
     if (sameDay) {
         // Show time only, e.g., "10:45 AM"
-        return d.toLocaleTimeString(undefined, {
-            hour: "numeric",
-            minute: "2-digit",
-        });
+        return displayTime(d);
     } else {
         // Show date only, e.g., "7/3/2025"
-        return d.toLocaleDateString();
+        return displayDate(d);
     }
+}
+
+export function displayDate(d: Date) {
+    return d.toLocaleDateString();
+}
+
+export function displayTime(d: Date) {
+    return d.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+    });
+}
+
+export function displayDateTime(d: Date) {
+    return displayDate(d) + " " + displayTime(d);
 }
 
 export const POLL_INTERVAL = 3000; // every 3 seconds

@@ -3,7 +3,7 @@ import Stack from "@mui/joy/Stack";
 import Sheet from "@mui/joy/Sheet";
 import Typography from "@mui/joy/Typography";
 import type { PlainMessage } from "../../types";
-import { displayDateTime } from "../../utils";
+import { displayDynamicDateTime } from "../../utils";
 import React from "react";
 import { Link } from "@mui/joy";
 
@@ -17,7 +17,7 @@ export default function ChatBubble(props: PlainMessage) {
         sx={{ justifyContent: "space-between", mb: 0.25 }}
       >
         <Typography level="body-xs">
-          {displayDateTime(new Date(props.timestamp))}
+          {displayDynamicDateTime(new Date(props.timestamp))}
         </Typography>
         {!!props.errorCode && (
           <Typography level="body-xs">

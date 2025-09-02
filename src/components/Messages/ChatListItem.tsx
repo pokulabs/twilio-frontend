@@ -9,7 +9,7 @@ import {
 } from "@mui/joy";
 import { Circle } from "@mui/icons-material";
 
-import { displayDateTime, toggleMessagesPane } from "../../utils";
+import { displayDynamicDateTime, toggleMessagesPane } from "../../utils";
 
 import type { ChatInfo } from "../../types";
 
@@ -62,7 +62,7 @@ export default function ChatListItem(props: ChatListItemProps) {
                 {chat.enrichedData?.displayName || chat.contactNumber}
               </Typography>
               <Typography level="body-xs" noWrap>
-                {displayDateTime(chat.recentMsgDate)}
+                {displayDynamicDateTime(chat.recentMsgDate)}
               </Typography>
             </Stack>
             <Typography

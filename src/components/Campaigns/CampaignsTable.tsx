@@ -1,5 +1,5 @@
 import { Typography, Stack, Table, Button, IconButton } from "@mui/joy";
-import { displayDateTime } from "../../utils";
+import { displayDate, displayDateTime } from "../../utils";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -29,7 +29,7 @@ export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
   // Aggregate data by day
   const dailyData: Record<string, { failed: number; delivered: number }> = {};
   campaigns.forEach((c) => {
-    const date = new Date(c.createdTime).toISOString().split("T")[0];
+    const date = displayDate(new Date(c.createdTime));
     if (!dailyData[date]) {
       dailyData[date] = { failed: 0, delivered: 0 };
     }
