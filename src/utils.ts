@@ -97,7 +97,7 @@ export function displayDateTime(d: Date) {
     return displayDate(d) + " " + displayTime(d);
 }
 
-export const POLL_INTERVAL = 3000; // every 3 seconds
+export const POLL_INTERVAL = 1000; // every 1 second
 export const SLACK_LINK =
     "https://join.slack.com/t/pokulabs/shared_invite/zt-334pmqhy9-oZN8cMAXLFUdmDCgNZX9rA";
 export const GITHUB_LINK = "https://github.com/pokulabs/twilio-frontend";
