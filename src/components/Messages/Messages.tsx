@@ -63,7 +63,7 @@ function useSubscribeWs(
     });
   });
 
-  useWebsocketEvents("flag-update", (payload) => {
+  useWebsocketEvents("claim-update", (payload) => {
     setChats((prevChats) => {
       return prevChats.map((c) =>
         c.chatId === payload.chatCode ? { ...c, ...payload } : c,
