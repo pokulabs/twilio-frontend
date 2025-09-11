@@ -62,9 +62,12 @@ export default function ChatListItem(props: ChatListItemProps) {
               <Typography level="title-sm">
                 {chat.enrichedData?.displayName || chat.contactNumber}
               </Typography>
-              {chat.claimedBy && <BackHand titleAccess={chat.claimedBy}
-                color={chat.claimedBy === userEmail ? "success" : "info"}
-              />}
+              {chat.claimedBy && (
+                <BackHand
+                  titleAccess={chat.claimedBy}
+                  color={chat.claimedBy === userEmail ? "success" : "info"}
+                />
+              )}
               <Typography level="body-xs" noWrap>
                 {displayDynamicDateTime(chat.recentMsgDate)}
               </Typography>

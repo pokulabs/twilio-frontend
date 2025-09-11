@@ -63,13 +63,24 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
           <ArrowBackIosNewRounded />
         </IconButton>
         <Avatar size="lg" />
-        {isInOrg && (chat.claimedBy === userEmail ? <Button onClick={() => {
-          void apiClient.unclaimChat(chat.chatId);
-        }}>Unclaim
-        </Button> : <Button onClick={() => {
-          void apiClient.claimChat(chat.chatId);
-        }}>Claim
-        </Button>)}
+        {isInOrg &&
+          (chat.claimedBy === userEmail ? (
+            <Button
+              onClick={() => {
+                void apiClient.unclaimChat(chat.chatId);
+              }}
+            >
+              Unclaim
+            </Button>
+          ) : (
+            <Button
+              onClick={() => {
+                void apiClient.claimChat(chat.chatId);
+              }}
+            >
+              Claim
+            </Button>
+          ))}
         <Typography
           component="h2"
           noWrap

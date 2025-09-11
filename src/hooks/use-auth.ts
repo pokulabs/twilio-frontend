@@ -5,18 +5,19 @@ export function useAuth() {
     const { data, isPending, error } = authClient.useSession();
     const { data: organizations } = authClient.useListOrganizations();
     const [isAdmin, setIsAdmin] = useState(false);
-    
+
     useEffect(() => {
-        authClient.admin.hasPermission({
-            permissions: {
-                user: ["create"]
-            }
-        })
-        .then(res => {
-            if (res.data?.success) {
-                setIsAdmin(true);
-            }
-        })
+        authClient.admin
+            .hasPermission({
+                permissions: {
+                    user: ["create"],
+                },
+            })
+            .then((res) => {
+                if (res.data?.success) {
+                    setIsAdmin(true);
+                }
+            });
     }, []);
 
     return {
@@ -41,8 +42,8 @@ export function useAuth() {
         },
         impersonateUser(userId: string) {
             return authClient.admin.impersonateUser({
-                userId: userId
+                userId: userId,
             });
-        }
+        },
     };
 }
