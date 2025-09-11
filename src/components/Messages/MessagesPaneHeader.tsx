@@ -17,7 +17,6 @@ import {
   ArrowBackIosNewRounded,
   AutoAwesome,
   ContactsRounded,
-  InfoOutlined,
   SportsMartialArtsRounded,
 } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
@@ -35,6 +34,7 @@ type MessagesPaneHeaderProps = {
 
 export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
   const { chat } = props;
+  const { isInOrg, userEmail } = useAuth();
 
   return (
     <Stack
@@ -63,6 +63,13 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
           <ArrowBackIosNewRounded />
         </IconButton>
         <Avatar size="lg" />
+        {isInOrg && (chat.claimedBy === userEmail ? <Button onClick={() => {
+          void apiClient.unclaimChat(chat.chatId);
+        }}>Unclaim
+        </Button> : <Button onClick={() => {
+          void apiClient.claimChat(chat.chatId);
+        }}>Claim
+        </Button>)}
         <Typography
           component="h2"
           noWrap
