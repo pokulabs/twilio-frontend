@@ -198,7 +198,7 @@ export default function HumanAsATool() {
           onClick={handleSave}
           disabled={
             !currentHumanNumber ||
-            (!agentNumber && !usingOwnTwilio) ||
+            // (!agentNumber && !usingOwnTwilio) ||
             (!sid && !usingOwnTwilio) ||
             (!authToken && !usingOwnTwilio) ||
             saveStatus === "saving"
@@ -211,7 +211,7 @@ export default function HumanAsATool() {
           variant="outlined"
           disabled={
             !currentHumanNumber ||
-            (!agentNumber && !usingOwnTwilio) ||
+            // (!agentNumber && !usingOwnTwilio) ||
             (!sid && !usingOwnTwilio) ||
             (!authToken && !usingOwnTwilio) ||
             saveStatus === "saving"
