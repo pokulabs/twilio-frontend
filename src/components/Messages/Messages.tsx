@@ -22,7 +22,7 @@ function MessagesLayout() {
 
   const selectedChat = chats.find((c) => c.chatId === selectedChatId) ?? null;
 
-  useSubscribeWsFlag(setChats);
+  useSubscribeWs(setChats);
 
   return (
     <>
@@ -50,12 +50,20 @@ function MessagesLayout() {
   );
 }
 
-function useSubscribeWsFlag(
+function useSubscribeWs(
   setChats: (
     updater: ((prevChats: ChatInfo[]) => ChatInfo[]) | ChatInfo[],
   ) => void,
 ) {
   useWebsocketEvents("flag-update", (payload) => {
+    setChats((prevChats) => {
+      return prevChats.map((c) =>
+        c.chatId === payload.chatCode ? { ...c, ...payload } : c,
+      );
+    });
+  });
+
+  useWebsocketEvents("claim-update", (payload) => {
     setChats((prevChats) => {
       return prevChats.map((c) =>
         c.chatId === payload.chatCode ? { ...c, ...payload } : c,

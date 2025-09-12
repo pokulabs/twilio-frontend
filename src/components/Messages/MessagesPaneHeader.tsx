@@ -40,7 +40,7 @@ type MessagesPaneHeaderProps = {
 export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
   const { chat } = props;
   const [crmOpen, setCrmOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isInOrg, userEmail, isAuthenticated } = useAuth();
 
   return (
     <>

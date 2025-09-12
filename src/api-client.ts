@@ -131,10 +131,28 @@ class ApiClient {
                 isFlagged: boolean;
                 flaggedReason: string | undefined;
                 flaggedMessage: string | undefined;
+                claimedBy: string | undefined;
             }[];
         }>("/chats", {
             params: {
                 isFlagged: true,
+            },
+        });
+    }
+
+    async getClaimedChats() {
+        return this.api.get<{
+            data: {
+                chatCode: string;
+                isDisabled: boolean;
+                isFlagged: boolean;
+                flaggedReason: string | undefined;
+                flaggedMessage: string | undefined;
+                claimedBy: string | undefined;
+            }[];
+        }>("/chats", {
+            params: {
+                isClaimed: true,
             },
         });
     }
@@ -265,6 +283,14 @@ class ApiClient {
 
     async sendTestMessage() {
         return this.api.post("/account/test");
+    }
+
+    async claimChat(chatId: string) {
+        return this.api.post(`/chats/${chatId}/claim`);
+    }
+
+    async unclaimChat(chatId: string) {
+        return this.api.post(`/chats/${chatId}/unclaim`);
     }
 }
 
