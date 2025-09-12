@@ -99,7 +99,7 @@ export default function HumanAsATool() {
     try {
       await apiClient.saveAccount(
         currentHumanNumber,
-        usingOwnTwilio ? hostedAgentNumber : agentNumber,
+        usingOwnTwilio ? agentNumber : hostedAgentNumber,
         waitTime,
         mapUiChannelToMedium(uiChannel, usingOwnTwilio),
       );
