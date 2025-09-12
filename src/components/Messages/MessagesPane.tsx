@@ -7,6 +7,7 @@ import { useAuthedTwilio } from "../../context/TwilioProvider";
 
 import type { ChatInfo } from "../../types";
 import { useChatMessages } from "../../hooks/use-messages";
+import { useAuth } from "../../hooks/use-auth";
 
 type MessagesPaneProps = {
   chat: ChatInfo;
@@ -16,6 +17,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
   const { chat } = props;
   const { twilioClient, eventEmitter } = useAuthedTwilio();
   const { messages } = useChatMessages(chat);
+  const { userEmail } = useAuth();
 
   return (
     <Sheet
@@ -56,6 +58,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
         </Stack>
       </Box>
       <MessageInput
+        disabled={!!chat.claimedBy && chat.claimedBy !== userEmail}
         onSubmit={async (content) => {
           try {
             await twilioClient.sendMessage(

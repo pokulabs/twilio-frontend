@@ -79,15 +79,13 @@ function Account() {
       <Stack sx={{ maxWidth: 500 }}>{isAuthenticated && <ApiKey />}</Stack>
 
       <ImpersonateField isAdmin={isAdmin} />
-
     </Box>
   );
 }
 
 export default Account;
 
-
-function ImpersonateField({ isAdmin }: { isAdmin: boolean; }) {
+function ImpersonateField({ isAdmin }: { isAdmin: boolean }) {
   const { impersonateUser } = useAuth();
 
   const [userId, setUserId] = useState("");
@@ -103,9 +101,7 @@ function ImpersonateField({ isAdmin }: { isAdmin: boolean; }) {
         placeholder="Enter user ID"
         value={userId}
         onChange={(e) => setUserId(e.target.value)}
-        endDecorator={
-          <Button onClick={handleImpersonate}>Impersonate</Button>
-        }
+        endDecorator={<Button onClick={handleImpersonate}>Impersonate</Button>}
       />
     )
   );

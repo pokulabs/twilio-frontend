@@ -111,27 +111,27 @@ export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
                   {r.deliveredMessages}/{r.messageCount}
                 </td>
                 <td>
-                {(() => {
-                  const createdDate = new Date(r.createdTime);
-                  const numDays = 7;
-                  const sevenDaysAgo = new Date();
-                  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - numDays);
+                  {(() => {
+                    const createdDate = new Date(r.createdTime);
+                    const numDays = 7;
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - numDays);
 
-                  if (createdDate >= sevenDaysAgo) {
-                    return (
-                      <IconButton
-                        variant="outlined"
-                        size="sm"
-                        onClick={() => {
-                          apiClient.downloadCampaignMessagesCsv(r.id);
-                        }}
-                      >
-                        <DownloadRounded />
-                      </IconButton>
-                    );
-                  }
-                  return `>${numDays} days old`;
-                })()}
+                    if (createdDate >= sevenDaysAgo) {
+                      return (
+                        <IconButton
+                          variant="outlined"
+                          size="sm"
+                          onClick={() => {
+                            apiClient.downloadCampaignMessagesCsv(r.id);
+                          }}
+                        >
+                          <DownloadRounded />
+                        </IconButton>
+                      );
+                    }
+                    return `>${numDays} days old`;
+                  })()}
                 </td>
               </tr>
             ))}

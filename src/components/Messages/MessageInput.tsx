@@ -3,12 +3,13 @@ import { Box, Button, FormControl, Textarea, Stack } from "@mui/joy";
 import { SendRounded } from "@mui/icons-material";
 
 export type MessageInputProps = {
+  disabled: boolean;
   onSubmit: (content: string) => Promise<void>;
 };
 
 export default function MessageInput(props: MessageInputProps) {
   const [textAreaValue, setTextAreaValue] = React.useState("");
-  const { onSubmit } = props;
+  const { onSubmit, disabled } = props;
   const textAreaRef = React.useRef<HTMLDivElement>(null);
   const handleClick = () => {
     if (textAreaValue.trim() !== "") {
@@ -36,6 +37,7 @@ export default function MessageInput(props: MessageInputProps) {
                 handleClick();
               }
             }}
+            disabled={disabled}
           />
           <Button
             size="sm"

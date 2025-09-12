@@ -19,6 +19,7 @@ export type ChatInfo = {
         card: string;
         url: string;
     };
+    claimedBy?: string;
 };
 
 export type PlainMessage = {

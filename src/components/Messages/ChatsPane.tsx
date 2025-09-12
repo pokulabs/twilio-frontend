@@ -335,14 +335,16 @@ export async function fetchChatsHelper(
   paginationState: PaginationState | undefined,
   filters: Filters,
 ) {
-  const [newChatsResult, flaggedChatsResult] = await Promise.allSettled([
-    twilioClient.getChats(filters.activeNumber, {
-      paginationState,
-      filters,
-      existingChatsId: existingChats.map((e) => e.chatId),
-    }),
-    apiClient.getFlaggedChats(),
-  ]);
+  const [newChatsResult, flaggedChatsResult, claimedChatsResult] =
+    await Promise.allSettled([
+      twilioClient.getChats(filters.activeNumber, {
+        paginationState,
+        filters,
+        existingChatsId: existingChats.map((e) => e.chatId),
+      }),
+      apiClient.getFlaggedChats(),
+      apiClient.getClaimedChats(),
+    ]);
 
   if (newChatsResult.status === "rejected") {
     console.error("Failed to fetch chats: ", newChatsResult.reason);
@@ -387,5 +389,15 @@ export async function fetchChatsHelper(
     }
   }
 
+  // Apply claimed chats
+  if (claimedChatsResult.status === "fulfilled") {
+    const claimedChats = claimedChatsResult.value.data.data;
+    for (const c of newChats) {
+      const found = claimedChats.find((fc) => fc.chatCode === c.chatId);
+      if (found) {
+        c.claimedBy = found.claimedBy;
+      }
+    }
+  }
   return newChatsResult.value;
 }

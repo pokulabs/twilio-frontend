@@ -7,12 +7,12 @@ import {
   Typography,
   Avatar,
 } from "@mui/joy";
-import { Circle } from "@mui/icons-material";
+import { BackHand, Circle } from "@mui/icons-material";
 
 import { displayDynamicDateTime, toggleMessagesPane } from "../../utils";
 
 import type { ChatInfo } from "../../types";
-
+import { useAuth } from "../../hooks/use-auth";
 type ChatListItemProps = ListItemButtonProps & {
   chat: ChatInfo;
   isSelected: boolean;
@@ -21,6 +21,7 @@ type ChatListItemProps = ListItemButtonProps & {
 
 export default function ChatListItem(props: ChatListItemProps) {
   const { chat, isSelected, onChatSelected } = props;
+  const { userEmail } = useAuth();
   return (
     <>
       <ListItem>
@@ -61,6 +62,12 @@ export default function ChatListItem(props: ChatListItemProps) {
               <Typography level="title-sm">
                 {chat.enrichedData?.displayName || chat.contactNumber}
               </Typography>
+              {chat.claimedBy && (
+                <BackHand
+                  titleAccess={chat.claimedBy}
+                  color={chat.claimedBy === userEmail ? "success" : "info"}
+                />
+              )}
               <Typography level="body-xs" noWrap>
                 {displayDynamicDateTime(chat.recentMsgDate)}
               </Typography>
