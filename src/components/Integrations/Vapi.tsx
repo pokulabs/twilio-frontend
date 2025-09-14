@@ -1,10 +1,8 @@
-import { Check, InfoOutlined } from "@mui/icons-material";
+import { Check } from "@mui/icons-material";
 import {
   Button,
-  IconButton,
   Input,
   Stack,
-  Tooltip,
   Typography,
   Link,
   Box,
@@ -22,7 +20,7 @@ function Vapi() {
     apiClient
       .checkVapiKeyExists()
       .then((res) => {
-        setIsSaved(res.data.hasKey);
+        setIsSaved(!!res.data?.key);
       })
       .catch((err) => console.error(err));
   }, []);

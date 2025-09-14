@@ -41,7 +41,7 @@ function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium {
 }
 
 export default function HumanAsATool() {
-  const { phoneNumbers, whatsappNumbers, sid, authToken } = useTwilio();
+  const { phoneNumbers, whatsappNumbers, isAuthenticated: hasTwilioCreds, sid, authToken } = useTwilio();
 
   const [agentNumber, setAgentNumber] = useState("");
   const [hostedAgentNumber] = useState("+16286001841");
@@ -51,7 +51,6 @@ export default function HumanAsATool() {
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "success" | "error"
   >("idle");
-  const [hasTwilioCreds, setHasTwilioCreds] = useState(false);
 
   const [uiChannel, setUiChannel] = useState<UiChannel>("slack");
   const [usingOwnTwilio, setUsingOwnTwilio] = useState(false);
@@ -83,9 +82,6 @@ export default function HumanAsATool() {
           setHaatMessageCount(res.data.haatMessageCount);
           setHaatMessageLimit(res.data.haatMessageLimit);
         }
-
-        const twilioCredsExist = await apiClient.checkTwilioCredsExist();
-        setHasTwilioCreds(twilioCredsExist.data.hasKey);
       } catch (err) {
         console.error(err);
       }
@@ -103,9 +99,6 @@ export default function HumanAsATool() {
         waitTime,
         mapUiChannelToMedium(uiChannel, usingOwnTwilio),
       );
-      if (sid && authToken) {
-        await apiClient.createTwilioKey(sid, authToken);
-      }
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 2000); // hide message after 2s
     } catch (err) {
@@ -198,9 +191,9 @@ export default function HumanAsATool() {
           onClick={handleSave}
           disabled={
             !currentHumanNumber ||
-            // (!agentNumber && !usingOwnTwilio) ||
-            (!sid && !usingOwnTwilio) ||
-            (!authToken && !usingOwnTwilio) ||
+            (!agentNumber && usingOwnTwilio) ||
+            (!sid && usingOwnTwilio) ||
+            (!authToken && usingOwnTwilio) ||
             saveStatus === "saving"
           }
         >
@@ -211,9 +204,9 @@ export default function HumanAsATool() {
           variant="outlined"
           disabled={
             !currentHumanNumber ||
-            // (!agentNumber && !usingOwnTwilio) ||
-            (!sid && !usingOwnTwilio) ||
-            (!authToken && !usingOwnTwilio) ||
+            (!agentNumber && usingOwnTwilio) ||
+            (!sid && usingOwnTwilio) ||
+            (!authToken && usingOwnTwilio) ||
             saveStatus === "saving"
           }
         >

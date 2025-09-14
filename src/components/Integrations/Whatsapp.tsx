@@ -33,7 +33,7 @@ export default function Whatsapp() {
     <Box>
       <Typography level="title-md">Twilio WhatsApp</Typography>
       <Typography level="body-sm" sx={{ mb: 2 }}>
-        Using Twilio WhatsApp numbers? Please manually add them below.
+        Using Twilio WhatsApp numbers? Add them below.
       </Typography>
 
       {inputsToRender.map((number, index) => (

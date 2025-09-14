@@ -1,10 +1,8 @@
-import * as React from "react";
+import { useState, useEffect } from "react";
 import { Alert, Input, Button, Typography, Stack } from "@mui/joy";
 
 import { useTwilio } from "../../context/TwilioProvider";
 import Whatsapp from "./Whatsapp";
-import { apiClient } from "../../api-client";
-import { useAuth } from "../../hooks/use-auth";
 
 export function TwilioIntegrationForm() {
   return (
@@ -23,16 +21,13 @@ export function TwilioForm() {
     authToken: authTokenContext,
     isLoading,
   } = useTwilio();
-  const { isAuthenticated: isLoggedIn } = useAuth();
-  const [sid, setSid] = React.useState(sidContext);
-  const [authToken, setAuthToken] = React.useState(authTokenContext);
+  const [sidInput, setSidInput] = useState(sidContext ?? "");
+  const [authTokenInput, setAuthTokenInput] = useState(authTokenContext ?? "");
 
-  const handleSubmit = async () => {
-    await setCredentials(sid, authToken);
-    if (isLoggedIn) {
-      await apiClient.createTwilioKey(sid, authToken);
-    }
-  };
+  useEffect(() => {
+    setSidInput(sidContext ?? "");
+    setAuthTokenInput(authTokenContext ?? "");
+  }, [sidContext, authTokenContext]);
 
   return (
     <Stack direction="column" gap={1}>
@@ -44,16 +39,18 @@ export function TwilioForm() {
 
       <Input
         placeholder="Twilio SID"
-        value={sid}
-        onChange={(e) => setSid(e.target.value)}
+        value={sidInput}
+        onChange={(e) => setSidInput(e.target.value)}
       />
       <Input
         placeholder="Auth Token"
         type="password"
-        value={authToken}
-        onChange={(e) => setAuthToken(e.target.value)}
+        value={authTokenInput}
+        onChange={(e) => setAuthTokenInput(e.target.value)}
       />
-      <Button type="submit" variant="solid" onClick={handleSubmit}>
+      <Button type="submit" variant="solid" onClick={() => {
+        setCredentials(sidInput, authTokenInput);
+      }}>
         Save
       </Button>
       {isAuthenticated && !isLoading && (

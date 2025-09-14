@@ -3,10 +3,30 @@ import { authClient } from "../services/auth";
 
 export function useAuth() {
     const { data, isPending, error } = authClient.useSession();
-    const { data: organizations } = authClient.useListOrganizations();
+    const [organizations, setOrganizations] = useState<{
+        id: string;
+        name: string;
+        slug: string;
+        createdAt: Date;
+        logo?: string | null | undefined | undefined;
+        metadata?: any;
+    }[] | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const isAuthenticated = !!data;
 
     useEffect(() => {
+        if (!isAuthenticated) {
+            return;
+        }
+
+        authClient.organization
+            .list()
+            .then((res) => {
+                if (res.data) {
+                    setOrganizations(res.data);
+                }
+            });
+
         authClient.admin
             .hasPermission({
                 permissions: {
@@ -18,13 +38,13 @@ export function useAuth() {
                     setIsAdmin(true);
                 }
             });
-    }, []);
+    }, [isAuthenticated]);
 
     return {
         isInOrg: !!organizations?.length,
         userEmail: data?.user.email,
         isLoading: isPending,
-        isAuthenticated: !!data,
+        isAuthenticated: isAuthenticated,
         isAdmin: isAdmin,
         errorMessage: error?.message,
         signOut: authClient.signOut,

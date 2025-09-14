@@ -4,8 +4,6 @@ import {
   Typography,
   Stack,
   Textarea,
-  Checkbox,
-  Grid,
   Table,
   Select,
   Option,
@@ -16,6 +14,7 @@ import {
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import CsvUploader, { Recipient } from "./CsvUploader";
+import withTwilio from "../../context/withTwilio";
 
 const hydrate = (t: string, r: Recipient) => {
   let text = t;
@@ -31,7 +30,7 @@ type NewCampaignProps = {
   onCancel: () => void;
 };
 
-export default function NewCampaign({
+function NewCampaign({
   onComplete,
   onCancel,
 }: NewCampaignProps) {
@@ -166,3 +165,5 @@ export default function NewCampaign({
     </Stack>
   );
 }
+
+export default withTwilio(NewCampaign);
