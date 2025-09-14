@@ -10,7 +10,7 @@ export default function Flagging() {
     apiClient
       .checkLlmKeyExists()
       .then((res) => {
-        setIsSaved(res.data.hasKey);
+        setIsSaved(!!res.data?.key);
       })
       .catch((err) => console.error(err));
   }, []);

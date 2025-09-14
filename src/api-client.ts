@@ -37,16 +37,16 @@ class ApiClient {
         });
     }
 
-    async checkTwilioCredsExist() {
-        return this.api.get<{ hasKey: boolean }>("/account/keys/twilio");
+    async getTwilioCreds() {
+        return this.api.get<{ id: string; key: string; } | undefined>("/account/keys/twilio");
     }
 
     async checkLlmKeyExists() {
-        return this.api.get<{ hasKey: boolean }>("/account/keys/openai");
+        return this.api.get<{ key: string; } | undefined>("/account/keys/openai");
     }
 
     async checkVapiKeyExists() {
-        return this.api.get<{ hasKey: boolean }>("/account/keys/vapi");
+        return this.api.get<{ key: string; } | undefined>("/account/keys/vapi");
     }
 
     async createLlmKey(key: string) {

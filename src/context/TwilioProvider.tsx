@@ -1,17 +1,19 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 import TwilioClient from "../twilio-client";
 import { EventEmitter } from "../event-emitter";
 import { storage } from "../storage";
 
 import type { WebhooksActivationStatus } from "../types";
+import { useAuth } from "../hooks/use-auth";
+import { apiClient } from "../api-client";
 
 interface TwilioContextType {
-  sid: string;
-  authToken: string;
+  sid: string | null;
+  authToken: string | null;
   twilioClient: TwilioClient | null;
   eventEmitter: EventEmitter | null;
-  setCredentials: (sid: string, authToken: string) => Promise<boolean>;
+  setCredentials: (sid: string, authToken: string) => Promise<void>;
   isAuthenticated: boolean;
   phoneNumbers: string[];
   isLoading: boolean;
@@ -57,8 +59,9 @@ export const useAuthedTwilio = () => {
 export const TwilioProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [sid, setSid] = useState(storage.get("sid"));
-  const [authToken, setAuthToken] = useState(storage.get("authToken"));
+  const { isAuthenticated: isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const [sid, setSid] = useState<string | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
   const [twilioClient, setTwilioClient] = useState<TwilioClient | null>(null);
   const [eventEmitter, setEventEmitter] = useState<EventEmitter | null>(null);
   const [phoneNumbers, setPhoneNumbers] = useState<string[]>([]);
@@ -74,28 +77,59 @@ export const TwilioProvider: React.FC<{ children: ReactNode }> = ({
     storage.get("mainStore").whatsappNumbers,
   );
 
-  const setCredentials = async (sid: string, authToken: string) => {
-    let isSuccess = false;
-    if (!sid || !authToken) return isSuccess;
+  // On mount, decide where to get creds
+  useEffect(() => {
+    const init = async () => {
+      if (isAuthLoading) {
+        return;
+      }
+
+      if (isLoggedIn) {
+        // Clear local storage creds
+        storage.setCredentials("", "");
+        const creds = await apiClient.getTwilioCreds();
+        if (creds.data) {
+          await setCredentials(creds.data.id, creds.data.key, { skipPersist: true });
+        }
+      } else {
+        const sid = storage.get("sid");
+        const authToken = storage.get("authToken");
+        await setCredentials(sid, authToken, { skipPersist: true });
+      }
+    };
+    init();
+  }, [isLoggedIn, isAuthLoading]);
+
+  const setCredentials = async (sid: string | null, authToken: string | null, { skipPersist = false } = {}) => {
+    if (!sid || !authToken) {
+      return;
+    }
     setIsLoading(true);
+    if (!skipPersist) {
+      if (isLoggedIn) {
+        await apiClient.createTwilioKey(sid, authToken);
+      } else {
+        storage.setCredentials(sid, authToken);
+      }
+    }
     try {
       setSid(sid);
       setAuthToken(authToken);
       const client = await TwilioClient.getInstance(sid, authToken);
       const numbers = await client.getPhoneNumbers();
       const ee = await EventEmitter.getInstance(client.axiosInstance);
+
       setEventEmitter(ee);
       setTwilioClient(client);
       setPhoneNumbers(numbers);
       setIsAuthenticated(true);
-      isSuccess = true;
-      // Only save credentials in storage after validity check
-      storage.setCredentials(sid, authToken);
     } catch (err) {
+      setEventEmitter(null);
+      setTwilioClient(null);
+      setPhoneNumbers([]);
       setIsAuthenticated(false);
     }
     setIsLoading(false);
-    return isSuccess;
   };
 
   const setActivatedWebhooksContext = (

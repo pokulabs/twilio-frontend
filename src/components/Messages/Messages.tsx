@@ -4,7 +4,7 @@ import { Sheet } from "@mui/joy";
 import MessagesPane from "./MessagesPane";
 import ChatsPane from "./ChatsPane";
 import NewMessagesPane from "./NewMessagePane";
-import withAuth from "../../context/withAuth";
+import withTwilio from "../../context/withTwilio";
 import { useWebsocketEvents } from "../../hooks/use-websocket-events";
 import { useSortedChats } from "../../hooks/use-sorted-chats";
 
@@ -93,4 +93,4 @@ function MessagesContainer() {
   );
 }
 
-export default withAuth(MessagesContainer);
+export default withTwilio(MessagesContainer);
