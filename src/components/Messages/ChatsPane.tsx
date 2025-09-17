@@ -335,23 +335,13 @@ export async function fetchChatsHelper(
   paginationState: PaginationState | undefined,
   filters: Filters,
 ) {
-  const [newChatsResult, flaggedChatsResult, claimedChatsResult] =
-    await Promise.allSettled([
-      twilioClient.getChats(filters.activeNumber, {
-        paginationState,
-        filters,
-        existingChatsId: existingChats.map((e) => e.chatId),
-      }),
-      apiClient.getFlaggedChats(),
-      apiClient.getClaimedChats(),
-    ]);
+  const newChatsRes = await twilioClient.getChats(filters.activeNumber, {
+    paginationState,
+    filters,
+    existingChatsId: existingChats.map((e) => e.chatId),
+  });
 
-  if (newChatsResult.status === "rejected") {
-    console.error("Failed to fetch chats: ", newChatsResult.reason);
-    return { chats: existingChats };
-  }
-
-  let { chats: newChats } = newChatsResult.value;
+  const newChats = newChatsRes.chats;
 
   // Apply unread status
   const unreads = await twilioClient.hasUnread(filters.activeNumber, newChats);
@@ -359,45 +349,20 @@ export async function fetchChatsHelper(
     c.hasUnread = unreads[i];
   });
 
-  if (flaggedChatsResult.status === "rejected") {
-    return newChatsResult.value;
-  }
-
-  // Apply flag status to any new matched chats
-  const flaggedChats = flaggedChatsResult.value.data.data;
-  for (const c of newChats) {
-    const found = flaggedChats.find((fc) => fc.chatCode === c.chatId);
-    if (found) {
-      c.isFlagged = found.isFlagged;
-      c.flaggedReason = found.flaggedReason;
-      c.flaggedMessage = found.flaggedMessage;
-    }
-  }
-
-  // Apply enriched data
   if (newChats.length > 0) {
-    const contactNumbers = newChats.map((c) => c.contactNumber);
-    try {
-      const enrichedData = await apiClient.getEnrichedData(contactNumbers);
-      for (const c of newChats) {
-        if (enrichedData.data[c.contactNumber]) {
-          c.enrichedData = enrichedData.data[c.contactNumber];
-        }
+    const augmentations = await apiClient.getChats(newChats.map((c) => c.chatId));
+    for (const c of newChats) {
+      const found = augmentations.data.data.find((fc) => fc.chatCode === c.chatId);
+      if (found) {
+        // c.isDisabled = found.isDisabled;
+        c.isFlagged = found.isFlagged;
+        c.flaggedReason = found.flaggedReason;
+        c.flaggedMessage = found.flaggedMessage;
+        c.claimedBy = found.claimedBy;
+        c.enrichedData = found.enrichedData;
       }
-    } catch (err) {
-      console.error("Failed to enrich chats:", err);
     }
   }
 
-  // Apply claimed chats
-  if (claimedChatsResult.status === "fulfilled") {
-    const claimedChats = claimedChatsResult.value.data.data;
-    for (const c of newChats) {
-      const found = claimedChats.find((fc) => fc.chatCode === c.chatId);
-      if (found) {
-        c.claimedBy = found.claimedBy;
-      }
-    }
-  }
-  return newChatsResult.value;
+  return newChatsRes;
 }
