@@ -294,3 +294,24 @@ function Resolve(props: {
     </>
   );
 }
+
+
+
+// {isInOrg &&
+//   (chat.claimedBy === userEmail ? (
+//     <Button
+//       onClick={() => {
+//         void apiClient.unclaimChat(chat.chatId);
+//       }}
+//     >
+//       Unclaim
+//     </Button>
+//   ) : (
+//     <Button
+//       onClick={() => {
+//         void apiClient.claimChat(chat.chatId);
+//       }}
+//     >
+//       Claim
+//     </Button>
+//   ))}
