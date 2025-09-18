@@ -4,11 +4,9 @@ import {
   Typography,
   Input,
   Stack,
-  IconButton,
-  Tooltip,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
-import { Check, InfoOutlined } from "@mui/icons-material";
+import { Check } from "@mui/icons-material";
 import { InfoTooltip } from "../shared/InfoTooltip";
 
 export default function LlmKey(props: {

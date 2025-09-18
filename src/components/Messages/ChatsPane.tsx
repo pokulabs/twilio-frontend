@@ -350,17 +350,21 @@ export async function fetchChatsHelper(
   });
 
   if (newChats.length > 0) {
-    const augmentations = await apiClient.getChats(newChats.map((c) => c.chatId));
-    for (const c of newChats) {
-      const found = augmentations.data.data.find((fc) => fc.chatCode === c.chatId);
-      if (found) {
-        // c.isDisabled = found.isDisabled;
-        c.isFlagged = found.isFlagged;
-        c.flaggedReason = found.flaggedReason;
-        c.flaggedMessage = found.flaggedMessage;
-        c.claimedBy = found.claimedBy;
-        c.enrichedData = found.enrichedData;
+    try {
+      const augmentations = await apiClient.getChats(newChats.map((c) => c.chatId));
+      for (const c of newChats) {
+        const found = augmentations.data.data.find((fc) => fc.chatCode === c.chatId);
+        if (found) {
+          // c.isDisabled = found.isDisabled;
+          c.isFlagged = found.isFlagged;
+          c.flaggedReason = found.flaggedReason;
+          c.flaggedMessage = found.flaggedMessage;
+          c.claimedBy = found.claimedBy;
+          c.enrichedData = found.enrichedData;
+        }
       }
+    } catch (err) {
+      return { chats: newChats };
     }
   }
 
