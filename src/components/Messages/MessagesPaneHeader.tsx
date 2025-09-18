@@ -18,6 +18,9 @@ import {
   AutoAwesome,
   ContactsRounded,
   InfoOutlined,
+  MoreHoriz,
+  MoreHorizRounded,
+  MoreVertRounded,
   SportsMartialArtsRounded,
 } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
@@ -28,6 +31,7 @@ import type { ChatInfo } from "../../types";
 import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
 import { InfoTooltip } from "../shared/InfoTooltip";
+import NotesLabelsModal from "./NotesLabelsModal";
 
 type MessagesPaneHeaderProps = {
   chat: ChatInfo;
@@ -35,45 +39,48 @@ type MessagesPaneHeaderProps = {
 
 export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
   const { chat } = props;
+  const [crmOpen, setCrmOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   return (
-    <Stack
-      direction="row"
-      sx={{
-        justifyContent: "space-between",
-        py: { xs: 2, md: 2 },
-        px: { xs: 1, md: 2 },
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        backgroundColor: "background.body",
-      }}
-    >
+    <>
       <Stack
         direction="row"
-        sx={{ alignItems: "center" }}
-        spacing={{ xs: 1, md: 2 }}
+        sx={{
+          justifyContent: "space-between",
+          py: { xs: 2, md: 2 },
+          px: { xs: 1, md: 2 },
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "background.body",
+        }}
       >
-        <IconButton
-          variant="plain"
-          color="neutral"
-          size="sm"
-          sx={{ display: { xs: "inline-flex", sm: "none" } }}
-          onClick={() => toggleMessagesPane()}
+        <Stack
+          direction="row"
+          sx={{ alignItems: "center" }}
+          spacing={{ xs: 1, md: 2 }}
         >
-          <ArrowBackIosNewRounded />
-        </IconButton>
-        <Avatar size="lg" />
-        <Typography
-          component="h2"
-          noWrap
-          sx={{ fontWeight: "lg", fontSize: "lg" }}
-        >
-          {chat.contactNumber}
-        </Typography>
-        {/* Enriched data if available */}
-        {chat.enrichedData && (
+          <IconButton
+            variant="plain"
+            color="neutral"
+            size="sm"
+            sx={{ display: { xs: "inline-flex", sm: "none" } }}
+            onClick={() => toggleMessagesPane()}
+          >
+            <ArrowBackIosNewRounded />
+          </IconButton>
+          <Avatar size="lg" />
+          <Typography
+            component="h2"
+            noWrap
+            sx={{ fontWeight: "lg", fontSize: "lg" }}
+          >
+            {chat.contactNumber}
+          </Typography>
+          {/* CRM tooltip/menu: always visible */}
+          {/* TODO: Show only if its isAuthenticated. */}
           <Tooltip
-            sx={{ maxWidth: 400, zIndex: 10000 }}
+            sx={{ maxWidth: 400, ml: 0 }}
             enterTouchDelay={0}
             leaveDelay={100}
             leaveTouchDelay={10000}
@@ -81,33 +88,70 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
             placement="bottom"
             arrow
             title={
-              <Stack spacing={0.5} sx={{ whiteSpace: "pre-wrap" }}>
-                <div>
-                  <Link href={chat.enrichedData.url} target="_blank">
-                    {chat.enrichedData.displayName}
-                  </Link>
-                </div>
-                <Typography level="body-sm">
-                  {chat.enrichedData.card}
+              isAuthenticated ? (
+                <Stack spacing={0.75} sx={{ whiteSpace: "pre-wrap" }}>
+                  {chat.enrichedData ? (
+                    <>
+                      <div>
+                        <Link
+                          href={chat.enrichedData.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {chat.enrichedData.displayName}
+                        </Link>
+                      </div>
+                      <Typography level="body-sm">
+                        {chat.enrichedData.card}
+                      </Typography>
+                    </>
+                  ) : null}
+                  <Button
+                    size="sm"
+                    variant="outlined"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setCrmOpen(true);
+                    }}
+                  >
+                    View notes & labels
+                  </Button>
+                </Stack>
+              ) : (
+                <Typography level="body-sm" color="neutral">
+                  Log in for additional features
                 </Typography>
-              </Stack>
+              )
             }
           >
-            <IconButton>
-              <ContactsRounded />
+            <IconButton
+              onClick={() => {
+                if (!isAuthenticated) return;
+                setCrmOpen(true);
+              }}
+              sx={{ pointerEvents: crmOpen ? "none" : "auto", visibility: crmOpen ? "hidden" : "visible" }}
+            >
+              <MoreVertRounded />
             </IconButton>
           </Tooltip>
-        )}
-        {chat.isFlagged && (
-          <Resolve
-            chatId={chat.chatId}
-            reason={chat.flaggedReason}
-            message={chat.flaggedMessage}
-          />
-        )}
+          {chat.isFlagged && (
+            <Resolve
+              chatId={chat.chatId}
+              reason={chat.flaggedReason}
+              message={chat.flaggedMessage}
+            />
+          )}
+        </Stack>
+        <Toggle chat={chat} />
       </Stack>
-      <Toggle chat={chat} />
-    </Stack>
+      <NotesLabelsModal
+        open={crmOpen}
+        onClose={() => setCrmOpen(false)}
+        chat={chat}
+      />
+    </>
   );
 }
 
