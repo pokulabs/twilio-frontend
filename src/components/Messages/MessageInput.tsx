@@ -3,7 +3,7 @@ import { Box, Button, FormControl, Textarea, Stack } from "@mui/joy";
 import { SendRounded } from "@mui/icons-material";
 
 export type MessageInputProps = {
-  disabled: boolean;
+  disabled?: boolean;
   onSubmit: (content: string) => Promise<void>;
 };
 

@@ -34,7 +34,7 @@ export function useNewMessageListener(
             };
 
             try {
-                const flagged = await apiClient.getFlaggedChats();
+                const flagged = await apiClient.getChats([chatId]);
                 const match = flagged.data.data.find(
                     (e) => e.chatCode === chatId,
                 );

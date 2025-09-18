@@ -58,7 +58,7 @@ function NewCampaign({
 
       <Autocomplete
         value={senderNumbers}
-        onChange={(event, newValue) => setSenderNumbers(newValue)}
+        onChange={(_event, newValue) => setSenderNumbers(newValue)}
         multiple
         disableCloseOnSelect
         options={phoneNumbers.concat(whatsappNumbers)}
