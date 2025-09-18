@@ -123,36 +123,27 @@ class ApiClient {
         return this.api.delete(`/agents/${id}`);
     }
 
-    async getFlaggedChats() {
+    async getChats(chatsOfInterest: string[]) {
         return this.api.get<{
             data: {
                 chatCode: string;
                 isDisabled: boolean;
                 isFlagged: boolean;
-                flaggedReason: string | undefined;
-                flaggedMessage: string | undefined;
-                claimedBy: string | undefined;
+                flaggedReason?: string;
+                flaggedMessage?: string;
+                claimedBy?: string;
+                enrichedData?: {
+                    displayName: string;
+                    card: string;
+                    url: string;
+                };
             }[];
         }>("/chats", {
             params: {
-                isFlagged: true,
+                chatsOfInterest: chatsOfInterest,
             },
-        });
-    }
-
-    async getClaimedChats() {
-        return this.api.get<{
-            data: {
-                chatCode: string;
-                isDisabled: boolean;
-                isFlagged: boolean;
-                flaggedReason: string | undefined;
-                flaggedMessage: string | undefined;
-                claimedBy: string | undefined;
-            }[];
-        }>("/chats", {
-            params: {
-                isClaimed: true,
+            paramsSerializer: {
+                indexes: null, // removes [] from arrays
             },
         });
     }
