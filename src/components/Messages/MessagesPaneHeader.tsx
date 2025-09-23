@@ -3,8 +3,12 @@ import {
   Avatar,
   Button,
   Chip,
+  Dropdown,
   IconButton,
   Link,
+  Menu,
+  MenuButton,
+  MenuItem,
   Modal,
   ModalClose,
   Sheet,
@@ -79,63 +83,36 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
           </Typography>
           {/* CRM tooltip/menu: always visible */}
           {/* TODO: Show only if its isAuthenticated. */}
-          <Tooltip
-            sx={{ maxWidth: 400, ml: 0 }}
-            enterTouchDelay={0}
-            leaveDelay={100}
-            leaveTouchDelay={10000}
-            variant="outlined"
-            placement="bottom"
-            arrow
-            title={
-              isAuthenticated ? (
-                <Stack spacing={0.75} sx={{ whiteSpace: "pre-wrap" }}>
-                  {chat.enrichedData ? (
-                    <>
-                      <div>
-                        <Link
-                          href={chat.enrichedData.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {chat.enrichedData.displayName}
-                        </Link>
-                      </div>
-                      <Typography level="body-sm">
-                        {chat.enrichedData.card}
-                      </Typography>
-                    </>
-                  ) : null}
-                  <Button
-                    size="sm"
-                    variant="outlined"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setCrmOpen(true);
+          <Dropdown>
+            <MenuButton>
+              <MoreVertRounded />
+            </MenuButton>
+            <Menu>
+              <MenuItem onClick={() => {
+                setCrmOpen(true);
+              }}>
+                View notes & labels
+              </MenuItem>
+              {isInOrg &&
+                (chat.claimedBy === userEmail ? (
+                  <MenuItem
+                    onClick={() => {
+                      void apiClient.unclaimChat(chat.chatId);
                     }}
                   >
-                    View notes & labels
-                  </Button>
-                </Stack>
-              ) : (
-                <Typography level="body-sm" color="neutral">
-                  Log in for additional features
-                </Typography>
-              )
-            }
-          >
-            <IconButton
-              onClick={() => {
-                if (!isAuthenticated) return;
-                setCrmOpen(true);
-              }}
-              sx={{ pointerEvents: crmOpen ? "none" : "auto", visibility: crmOpen ? "hidden" : "visible" }}
-            >
-              <MoreVertRounded />
-            </IconButton>
-          </Tooltip>
+                    Unclaim
+                  </MenuItem>
+                ) : (
+                  <MenuItem
+                    onClick={() => {
+                      void apiClient.claimChat(chat.chatId);
+                    }}
+                  >
+                    Claim
+                  </MenuItem>
+                ))}
+            </Menu>
+          </Dropdown>
           {chat.isFlagged && (
             <Resolve
               chatId={chat.chatId}
@@ -294,24 +271,3 @@ function Resolve(props: {
     </>
   );
 }
-
-
-
-// {isInOrg &&
-//   (chat.claimedBy === userEmail ? (
-//     <Button
-//       onClick={() => {
-//         void apiClient.unclaimChat(chat.chatId);
-//       }}
-//     >
-//       Unclaim
-//     </Button>
-//   ) : (
-//     <Button
-//       onClick={() => {
-//         void apiClient.claimChat(chat.chatId);
-//       }}
-//     >
-//       Claim
-//     </Button>
-//   ))}
