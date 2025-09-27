@@ -86,18 +86,15 @@ class ApiClient {
     }
 
     async getAccount() {
-        return this.api.get<
-            | {
-                data: {
-                    id: string;
-                    humanNumber: string;
-                    agentNumber: string;
-                    waitTime: number;
-                    medium: Medium;
-                }[];
-              }
-            | undefined
-        >("/account");
+        return this.api.get<{
+            data: {
+                id: string;
+                humanNumber: string;
+                agentNumber: string;
+                waitTime: number;
+                medium: Medium;
+            }[];
+        }>("/account");
     }
 
     async getAccountLimits() {
