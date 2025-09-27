@@ -77,7 +77,7 @@ class ApiClient {
         waitTime: number,
         medium: Medium,
     ) {
-        return this.api.post("/account/hitl", {
+        return this.api.post<{ id: string; }>("/account", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
@@ -88,15 +88,28 @@ class ApiClient {
     async getAccount() {
         return this.api.get<
             | {
-                  humanNumber: string;
-                  agentNumber: string;
-                  waitTime: number;
-                  medium: Medium;
-                  haatMessageCount: number;
-                  haatMessageLimit: number;
+                data: {
+                    id: string;
+                    humanNumber: string;
+                    agentNumber: string;
+                    waitTime: number;
+                    medium: Medium;
+                }[];
               }
             | undefined
-        >("/account/hitl");
+        >("/account");
+    }
+
+    async getAccountLimits() {
+        return this.api.get<{
+            haatMessageCount: number;
+            lastReset: Date | undefined;
+            haatMessageLimit: number;
+        }>("/account/limits");
+    }
+
+    async deleteInteractionChannel(interactionChannelId: string) {
+        return this.api.delete(`/account/${interactionChannelId}`);
     }
 
     async getAgents() {
