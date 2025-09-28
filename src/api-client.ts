@@ -175,13 +175,19 @@ class ApiClient {
         );
     }
 
-    async assignLabelToChat(chatId: string, labelId: string) {
+    async createLabel(name: string, color: string) {
+        return this.api.post<{ id: string; name: string; color: string }>(
+          "/user-settings/labels",
+          { name, color },
+        );
+      }
+      async assignLabelToChat(chatId: string, labelId: string) {
         return this.api.post(`/chats/${chatId}/labels/${labelId}`);
     }
 
-    async assignLabelByName(chatId: string, name: string, color: string) {
-        return this.api.post(`/chats/${chatId}/labels`, { name, color });
-    }
+    // async assignLabelByName(chatId: string, name: string, color: string) {
+    //     return this.api.post(`/chats/${chatId}/labels`, { name, color });
+    // }
 
     async unassignLabelFromChat(chatId: string, labelId: string) {
         return this.api.delete(`/chats/${chatId}/labels/${labelId}`);
