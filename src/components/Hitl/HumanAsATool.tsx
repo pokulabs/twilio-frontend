@@ -1,19 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  Button,
   Typography,
-  Input,
+  Button,
+  TextField,
   Stack,
+  FormControl,
+  InputLabel,
   Select,
-  Option,
+  MenuItem,
   Box,
-  Radio,
-  RadioGroup,
+  ToggleButton,
+  ToggleButtonGroup,
   LinearProgress,
-  Link,
+  FormControlLabel,
   Checkbox,
-  radioClasses,
-} from "@mui/joy";
+  Link,
+} from "@mui/material";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import { Link as RLink } from "react-router-dom";
@@ -41,7 +43,13 @@ function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium {
 }
 
 export default function HumanAsATool() {
-  const { phoneNumbers, whatsappNumbers, isAuthenticated: hasTwilioCreds, sid, authToken } = useTwilio();
+  const {
+    phoneNumbers,
+    whatsappNumbers,
+    isAuthenticated: hasTwilioCreds,
+    sid,
+    authToken,
+  } = useTwilio();
 
   const [agentNumber, setAgentNumber] = useState("");
   const [hostedAgentNumber] = useState("+16286001841");
@@ -108,6 +116,13 @@ export default function HumanAsATool() {
     }
   };
 
+  const saveStatusMessages = {
+    success: { color: "green", text: "Settings saved!" },
+    error: { color: "red", text: "Failed to save settings" },
+    idle: { color: "white", text: "Save" },
+    saving: { color: "white", text: "Saving..." },
+  } as const;
+
   return (
     <Stack spacing={3}>
       <Box>
@@ -131,30 +146,27 @@ export default function HumanAsATool() {
       <Steps />
 
       <Box>
-        <Typography
-          level="body-sm"
-          sx={{ mb: 1 }}
-          endDecorator={
-            <InfoTooltip
-              title={
-                <Stack>
-                  <Typography level="body-sm" sx={{ mt: 1 }} color="warning">
-                    {haatMessageLimit} msgs/month limit when not using own
-                    Twilio numbers.
-                  </Typography>
-                  <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
-                    To increase please contact{" "}
-                    <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
-                  </Typography>
-                </Stack>
-              }
-            />
-          }
-        >
-          Usage: {haatMessageCount} / {haatMessageLimit}
-        </Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="body1">
+            Usage: {haatMessageCount} / {haatMessageLimit}
+          </Typography>
+          <InfoTooltip
+            title={
+              <Stack>
+                <Typography variant="body2" sx={{ mt: 1 }} color="red">
+                  {haatMessageLimit} msgs/month limit when not using own Twilio
+                  numbers.
+                </Typography>
+                <Typography variant="body2" color="red" sx={{ mb: 1 }}>
+                  To increase please contact{" "}
+                  <a href="mailto:hello@pokulabs.com">hello@pokulabs.com</a>
+                </Typography>
+              </Stack>
+            }
+          />
+        </Stack>
         <LinearProgress
-          determinate
+          variant="determinate"
           value={haatMessageCount * (100 / haatMessageLimit)}
         />
       </Box>
@@ -188,6 +200,11 @@ export default function HumanAsATool() {
 
       <Stack gap={1}>
         <Button
+          variant={
+            saveStatus == "idle" || saveStatus == "saving"
+              ? "contained"
+              : "outlined"
+          }
           onClick={handleSave}
           disabled={
             !currentHumanNumber ||
@@ -196,8 +213,18 @@ export default function HumanAsATool() {
             (!authToken && usingOwnTwilio) ||
             saveStatus === "saving"
           }
+          sx={{
+            ...(saveStatus === "success" && {
+              borderColor: "success.main",
+            }),
+            ...(saveStatus === "error" && {
+              borderColor: "error.main",
+            }),
+          }}
         >
-          Save
+          <Typography sx={{ color: saveStatusMessages[saveStatus].color }}>
+            {saveStatusMessages[saveStatus].text}
+          </Typography>
         </Button>
         <Button
           onClick={() => apiClient.sendTestMessage()}
@@ -210,15 +237,9 @@ export default function HumanAsATool() {
             saveStatus === "saving"
           }
         >
-          Send Test Message
+          Send Test Messages
         </Button>
       </Stack>
-      {saveStatus === "success" && (
-        <Typography color="success">Settings saved!</Typography>
-      )}
-      {saveStatus === "error" && (
-        <Typography color="danger">Failed to save settings.</Typography>
-      )}
     </Stack>
   );
 }
@@ -247,14 +268,19 @@ function SmsInput({
   return (
     <>
       <Box>
-        <Checkbox
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={usingOwnTwilio}
+              onChange={(e) => setUsingOwnTwilio(e.target.checked)}
+              sx={{}}
+            />
+          }
           label="Send from my own Twilio number"
-          checked={usingOwnTwilio}
-          onChange={(e) => setUsingOwnTwilio(e.target.checked)}
         />
 
         {usingOwnTwilio && !hasTwilioCreds && (
-          <Typography color="danger">
+          <Typography color="red">
             Please go to{" "}
             <Link component={RLink} to="/integrations">
               Integrations
@@ -264,42 +290,45 @@ function SmsInput({
         )}
 
         {usingOwnTwilio && hasTwilioCreds && (
-          <Select
-            placeholder="Choose a number"
-            value={agentNumber || ""}
-            onChange={(_event, newPhoneNumber) =>
-              setAgentNumber(newPhoneNumber || "")
-            }
-          >
-            {phoneNumbers.concat(whatsappNumbers).map((e) => (
-              <Option key={e} value={e}>
-                {e}
-              </Option>
-            ))}
-          </Select>
+          <FormControl fullWidth size="small">
+            <InputLabel id="agent-number-label">Choose a number</InputLabel>
+            <Select
+              label="agent-number-label"
+              value={agentNumber || ""}
+              onChange={(e) => setAgentNumber(e.target.value)}
+              renderValue={(selected) => {
+                if (!selected) return "Choose a number";
+                return selected;
+              }}
+            >
+              {phoneNumbers.concat(whatsappNumbers).map((e) => (
+                <MenuItem key={e} value={e}>
+                  {e}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         )}
       </Box>
 
       <Box>
-        <Typography
-          level="title-md"
-          endDecorator={
-            <InfoTooltip
-              title={
-                <Typography>
-                  Who would you like your AI agent to reach out to in case of an
-                  escalation? Enter the number of the human staff member below.
-                  This is the person who will respond to the AI agent in case of
-                  an escalation.
-                </Typography>
-              }
-            />
-          }
-        >
-          Human Number
-        </Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="body1">Human Number</Typography>
+          <InfoTooltip
+            title={
+              <Typography>
+                Who would you like your AI agent to reach out to in case of an
+                escalation? Enter the number of the human staff member below.
+                This is the person who will respond to the AI agent in case of
+                an escalation.
+              </Typography>
+            }
+          />
+        </Stack>
 
-        <Input
+        <TextField
+          size="small"
+          sx={{ width: 470 }}
           value={value}
           onChange={(e) => onChange(e.target.value || "")}
           placeholder="Ex: +12223334444"
@@ -318,30 +347,27 @@ function SlackInput({
 }) {
   return (
     <>
-      <Typography level="body-sm">
+      <Typography variant="body1">
         Join our <Link href={SLACK_LINK}>Slack channel</Link> and reply in a
         thread to your agent.
       </Typography>
       <Box>
-        <Typography
-          level="title-md"
-          endDecorator={
-            <InfoTooltip
-              title={
-                <Typography>
-                  This is the human your AI will reach out to in case of an
-                  interaction. In Slack, go to your user profile. Then click the
-                  3 vertical dots button. Select "Copy Member ID" and paste it
-                  here.
-                </Typography>
-              }
-            />
-          }
-        >
-          Slack User ID
-        </Typography>
+        <Stack direction="row" alignItems="center">
+          <Typography variant="body1">Slack User ID</Typography>
+          <InfoTooltip
+            title={
+              <Typography>
+                This is the human your AI will reach out to in case of an
+                interaction. In Slack, go to your user profile. Then click the 3
+                vertical dots button. Select "Copy Member ID" and paste it here.
+              </Typography>
+            }
+          />
+        </Stack>
 
-        <Input
+        <TextField
+          sx={{ width: 470 }}
+          size="small"
           value={value}
           onChange={(e) => onChange(e.target.value || "")}
           placeholder="Ex: U08LGBTCBNH"
@@ -360,25 +386,23 @@ function WhatsappInput({
 }) {
   return (
     <Box>
-      <Typography
-        level="title-md"
-        endDecorator={
-          <InfoTooltip
-            title={
-              <Typography>
-                Who would you like your AI agent to reach out to in case of an
-                escalation? Enter the number of the human staff member below.
-                This is the person who will respond to the AI agent in case of
-                an escalation.
-              </Typography>
-            }
-          />
-        }
-      >
-        Human Number
-      </Typography>
+      <Stack direction="row" alignItems="center">
+        <Typography variant="body1"> Human Number </Typography>
+        <InfoTooltip
+          title={
+            <Typography>
+              Who would you like your AI agent to reach out to in case of an
+              escalation? Enter the number of the human staff member below. This
+              is the person who will respond to the AI agent in case of an
+              escalation.
+            </Typography>
+          }
+        />
+      </Stack>
 
-      <Input
+      <TextField
+        size="small"
+        sx={{ width: 470 }}
         value={value}
         onChange={(e) => onChange(e.target.value || "")}
         placeholder="Ex: +12223334444"
@@ -395,33 +419,34 @@ function WaitTimeInput(props: {
 
   return (
     <Box>
-      <Typography
-        level="title-md"
-        endDecorator={
-          <InfoTooltip
-            title={
-              <Typography>
-                How long (in seconds) should the AI agent wait for a response
-                from the human? If available, set your AI agent"s tool
-                connection timeout to at least this long.
-              </Typography>
-            }
-          />
-        }
-      >
-        Wait Time (seconds)
-      </Typography>
-      <Input
+      <Stack direction="row" alignItems="center">
+        <Typography variant="body1"> Wait Time (seconds) </Typography>
+        <InfoTooltip
+          title={
+            <Typography>
+              How long (in seconds) should the AI agent wait for a response from
+              the human? If available, set your AI agent"s tool connection
+              timeout to at least this long.
+            </Typography>
+          }
+        />
+      </Stack>
+
+      <TextField
+        size="small"
+        sx={{ width: 470 }}
         type="number"
         value={props.value}
         onChange={(e) => props.onChange(+e.target.value)}
         slotProps={{
           input: {
-            ref: inputRef,
-            min: 1,
-            max: 600,
+            inputProps: {
+              min: 1,
+              max: 600,
+            },
           },
         }}
+        inputRef={inputRef}
       />
     </Box>
   );
@@ -435,66 +460,62 @@ function MediumSelector({
   setUiChannel: (m: UiChannel) => void;
 }) {
   return (
-    <RadioGroup
+    <ToggleButtonGroup
       orientation="horizontal"
       aria-label="Alignment"
-      name="alignment"
-      variant="outlined"
       value={uiChannel}
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-        setUiChannel(event.target.value as UiChannel)
-      }
+      exclusive
+      onChange={(
+        _event: React.MouseEvent<HTMLElement>,
+        newValue: string | null,
+      ) => {
+        if (newValue !== null) {
+          setUiChannel(newValue as UiChannel);
+        }
+      }}
       sx={{
         display: "flex",
         width: "100%",
       }}
     >
       {["sms", "whatsapp", "slack"].map((item) => (
-        <Box
+        <ToggleButton
           key={item}
-          sx={(theme) => ({
+          value={item}
+          aria-label={item}
+          sx={{
             position: "relative",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
             flex: 1,
             height: 35,
-            "&:not([data-first-child])": {
-              borderLeft: "1px solid",
-              borderColor: "divider",
+            textTransform: "none",
+            borderRadius: 0,
+            color: "black",
+            "&:first-of-type": {
+              borderTopLeftRadius: (theme) => theme.shape.borderRadius,
+              borderBottomLeftRadius: (theme) => theme.shape.borderRadius,
             },
-            [`&[data-first-child] .${radioClasses.action}`]: {
-              borderTopLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-              borderBottomLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
+            "&:last-of-type": {
+              borderTopRightRadius: (theme) => theme.shape.borderRadius,
+              borderBottomRightRadius: (theme) => theme.shape.borderRadius,
             },
-            [`&[data-last-child] .${radioClasses.action}`]: {
-              borderTopRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-              borderBottomRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-            },
-          })}
-        >
-          <Radio
-            value={item}
-            disableIcon
-            overlay
-            label={
-              {
-                slack: "Slack",
-                whatsapp: "WhatsApp",
-                sms: "SMS",
-              }[item]
-            }
-            variant={uiChannel === item ? "solid" : "plain"}
-            slotProps={{
-              input: { "aria-label": item },
-              action: {
-                sx: { borderRadius: 0, transition: "none" },
+            "&.Mui-selected": {
+              backgroundColor: "primary.main",
+              color: "white",
+              "&:hover": {
+                backgroundColor: "primary.dark",
               },
-              label: { sx: { lineHeight: 0 } },
-            }}
-          />
-        </Box>
+            },
+          }}
+        >
+          {
+            {
+              slack: "Slack",
+              whatsapp: "WhatsApp",
+              sms: "SMS",
+            }[item]
+          }
+        </ToggleButton>
       ))}
-    </RadioGroup>
+    </ToggleButtonGroup>
   );
 }
