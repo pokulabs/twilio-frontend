@@ -143,7 +143,7 @@ class ApiClient {
                 chatsOfInterest: chatsOfInterest,
             },
             paramsSerializer: {
-                indexes: null, // removes [] from arrays
+                indexes: true,
             },
         });
     }

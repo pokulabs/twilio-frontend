@@ -16,6 +16,7 @@ import { TwilioProvider } from "./context/TwilioProvider";
 import { WebsocketProvider } from "./context/WebsocketProvider";
 import Campaigns from "./components/Campaigns/Campaigns";
 import Login from "./components/Login";
+import Admin from "./components/Admin/Admin";
 
 export default function App() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
                   <Route path="/" element={<Account />} />
                   <Route path="/hitl" element={<Hitl />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/admin" element={<Admin />} />
                 </Routes>
               </Box>
             </Router>

@@ -1,11 +1,10 @@
-import { Box, Typography, Card, Button, Stack, Divider, Input } from "@mui/joy";
+import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
-import { useState } from "react";
 
 function Account() {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Box
@@ -77,32 +76,8 @@ function Account() {
       <Divider />
 
       <Stack sx={{ maxWidth: 500 }}>{isAuthenticated && <ApiKey />}</Stack>
-
-      <ImpersonateField isAdmin={isAdmin} />
     </Box>
   );
 }
 
 export default Account;
-
-function ImpersonateField({ isAdmin }: { isAdmin: boolean }) {
-  const { impersonateUser } = useAuth();
-
-  const [userId, setUserId] = useState("");
-
-  const handleImpersonate = () => {
-    if (!userId) return;
-    impersonateUser(userId);
-  };
-
-  return (
-    isAdmin && (
-      <Input
-        placeholder="Enter user ID"
-        value={userId}
-        onChange={(e) => setUserId(e.target.value)}
-        endDecorator={<Button onClick={handleImpersonate}>Impersonate</Button>}
-      />
-    )
-  );
-}
