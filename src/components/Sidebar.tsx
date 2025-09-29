@@ -24,6 +24,7 @@ import {
   SportsMartialArtsRounded,
   CampaignRounded,
   Email,
+  LocalPoliceRounded,
 } from "@mui/icons-material";
 
 import logo from "../assets/logo.png";
@@ -34,7 +35,7 @@ import { useAuth } from "../hooks/use-auth";
 
 export default function Sidebar() {
   const location = useLocation();
-  const { isAuthenticated, userEmail, signOut } = useAuth();
+  const { isAuthenticated, userEmail, signOut, isAdmin } = useAuth();
 
   return (
     <Sheet
@@ -171,6 +172,18 @@ export default function Sidebar() {
               </ListItemContent>
             </ListItemButton>
           </ListItem>
+          {isAdmin && <ListItem>
+            <ListItemButton
+              component={Link}
+              to="/admin"
+              selected={location.pathname === "/admin"}
+            >
+              <LocalPoliceRounded />
+              <ListItemContent>
+                <Typography level="title-sm">Admin</Typography>
+              </ListItemContent>
+            </ListItemButton>
+          </ListItem>}
         </List>
 
         <List
