@@ -3,19 +3,23 @@ import {
   Avatar,
   Button,
   Chip,
+  Dropdown,
   IconButton,
   Link,
+  Menu,
+  MenuButton,
+  MenuItem,
   Modal,
   ModalClose,
   Sheet,
   Stack,
   Switch,
-  Tooltip,
   Typography,
 } from "@mui/joy";
 import {
   ArrowBackIosNewRounded,
   AutoAwesome,
+  MoreVertRounded,
   ContactsRounded,
   SportsMartialArtsRounded,
 } from "@mui/icons-material";
@@ -27,6 +31,7 @@ import type { ChatInfo } from "../../types";
 import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
 import { InfoTooltip } from "../shared/InfoTooltip";
+import NotesLabelsModal from "./NotesLabelsModal";
 
 type MessagesPaneHeaderProps = {
   chat: ChatInfo;
@@ -34,98 +39,92 @@ type MessagesPaneHeaderProps = {
 
 export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
   const { chat } = props;
-  const { isInOrg, userEmail } = useAuth();
+  const [crmOpen, setCrmOpen] = useState(false);
+  const { isInOrg, userEmail, isAuthenticated } = useAuth();
 
   return (
-    <Stack
-      direction="row"
-      sx={{
-        justifyContent: "space-between",
-        py: { xs: 2, md: 2 },
-        px: { xs: 1, md: 2 },
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        backgroundColor: "background.body",
-      }}
-    >
+    <>
       <Stack
         direction="row"
-        sx={{ alignItems: "center" }}
-        spacing={{ xs: 1, md: 2 }}
+        sx={{
+          justifyContent: "space-between",
+          py: { xs: 2, md: 2 },
+          px: { xs: 1, md: 2 },
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "background.body",
+        }}
       >
-        <IconButton
-          variant="plain"
-          color="neutral"
-          size="sm"
-          sx={{ display: { xs: "inline-flex", sm: "none" } }}
-          onClick={() => toggleMessagesPane()}
+        <Stack
+          direction="row"
+          sx={{ alignItems: "center" }}
+          spacing={{ xs: 1, md: 2 }}
         >
-          <ArrowBackIosNewRounded />
-        </IconButton>
-        <Avatar size="lg" />
-        {isInOrg &&
-          (chat.claimedBy === userEmail ? (
-            <Button
-              onClick={() => {
-                void apiClient.unclaimChat(chat.chatId);
-              }}
-            >
-              Unclaim
-            </Button>
-          ) : (
-            <Button
-              onClick={() => {
-                void apiClient.claimChat(chat.chatId);
-              }}
-            >
-              Claim
-            </Button>
-          ))}
-        <Typography
-          component="h2"
-          noWrap
-          sx={{ fontWeight: "lg", fontSize: "lg" }}
-        >
-          {chat.contactNumber}
-        </Typography>
-        {/* Enriched data if available */}
-        {chat.enrichedData && (
-          <Tooltip
-            sx={{ maxWidth: 400, zIndex: 10000 }}
-            enterTouchDelay={0}
-            leaveDelay={100}
-            leaveTouchDelay={10000}
-            variant="outlined"
-            placement="bottom"
-            arrow
-            title={
-              <Stack spacing={0.5} sx={{ whiteSpace: "pre-wrap" }}>
-                <div>
-                  <Link href={chat.enrichedData.url} target="_blank">
-                    {chat.enrichedData.displayName}
-                  </Link>
-                </div>
-                <Typography level="body-sm">
-                  {chat.enrichedData.card}
-                </Typography>
-              </Stack>
-            }
+          <IconButton
+            variant="plain"
+            color="neutral"
+            size="sm"
+            sx={{ display: { xs: "inline-flex", sm: "none" } }}
+            onClick={() => toggleMessagesPane()}
           >
-            <IconButton>
-              <ContactsRounded />
-            </IconButton>
-          </Tooltip>
-        )}
-        {chat.isFlagged && (
-          <Resolve
-            chatId={chat.chatId}
-            reason={chat.flaggedReason}
-            message={chat.flaggedMessage}
-          />
-        )}
+            <ArrowBackIosNewRounded />
+          </IconButton>
+          <Avatar size="lg" />
+          <Typography
+            component="h2"
+            noWrap
+            sx={{ fontWeight: "lg", fontSize: "lg" }}
+          >
+            {chat.contactNumber}
+          </Typography>
+          {/* CRM tooltip/menu: always visible */}
+          {/* TODO: Show only if its isAuthenticated. */}
+          <Dropdown>
+            <MenuButton>
+              <MoreVertRounded />
+            </MenuButton>
+            <Menu>
+              {isAuthenticated && <MenuItem onClick={() => {
+                setCrmOpen(true);
+              }}>
+                Notes & labels
+              </MenuItem>}
+              {isInOrg &&
+                (chat.claimedBy === userEmail ? (
+                  <MenuItem
+                    onClick={() => {
+                      void apiClient.unclaimChat(chat.chatId);
+                    }}
+                  >
+                    Unclaim
+                  </MenuItem>
+                ) : (
+                  <MenuItem
+                    onClick={() => {
+                      void apiClient.claimChat(chat.chatId);
+                    }}
+                  >
+                    Claim
+                  </MenuItem>
+                ))}
+            </Menu>
+          </Dropdown>
+          {chat.isFlagged && (
+            <Resolve
+              chatId={chat.chatId}
+              reason={chat.flaggedReason}
+              message={chat.flaggedMessage}
+            />
+          )}
+        </Stack>
+        <Toggle chat={chat} />
       </Stack>
-      <Toggle chat={chat} />
-    </Stack>
+      <NotesLabelsModal
+        open={crmOpen}
+        onClose={() => setCrmOpen(false)}
+        chat={chat}
+      />
+    </>
   );
 }
 
