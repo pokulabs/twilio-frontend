@@ -20,6 +20,11 @@ export type ChatInfo = {
         url: string;
     };
     claimedBy?: string;
+    labels?: {
+        id: string;
+        color: string;
+        name: string;
+    }[];
 };
 
 export type PlainMessage = {

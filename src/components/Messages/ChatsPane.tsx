@@ -361,6 +361,7 @@ export async function fetchChatsHelper(
           c.flaggedMessage = found.flaggedMessage;
           c.claimedBy = found.claimedBy;
           c.enrichedData = found.enrichedData;
+          c.labels = found.labels;
         }
       }
     } catch (err) {

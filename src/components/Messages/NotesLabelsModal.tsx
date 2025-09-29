@@ -5,6 +5,7 @@ import {
   Chip,
   IconButton,
   Input,
+  Link,
   Modal,
   ModalClose,
   Option,
@@ -55,7 +56,7 @@ export default function NotesLabelsModal(props: {
       .getChatNotes(chat.chatId)
       .then((res) => {
         if (!active) return;
-        const serverNotes = res?.data?.notes ?? "";
+        const serverNotes = res.data.notes ?? "";
         setNotes(serverNotes);
         setInitialNotes(serverNotes);
       })
@@ -184,7 +185,7 @@ export default function NotesLabelsModal(props: {
             <Stack sx={{ flex: 2, minWidth: 0, minHeight: 0 }} spacing={1.25}>
               {chat.enrichedData?.displayName && (
                 <Stack spacing={0.5}>
-                  <Typography>{chat.enrichedData.displayName}</Typography>
+                  <Typography><Link href={chat.enrichedData.url} target="_blank">{chat.enrichedData.displayName}</Link></Typography>
                 </Stack>
               )}
               {chat.enrichedData?.card && (

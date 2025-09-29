@@ -137,6 +137,11 @@ class ApiClient {
                     card: string;
                     url: string;
                 };
+                labels?: {
+                    id: string;
+                    color: string;
+                    name: string;
+                }[];
             }[];
         }>("/chats", {
             params: {
@@ -185,43 +190,17 @@ class ApiClient {
         return this.api.post(`/chats/${chatId}/labels/${labelId}`);
     }
 
-    // async assignLabelByName(chatId: string, name: string, color: string) {
-    //     return this.api.post(`/chats/${chatId}/labels`, { name, color });
-    // }
-
     async unassignLabelFromChat(chatId: string, labelId: string) {
         return this.api.delete(`/chats/${chatId}/labels/${labelId}`);
     }
 
     // Notes (lazy-loaded) for CRM modal
     async getChatNotes(chatId: string) {
-        try {
-            return await this.api.get(`/chats/${chatId}/notes`);
-        } catch (err) {
-            // fallback to localStorage so modal still works before backend is ready
-            try {
-                const key = `notes:${chatId}`;
-                const data = window.localStorage.getItem(key) ?? "";
-                return { data: { notes: data } } as any;
-            } catch (_) {
-                return { data: { notes: "" } } as any;
-            }
-        }
+        return this.api.get<{ notes: string | null | undefined }>(`/chats/${chatId}/notes`);
     }
 
     async saveChatNotes(chatId: string, notes: string) {
-        try {
-            return await this.api.post(`/chats/${chatId}/notes`, { notes });
-        } catch (err) {
-            // Persist locally until backend save is implemented
-            try {
-                const key = `notes:${chatId}`;
-                window.localStorage.setItem(key, notes);
-            } catch (_) {
-                // ignore
-            }
-            return { data: { notes } } as any;
-        }
+        return this.api.post(`/chats/${chatId}/notes`, { notes });
     }
 
     async createApiKey() {

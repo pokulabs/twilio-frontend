@@ -14,16 +14,11 @@ import {
   Sheet,
   Stack,
   Switch,
-  Tooltip,
   Typography,
 } from "@mui/joy";
 import {
   ArrowBackIosNewRounded,
   AutoAwesome,
-  ContactsRounded,
-  InfoOutlined,
-  MoreHoriz,
-  MoreHorizRounded,
   MoreVertRounded,
   SportsMartialArtsRounded,
 } from "@mui/icons-material";
@@ -88,11 +83,11 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
               <MoreVertRounded />
             </MenuButton>
             <Menu>
-              <MenuItem onClick={() => {
+              {isAuthenticated && <MenuItem onClick={() => {
                 setCrmOpen(true);
               }}>
-                View notes & labels
-              </MenuItem>
+                Notes & labels
+              </MenuItem>}
               {isInOrg &&
                 (chat.claimedBy === userEmail ? (
                   <MenuItem
