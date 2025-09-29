@@ -1,6 +1,10 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { CssVarsProvider } from "@mui/joy/styles";
-import { CssBaseline, Box } from "@mui/joy";
+import { createTheme, ThemeProvider, THEME_ID as MATERIAL_THEME } from "@mui/material/styles";
+import {CssBaseline, Box} from "@mui/material";
+
+const materialTheme = createTheme();
+
 
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Messages/Header";
@@ -17,27 +21,29 @@ export default function App() {
   return (
     <TwilioProvider>
       <WebsocketProvider>
-        <CssVarsProvider disableTransitionOnChange>
-          <CssBaseline />
-          <Router>
-            <Box
-              sx={{
-                display: "flex",
-              }}
-            >
-              <Sidebar />
-              <Header />
-              <Routes>
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/campaigns" element={<Campaigns />} />
-                <Route path="/integrations" element={<Integrations />} />
-                <Route path="/" element={<Account />} />
-                <Route path="/hitl" element={<Hitl />} />
-                <Route path="/login" element={<Login />} />
-              </Routes>
-            </Box>
-          </Router>
-        </CssVarsProvider>
+        <ThemeProvider theme={{[MATERIAL_THEME]: materialTheme}}>
+          <CssVarsProvider disableTransitionOnChange>
+            <CssBaseline />
+            <Router>
+              <Box
+                sx={{
+                  display: "flex",
+                }}
+                >
+                <Sidebar />
+                <Header />
+                <Routes>
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/campaigns" element={<Campaigns />} />
+                  <Route path="/integrations" element={<Integrations />} />
+                  <Route path="/" element={<Account />} />
+                  <Route path="/hitl" element={<Hitl />} />
+                  <Route path="/login" element={<Login />} />
+                </Routes>
+              </Box>
+            </Router>
+          </CssVarsProvider>
+        </ThemeProvider>
       </WebsocketProvider>
     </TwilioProvider>
   );
