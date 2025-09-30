@@ -172,7 +172,7 @@ export default function HumanAsATool() {
       </Box>
 
       <Box sx={{ display: "flex" }}>
-        <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} />
+        <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} setUsingOwnTwilio={setUsingOwnTwilio} />
       </Box>
 
       {uiChannel === "slack" ? (
@@ -455,9 +455,13 @@ function WaitTimeInput(props: {
 function MediumSelector({
   uiChannel: uiChannel,
   setUiChannel: setUiChannel,
+  setUsingOwnTwilio: setUsingOwnTwilio,
+
 }: {
   uiChannel: UiChannel;
   setUiChannel: (m: UiChannel) => void;
+  setUsingOwnTwilio: (value: boolean) => void;
+
 }) {
   return (
     <ToggleButtonGroup
@@ -471,6 +475,10 @@ function MediumSelector({
       ) => {
         if (newValue !== null) {
           setUiChannel(newValue as UiChannel);
+
+          if(newValue !== "sms") {
+            setUsingOwnTwilio(false)
+          }
         }
       }}
       sx={{
