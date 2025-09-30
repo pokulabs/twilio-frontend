@@ -303,7 +303,7 @@ export default function NotesLabelsModal(props: {
                     <IconButton
                       key={c.color}
                       variant={selectedColor === c.color ? "soft" : "plain"}
-                      onClick={() => setSelectedColor(c.color)}
+                      onClick={() => setSelectedColor(selectedColor === c.color ? null : c.color)}
                       sx={{
                         width: 28,
                         height: 28,
