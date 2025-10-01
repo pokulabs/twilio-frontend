@@ -23,6 +23,7 @@ export type Filters = {
     search?: string;
     onlyUnread?: boolean;
     activeNumber: string;
+    labelIds?: string[];
 };
 
 type GetChatsResult = {
