@@ -70,22 +70,20 @@ export default function HumanAsATool() {
       try {
         const limits = await apiClient.getAccountLimits();
         const res = await apiClient.getAccount();
-        if (res.data?.data.length) {
-          const [ic] = res.data.data;
-          const localUiChannel =
-            (ic.medium?.split("_")[0] as UiChannel) ?? "sms";
-          setHumanNumbers((prev) => ({
-            ...prev,
-            [localUiChannel]: ic?.humanNumber || "",
-          }));
-          setAgentNumber(ic.agentNumber || "");
-          setWaitTime(ic.waitTime || 60);
-          setUiChannel(localUiChannel);
-          setUsingOwnTwilio(ic.medium === "sms");
-          setHaatMessageCount(limits.data.haatMessageCount);
-          setHaatMessageLimit(limits.data.haatMessageLimit);
-          setChannelId(ic.id);
-        }
+        const [ic] = res.data.data;
+        const localUiChannel =
+          (ic?.medium?.split("_")[0] as UiChannel) ?? "sms";
+        setHumanNumbers((prev) => ({
+          ...prev,
+          [localUiChannel]: ic?.humanNumber || "",
+        }));
+        setAgentNumber(ic?.agentNumber || "");
+        setWaitTime(ic?.waitTime || 60);
+        setUiChannel(localUiChannel);
+        setUsingOwnTwilio(ic?.medium === "sms");
+        setHaatMessageCount(limits.data.haatMessageCount);
+        setHaatMessageLimit(limits.data.haatMessageLimit);
+        setChannelId(ic?.id);
       } catch (err) {
         console.error(err);
       }
