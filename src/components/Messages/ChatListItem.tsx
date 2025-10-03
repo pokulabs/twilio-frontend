@@ -7,7 +7,7 @@ import {
   Typography,
   Avatar,
 } from "@mui/joy";
-import { BackHand, Circle } from "@mui/icons-material";
+import { Circle, DoNotTouchRounded, ThumbUpOffAltOutlined } from "@mui/icons-material";
 
 import { displayDynamicDateTime, toggleMessagesPane } from "../../utils";
 
@@ -88,20 +88,20 @@ export default function ChatListItem(props: ChatListItemProps) {
                 {chat.recentMsgContent}
               </Typography>
               <Stack direction="row" spacing={0.5}>
-                {chat.claimedBy && (
-                  <BackHand
-                    sx={{ fontSize: 16 }}
-                    titleAccess={chat.claimedBy}
-                    color={chat.claimedBy === userEmail ? "success" : "info"}
-                  />
-                )}
                 {chat.labels?.map((e) => (
                   <Circle
                     key={e.name}
-                    sx={{ fontSize: 10, color: e.color }}
+                    sx={{ fontSize: 14, color: e.color }}
                     titleAccess={e.name}
                   />
                 ))}
+                {chat.claimedBy && (chat.claimedBy === userEmail ? 
+                  <ThumbUpOffAltOutlined sx={{ fontSize: 14 }} titleAccess={chat.claimedBy} />
+                  : <DoNotTouchRounded
+                    sx={{ fontSize: 14 }}
+                    titleAccess={chat.claimedBy}
+                  />
+                )}
               </Stack>
             </Stack>
           </Stack>

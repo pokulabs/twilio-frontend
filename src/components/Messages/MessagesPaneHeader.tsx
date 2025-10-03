@@ -20,7 +20,6 @@ import {
   ArrowBackIosNewRounded,
   AutoAwesome,
   MoreVertRounded,
-  ContactsRounded,
   SportsMartialArtsRounded,
 } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
@@ -84,11 +83,11 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
               <MoreVertRounded />
             </MenuButton>
             <Menu>
-              {isAuthenticated && <MenuItem onClick={() => {
+              <MenuItem disabled={!isAuthenticated} onClick={() => {
                 setCrmOpen(true);
               }}>
                 Notes & labels
-              </MenuItem>}
+              </MenuItem>
               {isInOrg &&
                 (chat.claimedBy === userEmail ? (
                   <MenuItem
