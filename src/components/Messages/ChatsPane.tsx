@@ -511,7 +511,7 @@ export async function fetchChatsHelper(
       if (!chat.labels || chat.labels.length === 0) return false;
       // Check if chat has ALL selected labels (AND logic)
       const chatLabelIds = chat.labels.map(l => l.id);
-      return filters.labelIds!.every(labelId => chatLabelIds.includes(labelId));
+      return filters.labelIds!.some(labelId => chatLabelIds.includes(labelId));
     });
   }
 
