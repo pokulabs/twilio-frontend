@@ -12,6 +12,8 @@ export function useAuth() {
         metadata?: any;
     }[] | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [orgMemberRole, setOrgMemberRole] = useState<"owner" | "admin" | "member" | null>(null);
+    const [orgMembers, setOrgMembers] = useState<{ email: string, id: string; }[]>([]);
     const isAuthenticated = !!data;
 
     useEffect(() => {
@@ -19,33 +21,57 @@ export function useAuth() {
             return;
         }
 
-        authClient.organization
-            .list()
-            .then((res) => {
-                if (res.data) {
-                    setOrganizations(res.data);
-                }
-            });
+        const setAuthInfo = async () => {
+            const orgs = await authClient.organization.list();
+            if (orgs.data) {
+                setOrganizations(orgs.data);
 
-        authClient.admin
-            .hasPermission({
+                if (orgs.data.length) {
+                    await authClient.organization.setActive({
+                        organizationId: orgs.data[0].id,
+                    });
+                }
+            }
+    
+            const hasPermission = await authClient.admin.hasPermission({
                 permissions: {
                     user: ["create"],
-                },
-            })
-            .then((res) => {
-                if (res.data?.success) {
-                    setIsAdmin(true);
                 }
             });
+            if (hasPermission.data?.success) {
+                setIsAdmin(true);
+            }
+    
+            const orgMember = await authClient.organization.getActiveMember();
+            if (orgMember.data?.role) {
+                setOrgMemberRole(orgMember.data.role as "admin" | "member" | "owner");
+            }
+
+            const fullOrg = await authClient.organization.getFullOrganization();
+            if (fullOrg.data) {
+                const memberList = fullOrg.data.members.map(e => {
+                    return {
+                        email: e.user.email,
+                        id: (e.user as any).id,
+                    };
+                });
+                setOrgMembers(memberList);
+            }
+        };
+
+        void setAuthInfo();
+
     }, [isAuthenticated]);
 
     return {
         isInOrg: !!organizations?.length,
+        userId: data?.user.id,
         userEmail: data?.user.email,
         isLoading: isPending,
         isAuthenticated: isAuthenticated,
         isAdmin: isAdmin,
+        orgMembers: orgMembers,
+        isOrgAdmin: orgMemberRole === "owner" || orgMemberRole === "admin",
         errorMessage: error?.message,
         signOut: authClient.signOut,
         signInGoogle: (redirect: string) => {

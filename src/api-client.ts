@@ -271,12 +271,14 @@ class ApiClient {
         return this.api.post("/account/test");
     }
 
-    async claimChat(chatId: string) {
-        return this.api.post(`/chats/${chatId}/claim`);
+    async unassignChat(chatId: string) {
+        return this.api.post(`/chats/${chatId}/unassign`);
     }
 
-    async unclaimChat(chatId: string) {
-        return this.api.post(`/chats/${chatId}/unclaim`);
+    async assignChat(chatId: string, assignee: string) {
+        return this.api.post(`/chats/${chatId}/assign`, {
+            assignee: assignee,
+        });
     }
 }
 

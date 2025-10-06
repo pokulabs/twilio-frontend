@@ -20,6 +20,7 @@ import {
   ArrowBackIosNewRounded,
   AutoAwesome,
   MoreVertRounded,
+  OpenInNew,
   SportsMartialArtsRounded,
 } from "@mui/icons-material";
 import { Link as RLink } from "react-router-dom";
@@ -31,6 +32,7 @@ import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
 import { InfoTooltip } from "../shared/InfoTooltip";
 import NotesLabelsModal from "./NotesLabelsModal";
+import AssignModal from "./AssignModal";
 
 type MessagesPaneHeaderProps = {
   chat: ChatInfo;
@@ -39,7 +41,8 @@ type MessagesPaneHeaderProps = {
 export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
   const { chat } = props;
   const [crmOpen, setCrmOpen] = useState(false);
-  const { isInOrg, userEmail, isAuthenticated } = useAuth();
+  const [assignOpen, setAssignOpen] = useState(false);
+  const { isInOrg, userEmail, isAuthenticated, isOrgAdmin } = useAuth();
 
   return (
     <>
@@ -87,25 +90,27 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
                 setCrmOpen(true);
               }}>
                 Notes & labels
+                <OpenInNew></OpenInNew>
               </MenuItem>
-              {isInOrg &&
-                (chat.claimedBy === userEmail ? (
+              {isInOrg && (!chat.claimedBy || isOrgAdmin) && (
+                <MenuItem
+                  onClick={() => {
+                    setAssignOpen(true);
+                  }}
+                >
+                  Assign
+                  <OpenInNew></OpenInNew>
+                </MenuItem>
+              )}
+              {chat.claimedBy && (chat.claimedBy === userEmail || isOrgAdmin) && (
                   <MenuItem
                     onClick={() => {
-                      void apiClient.unclaimChat(chat.chatId);
+                      void apiClient.unassignChat(chat.chatId);
                     }}
                   >
                     Unclaim
                   </MenuItem>
-                ) : (
-                  <MenuItem
-                    onClick={() => {
-                      void apiClient.claimChat(chat.chatId);
-                    }}
-                  >
-                    Claim
-                  </MenuItem>
-                ))}
+              )}
             </Menu>
           </Dropdown>
           {chat.isFlagged && (
@@ -121,6 +126,11 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
       <NotesLabelsModal
         open={crmOpen}
         onClose={() => setCrmOpen(false)}
+        chat={chat}
+      />
+      <AssignModal
+        open={assignOpen}
+        onClose={() => setAssignOpen(false)}
         chat={chat}
       />
     </>
