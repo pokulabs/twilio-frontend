@@ -62,30 +62,48 @@ export default function ChatListItem(props: ChatListItemProps) {
               <Typography level="title-sm">
                 {chat.enrichedData?.displayName || chat.contactNumber}
               </Typography>
-              {chat.claimedBy && (
-                <BackHand
-                  titleAccess={chat.claimedBy}
-                  color={chat.claimedBy === userEmail ? "success" : "info"}
-                />
-              )}
               <Typography level="body-xs" noWrap>
                 {displayDynamicDateTime(chat.recentMsgDate)}
               </Typography>
             </Stack>
-            <Typography
-              level="body-sm"
-              sx={{
-                display: "-webkit-box",
-                WebkitLineClamp: "1",
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                overflowWrap: "break-word", // Handles long words
-                wordBreak: "break-word", // Extra safety for long strings like URLs
-              }}
+            <Stack
+              direction="row"
+              spacing={0}
+              alignItems="center"
+              justifyContent="space-between"
             >
-              {chat.recentMsgContent}
-            </Typography>
+
+              <Typography
+                level="body-sm"
+                sx={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: "1",
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  overflowWrap: "break-word", // Handles long words
+                  wordBreak: "break-word", // Extra safety for long strings like URLs
+                }}
+              >
+                {chat.recentMsgContent}
+              </Typography>
+              <Stack direction="row" spacing={0.5}>
+                {chat.claimedBy && (
+                  <BackHand
+                    sx={{ fontSize: 16 }}
+                    titleAccess={chat.claimedBy}
+                    color={chat.claimedBy === userEmail ? "success" : "info"}
+                  />
+                )}
+                {chat.labels?.map((e) => (
+                  <Circle
+                    key={e.name}
+                    sx={{ fontSize: 10, color: e.color }}
+                    titleAccess={e.name}
+                  />
+                ))}
+              </Stack>
+            </Stack>
           </Stack>
         </ListItemButton>
       </ListItem>

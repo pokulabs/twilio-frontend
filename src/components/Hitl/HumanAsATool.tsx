@@ -51,6 +51,7 @@ export default function HumanAsATool() {
     authToken,
   } = useTwilio();
 
+  const [channelId, setChannelId] = useState("");
   const [agentNumber, setAgentNumber] = useState("");
   const [hostedAgentNumber] = useState("+16286001841");
   const [waitTime, setWaitTime] = useState(60);
@@ -75,20 +76,23 @@ export default function HumanAsATool() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const limits = await apiClient.getAccountLimits();
         const res = await apiClient.getAccount();
-        if (res.data) {
+        if (res.data?.data.length) {
+          const [ic] = res.data.data;
           const localUiChannel =
-            (res.data.medium?.split("_")[0] as UiChannel) ?? "sms";
+            (ic.medium?.split("_")[0] as UiChannel) ?? "sms";
           setHumanNumbers((prev) => ({
             ...prev,
-            [localUiChannel]: res.data?.humanNumber || "",
+            [localUiChannel]: ic?.humanNumber || "",
           }));
-          setAgentNumber(res.data.agentNumber || "");
-          setWaitTime(res.data.waitTime || 60);
+          setAgentNumber(ic.agentNumber || "");
+          setWaitTime(ic.waitTime || 60);
           setUiChannel(localUiChannel);
-          setUsingOwnTwilio(res.data.medium === "sms");
-          setHaatMessageCount(res.data.haatMessageCount);
-          setHaatMessageLimit(res.data.haatMessageLimit);
+          setUsingOwnTwilio(ic.medium === "sms");
+          setHaatMessageCount(limits.data.haatMessageCount);
+          setHaatMessageLimit(limits.data.haatMessageLimit);
+          setChannelId(ic.id);
         }
       } catch (err) {
         console.error(err);
@@ -101,12 +105,16 @@ export default function HumanAsATool() {
   const handleSave = async () => {
     setSaveStatus("saving");
     try {
-      await apiClient.saveAccount(
+      if (channelId) {
+        await apiClient.deleteInteractionChannel(channelId);
+      }
+      const res = await apiClient.saveAccount(
         currentHumanNumber,
         usingOwnTwilio ? agentNumber : hostedAgentNumber,
         waitTime,
         mapUiChannelToMedium(uiChannel, usingOwnTwilio),
       );
+      setChannelId(res.data.id);
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 2000); // hide message after 2s
     } catch (err) {

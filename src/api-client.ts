@@ -77,7 +77,7 @@ class ApiClient {
         waitTime: number,
         medium: Medium,
     ) {
-        return this.api.post("/account/hitl", {
+        return this.api.post<{ id: string; }>("/account", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
@@ -86,17 +86,27 @@ class ApiClient {
     }
 
     async getAccount() {
-        return this.api.get<
-            | {
-                  humanNumber: string;
-                  agentNumber: string;
-                  waitTime: number;
-                  medium: Medium;
-                  haatMessageCount: number;
-                  haatMessageLimit: number;
-              }
-            | undefined
-        >("/account/hitl");
+        return this.api.get<{
+            data: {
+                id: string;
+                humanNumber: string;
+                agentNumber: string;
+                waitTime: number;
+                medium: Medium;
+            }[];
+        }>("/account");
+    }
+
+    async getAccountLimits() {
+        return this.api.get<{
+            haatMessageCount: number;
+            lastReset: Date | undefined;
+            haatMessageLimit: number;
+        }>("/account/limits");
+    }
+
+    async deleteInteractionChannel(interactionChannelId: string) {
+        return this.api.delete(`/account/${interactionChannelId}`);
     }
 
     async getAgents() {
@@ -123,7 +133,17 @@ class ApiClient {
         return this.api.delete(`/agents/${id}`);
     }
 
-    async getChats(chatsOfInterest: string[]) {
+    async getChats(chatsOfInterest: string[], labelIds?: string[]) {
+        const params: any = {};
+        
+        // Only add parameters if they have values
+        if (chatsOfInterest && chatsOfInterest.length > 0) {
+            params.chatsOfInterest = chatsOfInterest;
+        }
+        if (labelIds && labelIds.length > 0) {
+            params.labelIds = labelIds;
+        }
+        
         return this.api.get<{
             data: {
                 chatCode: string;
@@ -137,17 +157,19 @@ class ApiClient {
                     card: string;
                     url: string;
                 };
+                labels?: {
+                    id: string;
+                    color: string;
+                    name: string;
+                }[];
             }[];
         }>("/chats", {
-            params: {
-                chatsOfInterest: chatsOfInterest,
-            },
+            params,
             paramsSerializer: {
                 indexes: true,
             },
         });
     }
-
     async resolveChat(chatId: string) {
         return this.api.post(`/chats/${chatId}/resolve`);
     }
@@ -160,6 +182,42 @@ class ApiClient {
         return this.api.post(`/chats/${chatId}/toggle`, {
             isDisabled,
         });
+    }
+
+    // Labels APIs
+    async listUserLabels() {
+        return this.api.get<{ data: { id: string; name: string; color: string }[] }>(
+            "/user-settings/labels",
+        );
+    }
+
+    async getChatLabels(chatId: string) {
+        return this.api.get<{ data: { id: string; name: string; color: string }[] }>(
+            `/chats/${chatId}/labels`,
+        );
+    }
+
+    async createLabel(name: string, color: string) {
+        return this.api.post<{ id: string; name: string; color: string }>(
+          "/user-settings/labels",
+          { name, color },
+        );
+      }
+      async assignLabelToChat(chatId: string, labelId: string) {
+        return this.api.post(`/chats/${chatId}/labels/${labelId}`);
+    }
+
+    async unassignLabelFromChat(chatId: string, labelId: string) {
+        return this.api.delete(`/chats/${chatId}/labels/${labelId}`);
+    }
+
+    // Notes (lazy-loaded) for CRM modal
+    async getChatNotes(chatId: string) {
+        return this.api.get<{ notes: string | null | undefined }>(`/chats/${chatId}/notes`);
+    }
+
+    async saveChatNotes(chatId: string, notes: string) {
+        return this.api.post(`/chats/${chatId}/notes`, { notes });
     }
 
     async createApiKey() {
