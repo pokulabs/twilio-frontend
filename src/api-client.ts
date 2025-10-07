@@ -133,7 +133,17 @@ class ApiClient {
         return this.api.delete(`/agents/${id}`);
     }
 
-    async getChats(chatsOfInterest: string[]) {
+    async getChats(chatsOfInterest: string[], labelIds?: string[]) {
+        const params: any = {};
+        
+        // Only add parameters if they have values
+        if (chatsOfInterest && chatsOfInterest.length > 0) {
+            params.chatsOfInterest = chatsOfInterest;
+        }
+        if (labelIds && labelIds.length > 0) {
+            params.labelIds = labelIds;
+        }
+        
         return this.api.get<{
             data: {
                 chatCode: string;
@@ -154,15 +164,12 @@ class ApiClient {
                 }[];
             }[];
         }>("/chats", {
-            params: {
-                chatsOfInterest: chatsOfInterest,
-            },
+            params,
             paramsSerializer: {
                 indexes: true,
             },
         });
     }
-
     async resolveChat(chatId: string) {
         return this.api.post(`/chats/${chatId}/resolve`);
     }
