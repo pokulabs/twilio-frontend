@@ -275,9 +275,9 @@ class ApiClient {
         return this.api.post(`/chats/${chatId}/unassign`);
     }
 
-    async assignChat(chatId: string, assignee: string) {
+    async assignChat(chatId: string, assigneeUserId: string) {
         return this.api.post(`/chats/${chatId}/assign`, {
-            assignee: assignee,
+            assignee: assigneeUserId,
         });
     }
 }

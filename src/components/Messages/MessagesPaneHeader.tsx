@@ -42,7 +42,7 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
   const { chat } = props;
   const [crmOpen, setCrmOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
-  const { isInOrg, userEmail, isAuthenticated, isOrgAdmin } = useAuth();
+  const { isInOrg, userEmail, isAuthenticated, isOrgAdmin, userId } = useAuth();
 
   return (
     <>
@@ -92,7 +92,7 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
                 Notes & labels
                 <OpenInNew></OpenInNew>
               </MenuItem>
-              {isInOrg && (!chat.claimedBy || isOrgAdmin) && (
+              {isInOrg && !chat.claimedBy && isOrgAdmin && (
                 <MenuItem
                   onClick={() => {
                     setAssignOpen(true);
@@ -102,14 +102,32 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
                   <OpenInNew></OpenInNew>
                 </MenuItem>
               )}
-              {chat.claimedBy && (chat.claimedBy === userEmail || isOrgAdmin) && (
-                  <MenuItem
-                    onClick={() => {
-                      void apiClient.unassignChat(chat.chatId);
-                    }}
-                  >
-                    Unclaim
-                  </MenuItem>
+              {chat.claimedBy && isOrgAdmin && (
+                <MenuItem
+                  onClick={() => {
+                    void apiClient.unassignChat(chat.chatId);
+                  }}
+                >
+                  Unassign
+                </MenuItem>
+              )}
+              {isInOrg && !chat.claimedBy && !isOrgAdmin && (
+                <MenuItem
+                  onClick={() => {
+                    void apiClient.assignChat(chat.chatId, userId!);
+                  }}
+                >
+                  Claim
+                </MenuItem>
+              )}
+              {chat.claimedBy === userEmail && !isOrgAdmin && (
+                <MenuItem
+                  onClick={() => {
+                    void apiClient.unassignChat(chat.chatId);
+                  }}
+                >
+                  Unclaim
+                </MenuItem>
               )}
             </Menu>
           </Dropdown>
