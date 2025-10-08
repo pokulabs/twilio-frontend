@@ -52,14 +52,11 @@ export default function AssignModal(props: {
               setAssignee(newAssignee!);
             }}
           >
-            {isOrgAdmin ?
-              orgMembers.map(e => {
-                return (
-                  <Option key={e.id} value={e.id}>{e.email}</Option>
-                );
-              }) :
-              <Option key={userId} value={userId}>{userEmail}</Option>
-            }
+            {orgMembers.map(e => {
+              return (
+                <Option key={e.id} value={e.id}>{e.email}</Option>
+              );
+            })}
           </Select>
 
           <Button disabled={!assignee} onClick={async () => {

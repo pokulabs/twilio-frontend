@@ -267,8 +267,10 @@ class ApiClient {
         link.remove();
     }
 
-    async sendTestMessage() {
-        return this.api.post("/account/test");
+    async sendTestMessage(interactionChannelId: string) {
+        return this.api.post("/account/test", {
+            interactionChannelId: interactionChannelId,
+        });
     }
 
     async unassignChat(chatId: string) {
