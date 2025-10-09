@@ -1,16 +1,7 @@
 import { useState } from "react";
-import {
-  Typography,
-  Box,
-  Link,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  AccordionGroup,
-  RadioGroup,
-  Radio,
-} from "@mui/joy";
-import { Link as RLink } from "react-router-dom";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group"
+import { Link } from "react-router-dom";
 import n8nImg from "../../assets/n8n-contact-human-mcp.png";
 import retellMcpImg from "../../assets/retell-mcp.png";
 import retellMcpProxyImg from "../../assets/retell-mcp-proxy.png";
@@ -30,146 +21,124 @@ const mapToolApprovalExamples = {
 
 export default function Steps() {
   const [selectedTool, setSelectedTool] = useState(0);
+  console.log(selectedTool)
 
   return (
-    <Box>
-      <Typography sx={{ mb: 1 }}>
+    <div>
+      <div className="mb-2">
         <b>Step 1.</b> Choose a human-in-the-loop feature
-      </Typography>
+      </div>
 
-      <Box sx={{ display: "flex", gap: 2 }}>
-        <RadioGroup
-          orientation="horizontal"
-          value={selectedTool}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setSelectedTool(+event.target.value)
-          }
-          sx={{
-            width: "100%",
-            minHeight: 35,
-            padding: "4px",
-            borderRadius: "12px",
-            bgcolor: "neutral.softBg",
-            "--RadioGroup-gap": "4px",
-            "--Radio-actionRadius": "8px",
-          }}
-        >
+      <div >
+        <ToggleGroup 
+          type="single" 
+          value={selectedTool.toString()} 
+          onValueChange={(value) => {if(value) setSelectedTool(+value)}}
+          className="w-full rounded-lg bg-gray-100 p-1"
+          >
           {[
             {
               value: 0,
               label: "contact_human",
             },
-            {
-              value: 1,
+            {value: 1,
               label: "tool_approval",
-            },
+            }
           ].map((item) => (
-            <Radio
-              key={item.value.toString()}
-              color="neutral"
-              value={item.value}
-              disableIcon
-              label={item.label}
-              variant="plain"
-              sx={{
-                px: 2,
-                alignItems: "center",
-                flex: 1,
-                justifyContent: "center",
-                textAlign: "center",
-              }}
-              slotProps={{
-                action: ({ checked }) => ({
-                  sx: {
-                    ...(checked && {
-                      bgcolor: "background.surface",
-                      boxShadow: "sm",
-                      "&:hover": {
-                        bgcolor: "background.surface",
-                      },
-                    }),
-                  },
-                }),
-              }}
-            />
+            <ToggleGroupItem key={item.value} value={item.value.toString()}
+              className="cursor-pointer rounded-lg text-base text-center transition-all data-[state=on]:bg-white data-[state=on]:text-lg data-[state=on]:text-gray-900 data-[state=on]:shadow-sm data-[state=off]:bg-gray-100 data-[state=off]:text-gray-700"
+            >
+              {item.label}
+            </ToggleGroupItem>
           ))}
-        </RadioGroup>
-      </Box>
+        </ToggleGroup>
+      </div>
 
       {selectedTool === 0 ? (
-        <Typography level="body-sm" sx={{ mt: 1 }}>
+        <div  className="">
           Enable your agent to ask a human for help in real-time. The agent
           continues the conversation after input from a human.
-        </Typography>
+        </div>
       ) : (
-        <Typography level="body-sm" sx={{ mt: 1 }}>
+        <div >
           Require human approval before executing an MCP tool call.
-        </Typography>
+        </div>
       )}
 
       {selectedTool === 0 ? (
-        <AccordionGroup>
-          <Accordion sx={{ mt: 2, p: 0 }}>
-            <AccordionSummary sx={{ fontWeight: "normal" }}>
-              <Box>
-                <b>Step 2.</b> Connect your agent to the Poku MCP server.
-              </Box>
-            </AccordionSummary>
-            <AccordionDetails sx={{ ml: 1 }}>
-              <Typography sx={{ mb: 1 }}>
+
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+
+            <AccordionTrigger className="text-md cursor-pointer hover:bg-muted py-2">
+              <div>
+                <b >Step 2.</b> Connect your agent to the Poku MCP server.
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 py-0 mb-7 text-base leading-9">
+              <div>
                 <b>2.1</b> Go to the{" "}
-                <Link component={RLink} to="/">
+                <Link to="/" className="text-blue-500">
                   Account
                 </Link>{" "}
                 page to generate your Poku API key.
-              </Typography>
+              </div>
 
-              <Typography sx={{ mb: 1 }}>
+              <div >
                 <b>2.2</b> Navigate to your agent and create a MCP connection
-              </Typography>
+              </div>
 
               <ContactHumanExamples />
 
-              <Typography sx={{ mt: 1 }}>
+              <div >
                 <strong>Server URL (Streamable):</strong>{" "}
-              </Typography>
-              <CodeBlock text="https://mcp.pokulabs.com" />
-              <Typography sx={{ mt: 1 }}>
+              </div>
+              <code className="block bg-muted text-sm font-mono p-2 rounded-md">
+                https://mcp.pokulabs.com
+              </code>
+              <div >
                 <strong>Server URL (SSE):</strong>{" "}
-              </Typography>
-              <CodeBlock text="https://mcp.pokulabs.com/sse" />
-              <Typography sx={{ mb: 1, mt: 1 }}>
+              </div>
+              <code className="block bg-muted text-sm font-mono p-2 rounded-md">
+                https://mcp.pokulabs.com/sse
+              </code>
+              <div >
                 <strong>Timeout:</strong>
                 <br />
                 60 sec (use same value as Wait Time in Step 4)
-              </Typography>
-              <Typography>
+              </div>
+              <div>
                 <strong>Headers:</strong>{" "}
-              </Typography>
-              <CodeBlock text="Authorization: Bearer <YOUR_POKU_KEY>" />
-            </AccordionDetails>
-          </Accordion>
-        </AccordionGroup>
+              </div>
+              <code className="block bg-muted text-sm font-mono p-2 rounded-md">
+                Authorization: Bearer &lt;YOUR_POKU_KEY&gt;
+              </code>
+              <div ></div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
       ) : (
-        <AccordionGroup>
-          <Accordion sx={{ mt: 2, p: 0 }}>
-            <AccordionSummary sx={{ fontWeight: "normal" }}>
-              <Box>
+        
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-2">
+            <AccordionTrigger className="text-md hover:bg-muted cursor-pointer py-2">
+              <div>
                 <b>Step 2.</b> Connect your agent to the Poku MCP Proxy server.
-              </Box>
-            </AccordionSummary>
-            <AccordionDetails sx={{ ml: 1 }}>
-              <Typography sx={{ mb: 1 }}>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 py-0 mb-7 text-base leading-9">
+              <div>
                 <b>2.1</b> Go to the{" "}
-                <Link component={RLink} to="/">
+                <Link to="/" className="text-blue-500">
                   Account
                 </Link>{" "}
                 page to generate your Poku API key.
-              </Typography>
+              </div>
 
-              <Typography sx={{ mb: 1 }}>
+              <div >
                 <b>2.2</b> Navigate to your agent and create a MCP connection
-              </Typography>
+              </div>
 
               {/* <img
                 src={n8nImg}
@@ -177,67 +146,71 @@ export default function Steps() {
                   width: "100%",
                   maxWidth: 400,
                   border: "1px solid silver",
-                }}
-              /> */}
+                  }}
+                  /> */}
 
-              <Typography>
+              <div>
                 <strong>Server URL (Streamable):</strong>{" "}
-              </Typography>
-              <CodeBlock text="https://mcp-proxy.pokulabs.com?url=<YOUR_MCP_URL>" />
-              <Typography>
-                Replace <code>{"<YOUR_MCP_URL>"}</code> with the url of the MCP
+              </div>
+              <code className="block bg-muted text-sm font-mono py-2 rounded-md">
+                https://mcp-proxy.pokulabs.com?url=&lt;YOUR_MCP_URL&gt;
+              </code>
+              <div>
+                Replace <code className="font-mono bg-muted">{"<YOUR_MCP_URL>"}</code> with the url of the MCP
                 server you want to gate with human approval.
-              </Typography>
-              <Typography sx={{ mt: 1 }}>
+              </div>
+              <div >
                 <strong>Timeout:</strong>
                 <br />
                 60 sec (use same value as Wait Time in Step 4)
-              </Typography>
-              <Typography sx={{ mt: 1 }}>
+              </div>
+              <div >
                 <strong>Headers:</strong>{" "}
-              </Typography>
-              <CodeBlock text="Poku-Authorization: Bearer <YOUR_POKU_KEY>" />
-              <Typography sx={{ mt: 1 }}></Typography>
-              <CodeBlock
-                text="Authorization: Bearer <YOUR_MCP_AUTH_KEY>"
-                optional
-              />
-              <Typography sx={{ mt: 1 }}></Typography>
+              </div>
+              <code className="block bg-muted text-sm font-mono py-2 rounded-md">
+                Poku-Authorization: Bearer &lt;YOUR_POKU_KEY&gt;
+              </code>
+              <div ></div>
+              <code className="block bg-muted text-sm font-mono py-2 my-2 rounded-md">
+                Authorization: Bearer &lt;YOUR_MCP_AUTH_KEY&gt;
+              </code>
+              <div ></div>
               <ToolApprovalExamples />
 
-              <Typography sx={{ mt: 1 }}>
+              <div >
                 <b>2.3</b> Select the tool(s) you want to gate with human
                 approval.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-        </AccordionGroup>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
       )}
 
       {selectedTool === 0 && (
-        <AccordionGroup>
-          <Accordion sx={{ mt: 2, p: 0 }}>
-            <AccordionSummary sx={{ fontWeight: "normal" }}>
-              <Box>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-3">
+            <AccordionTrigger className="cursor-pointer hover:bg-muted text-md py-0 items-center">
+              <div className="py-0">
                 <b>Step 3.</b> Update your AI agent prompt to use the{" "}
                 <code>contact_human</code> tool.
-              </Box>
-            </AccordionSummary>
-            <AccordionDetails sx={{ ml: 1 }}>
-              <Typography>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="pl-4">
+              <div className="mb-1 text-base">
                 <b>Sample prompt 1:</b>
                 <br />
-              </Typography>
-              <Typography level="body-sm" sx={{ mb: 1 }}>
+              </div>
+              <div className="mb-3 text-gray-500">
                 When you encounter a question that's outside the scope of the
                 knowledge base, immediately use the <b>contact_human</b> tool to
                 request help from a manager.
-              </Typography>
+              </div>
 
-              <Typography>
+              <div className="mb-1 text-base">
                 <b>Sample prompt 2:</b>
-              </Typography>
-              <Typography level="body-sm">
+              </div>
+              <div className="text-gray-500">
                 ## Tool
                 <br />
                 0. If you need manager input (see “Escalate When” list) you MUST
@@ -260,17 +233,18 @@ export default function Steps() {
                 <br />
                 - User asks to speak with a manager.
                 <br />- User asks for a discount beyond 10% off.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-        </AccordionGroup>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+   
       )}
 
-      <Typography sx={{ mt: 2 }}>
+      <div >
         <b>Step {selectedTool === 0 ? "4" : "3"}.</b> Configure the channel your
         agent will use to contact a human.
-      </Typography>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -282,20 +256,14 @@ function CodeBlock({
   optional?: boolean;
 }) {
   return (
-    <Box
-      sx={{
-        whiteSpace: "nowrap",
-        overflowX: "auto",
-        display: "flex",
-        alignItems: "center",
-        gap: 1,
-      }}
+    <div
+      className="whitespace-nowrap overflow-x-auto flex items-center gap-1"
     >
-      {optional && <Typography>(Optional)</Typography>}
-      <Typography sx={{ lineHeight: 2 }} fontFamily="monospace" variant="soft">
+      {optional && <div>(Optional)</div>}
+      <div>
         {text}
-      </Typography>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -304,31 +272,23 @@ function ContactHumanExamples() {
 
   return (
     <>
-      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+      <div className="flex gap-2 mb-2">
         {Object.entries(mapContactHumanExamples).map(([key, img]) => (
-          <Box
+          <div
             key={key}
             onClick={() => setContactHumanExample(key)}
-            sx={{
-              cursor: "pointer",
-              border:
-                contactHumanExample === key
-                  ? "2px solid blue"
-                  : "1px solid silver",
-              borderRadius: 4,
-              overflow: "hidden",
-            }}
+            className={`cursor-pointer rounded-sm ${contactHumanExample === key ? "border-2 border-blue-700" : "border-1 border-silver-400"} overflow-hidden `}
           >
             <img
               src={img}
               style={{ width: 80, height: 50, objectFit: "cover" }}
             />
-            <Typography level="body-xs" sx={{ textAlign: "center" }}>
+            <div className="text-center text-sm">
               {key}
-            </Typography>
-          </Box>
+            </div>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {contactHumanExample && (
         <img
@@ -349,31 +309,23 @@ function ToolApprovalExamples() {
 
   return (
     <>
-      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+      <div className="flex gap-2 mb-2">
         {Object.entries(mapToolApprovalExamples).map(([key, img]) => (
-          <Box
+          <div
             key={key}
             onClick={() => setToolApprovalExample(key)}
-            sx={{
-              cursor: "pointer",
-              border:
-                toolApprovalExample === key
-                  ? "2px solid blue"
-                  : "1px solid silver",
-              borderRadius: 4,
-              overflow: "hidden",
-            }}
+            className={`cursor-pointer rounded-sm ${toolApprovalExample === key ? "border-2 border-blue-700" : "border-1 border silver-400"} overflow-hidden`}
           >
             <img
               src={img}
               style={{ width: 80, height: 50, objectFit: "cover" }}
             />
-            <Typography level="body-xs" sx={{ textAlign: "center" }}>
+            <div className="text-center">
               {key}
-            </Typography>
-          </Box>
+            </div>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {toolApprovalExample && (
         <img
