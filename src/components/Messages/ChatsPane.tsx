@@ -467,56 +467,93 @@ export async function fetchChatsHelper(
   paginationState: PaginationState | undefined,
   filters: Filters,
 ) {
-  // Normal pagination flow
-  const newChatsRes = await twilioClient.getChats(filters.activeNumber, {
-    paginationState,
-    filters,
-    existingChatsId: existingChats.map((e) => e.chatId),
-  });
+  const TARGET_CHAT_COUNT = 10; // Target number of matching chats to fetch
+  const MAX_PAGES = 5; // Prevent infinite loops
+  
+  const allFetchedChats: ChatInfo[] = [];
+  const existingIds = new Set(existingChats.map(c => c.chatId));
+  let currentPaginationState = paginationState;
+  let pagesFetched = 0;
 
-  const newChats = newChatsRes.chats;
+  // Keep fetching pages until we have enough matching chats or run out of pages
+  while (
+    allFetchedChats.length < TARGET_CHAT_COUNT && 
+    pagesFetched < MAX_PAGES
+  ) {
+    const newChatsRes = await twilioClient.getChats(filters.activeNumber, {
+      paginationState: currentPaginationState,
+      filters,
+      existingChatsId: Array.from(existingIds),
+    });
 
-  // Apply unread status
-  const unreads = await twilioClient.hasUnread(filters.activeNumber, newChats);
-  newChats.forEach((c, i) => {
-    c.hasUnread = unreads[i];
-  });
+    const newChats = newChatsRes.chats;
+    currentPaginationState = newChatsRes.paginationState;
+    pagesFetched++;
 
-  if (newChats.length > 0) {
-    try {
-      const augmentations = await apiClient.getChats(
-        newChats.map((c) => c.chatId),
-        filters.labelIds
-      );
-      for (const c of newChats) {
-        const found = augmentations.data.data.find((fc) => fc.chatCode === c.chatId);
-        if (found) {
-          c.isFlagged = found.isFlagged;
-          c.flaggedReason = found.flaggedReason;
-          c.flaggedMessage = found.flaggedMessage;
-          c.claimedBy = found.claimedBy;
-          c.enrichedData = found.enrichedData;
-          c.labels = found.labels;
+    if (newChats.length === 0) {
+      break; // No more chats available
+    }
+
+    // Apply unread status
+    const unreads = await twilioClient.hasUnread(filters.activeNumber, newChats);
+    newChats.forEach((c, i) => {
+      c.hasUnread = unreads[i];
+    });
+
+    // Augment with backend data (labels, flags, etc.)
+    if (newChats.length > 0) {
+      try {
+        const augmentations = await apiClient.getChats(
+          newChats.map((c) => c.chatId),
+          filters.labelIds
+        );
+        for (const c of newChats) {
+          const found = augmentations.data.data.find((fc) => fc.chatCode === c.chatId);
+          if (found) {
+            c.isFlagged = found.isFlagged;
+            c.flaggedReason = found.flaggedReason;
+            c.flaggedMessage = found.flaggedMessage;
+            c.claimedBy = found.claimedBy;
+            c.enrichedData = found.enrichedData;
+            c.labels = found.labels;
+          }
         }
+      } catch (err) {
+        // Continue even if augmentation fails
       }
-    } catch (err) {
-      return { chats: newChats, paginationState: newChatsRes.paginationState };
+    }
+
+    // Filter by labels if needed
+    let chatsToAdd = newChats;
+    if (filters.labelIds && filters.labelIds.length > 0) {
+      chatsToAdd = newChats.filter(chat => {
+        if (!chat.labels || chat.labels.length === 0) return false;
+        const chatLabelIds = chat.labels.map(l => l.id);
+        return filters.labelIds!.some(labelId => chatLabelIds.includes(labelId));
+      });
+    }
+
+    // Add to accumulated chats (avoid duplicates)
+    for (const chat of chatsToAdd) {
+      if (!existingIds.has(chat.chatId)) {
+        allFetchedChats.push(chat);
+        existingIds.add(chat.chatId);
+      }
+    }
+
+    // If no more pages available, stop
+    if (!currentPaginationState?.hasMore) {
+      break;
+    }
+
+    // If no labels are filtered, we can stop after one page
+    if (!filters.labelIds || filters.labelIds.length === 0) {
+      break;
     }
   }
 
-  // Filter chats by labels on frontend if labels are selected
-  let filteredChats = newChats;
-  if (filters.labelIds && filters.labelIds.length > 0) {
-    filteredChats = newChats.filter(chat => {
-      if (!chat.labels || chat.labels.length === 0) return false;
-      // Check if chat has ALL selected labels (AND logic)
-      const chatLabelIds = chat.labels.map(l => l.id);
-      return filters.labelIds!.some(labelId => chatLabelIds.includes(labelId));
-    });
-  }
-
   return {
-    chats: filteredChats,
-    paginationState: newChatsRes.paginationState
+    chats: allFetchedChats,
+    paginationState: currentPaginationState
   };
 }
