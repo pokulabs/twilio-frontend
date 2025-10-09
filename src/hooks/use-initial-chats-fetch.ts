@@ -36,7 +36,7 @@ export function useInitialChatsFetch(
             if (!twilioClient || !filters.activeNumber) return;
 
             setIsLoading(true);
-            if (filters.search) {
+            if (filters.search && !filters.notesMatchedChats) {
                 await loadSingleChat();
                 setIsLoading(false);
                 return;

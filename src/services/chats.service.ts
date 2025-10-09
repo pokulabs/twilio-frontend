@@ -23,6 +23,7 @@ export type Filters = {
     search?: string;
     onlyUnread?: boolean;
     activeNumber: string;
+    notesMatchedChats?: string[];
 };
 
 type GetChatsResult = {
@@ -141,6 +142,12 @@ export class ContactsService {
                 ) {
                     continue;
                 }
+                // Filter by notesMatchedChats if provided
+                if (opts.filters?.notesMatchedChats && opts.filters.notesMatchedChats.length > 0) {
+                    if (!opts.filters.notesMatchedChats.includes(chatInfo.chatId)) {
+                        continue;
+                    }
+                }   
 
                 chats.set(chatInfo.chatId, chatInfo);
                 newlyAddedChats.set(chatInfo.chatId, chatInfo);
@@ -343,5 +350,21 @@ export class ContactsService {
         return paginator.hasNextPage()
             ? await paginator.getNextPage()
             : paginator;
+    }
+
+    async searchChatsByNotes(userId: string, searchTerm: string): Promise<string[]> {
+        if (!searchTerm || searchTerm.trim().length === 0) {
+            return [];
+        }
+    
+        const chats = await this.db
+            .selectFrom("chat")
+            .select("chat_code")
+            .$call(await this.buildUserOrOrgWhere(userId))
+            .where("notes", "is not", null)
+            .where(sql`LOWER(notes)`, "like", `%${searchTerm.toLowerCase()}%`)
+            .execute();
+    
+        return chats.map(c => c.chat_code);
     }
 }

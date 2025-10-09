@@ -282,6 +282,10 @@ class ApiClient {
             assignee: assigneeUserId,
         });
     }
+
+    async searchChatsByNotes(searchTerm: string) {
+        return this.api.get<{ chatCodes: string[] }>(`/chats/search-notes?q=${encodeURIComponent(searchTerm)}`);
+    }
 }
 
 export const apiClient = new ApiClient();

@@ -89,7 +89,7 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
               <MenuItem disabled={!isAuthenticated} onClick={() => {
                 setCrmOpen(true);
               }}>
-                Notes & labels
+                Notes & Labels
                 <OpenInNew></OpenInNew>
               </MenuItem>
               {isInOrg && !chat.claimedBy && isOrgAdmin && (

@@ -254,6 +254,52 @@ function SearchContact(props: {
 }) {
   const { onUpdateFilters } = props;
   const [inputValue, setInputValue] = React.useState("");
+  const [isSearching, setIsSearching] = React.useState(false);
+
+  const isPhoneNumber = (input: string): boolean => {
+    // Check if input is primarily numbers, +, -, (, ), spaces
+    return /^[\d\s\-\(\)\+]+$/.test(input.trim());
+  };
+
+  const handleSearch = async () => {
+    if (!inputValue?.trim()) return;
+    
+    setIsSearching(true);
+    try {
+      // Detect if it's a phone number or text
+      if (isPhoneNumber(inputValue)) {
+        // Search by contact/chatId (existing logic)
+        onUpdateFilters((prev) => ({ 
+          ...prev, 
+          search: inputValue,
+          notesMatchedChats: undefined // Clear notes search
+        }));
+      } else {
+        // Search by notes
+        const notesResult = await apiClient.searchChatsByNotes(inputValue);
+        const notesChatCodes = notesResult.data.chatCodes;
+        
+        onUpdateFilters((prev) => ({ 
+          ...prev, 
+          search: undefined, // Clear contact search
+          notesMatchedChats: notesChatCodes.length > 0 ? notesChatCodes : undefined
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to search:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleClear = () => {
+    setInputValue("");
+    onUpdateFilters((prev) => ({ 
+      ...prev, 
+      search: undefined,
+      notesMatchedChats: undefined 
+    }));
+  };
 
   return (
     <Input
@@ -264,15 +310,13 @@ function SearchContact(props: {
       value={inputValue}
       onKeyDown={(e) => {
         if (e.key === "Enter") {
-          onUpdateFilters((prev) => ({ ...prev, search: inputValue }));
+          handleSearch();
         }
       }}
       startDecorator={
         <IconButton
           size="sm"
-          onClick={() => {
-            onUpdateFilters((prev) => ({ ...prev, search: undefined }));
-          }}
+          onClick={handleClear}
         >
           <CloseRounded />
         </IconButton>
@@ -280,15 +324,13 @@ function SearchContact(props: {
       endDecorator={
         <IconButton
           variant="soft"
-          onClick={() => {
-            onUpdateFilters((prev) => ({ ...prev, search: inputValue }));
-          }}
-          disabled={!inputValue?.trim()}
+          onClick={handleSearch}
+          disabled={!inputValue?.trim() || isSearching}
         >
-          <SearchRounded />
+          {isSearching ? <CircularProgress size="sm" /> : <SearchRounded />}
         </IconButton>
       }
-      placeholder="Search for chat"
+      placeholder="Search contacts or notes"
     />
   );
 }
