@@ -13,6 +13,7 @@ import {
   Link,
   Checkbox,
   radioClasses,
+  Tooltip,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
@@ -52,6 +53,7 @@ export default function HumanAsATool() {
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "success" | "error"
   >("idle");
+  const [hasBeenSaved, setHasBeenSaved] = useState(false);
 
   const [uiChannel, setUiChannel] = useState<UiChannel>("slack");
   const [usingOwnTwilio, setUsingOwnTwilio] = useState(false);
@@ -63,6 +65,7 @@ export default function HumanAsATool() {
   const currentHumanNumber = humanNumbers[uiChannel] || "";
   const updateHumanNumber = (val: string) => {
     setHumanNumbers((prev) => ({ ...prev, [uiChannel]: val }));
+    setHasBeenSaved(false);
   };
 
   useEffect(() => {
@@ -84,6 +87,7 @@ export default function HumanAsATool() {
         setHaatMessageCount(limits.data.haatMessageCount);
         setHaatMessageLimit(limits.data.haatMessageLimit);
         setChannelId(ic?.id);
+        setHasBeenSaved(!!ic?.id);
       } catch (err) {
         console.error(err);
       }
@@ -105,6 +109,7 @@ export default function HumanAsATool() {
         mapUiChannelToMedium(uiChannel, usingOwnTwilio),
       );
       setChannelId(res.data.id);
+      setHasBeenSaved(true);
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 2000); // hide message after 2s
     } catch (err) {
@@ -204,19 +209,21 @@ export default function HumanAsATool() {
         >
           Save
         </Button>
-        <Button
-          onClick={() => apiClient.sendTestMessage(channelId)}
+        <Tooltip
+          title={!hasBeenSaved ? "Please save before testing" : ""}
           variant="outlined"
-          disabled={
-            !currentHumanNumber ||
-            (!agentNumber && usingOwnTwilio) ||
-            (!sid && usingOwnTwilio) ||
-            (!authToken && usingOwnTwilio) ||
-            saveStatus === "saving"
-          }
         >
-          Send Test Message
-        </Button>
+          <span style={{ width: '100%', display: 'block' }}>
+            <Button
+              onClick={() => apiClient.sendTestMessage(channelId)}
+              variant="outlined"
+              disabled={!hasBeenSaved}
+              fullWidth
+            >
+              Send Test Message
+            </Button>
+          </span>
+        </Tooltip>
       </Stack>
       {saveStatus === "success" && (
         <Typography color="success">Settings saved!</Typography>
