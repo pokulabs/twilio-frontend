@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import {
   Button,
   Typography,
@@ -13,6 +13,10 @@ import {
   Link,
   Checkbox,
   radioClasses,
+  Card,
+  CardContent,
+  Divider,
+  IconButton,
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
@@ -21,6 +25,10 @@ import Steps from "./Steps";
 import type { Medium } from "../../types";
 import { InfoTooltip } from "../shared/InfoTooltip";
 import { SLACK_LINK } from "../../utils";
+import { ContentCopy, DeleteOutline, Send } from "@mui/icons-material";
+import slack from "../../assets/slack-color.png";
+import whatsapp from "../../assets/whatsapp.png";
+import sms from "../../assets/sms.jpeg";
 
 type UiChannel = "slack" | "whatsapp" | "sms";
 
@@ -43,7 +51,6 @@ function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium {
 export default function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, isAuthenticated: hasTwilioCreds, sid, authToken } = useTwilio();
 
-  const [channelId, setChannelId] = useState("");
   const [agentNumber, setAgentNumber] = useState("");
   const [hostedAgentNumber] = useState("+16286001841");
   const [waitTime, setWaitTime] = useState(60);
@@ -53,7 +60,7 @@ export default function HumanAsATool() {
     "idle" | "saving" | "success" | "error"
   >("idle");
 
-  const [uiChannel, setUiChannel] = useState<UiChannel>("slack");
+  const [uiChannel, setUiChannel] = useState<UiChannel>("sms");
   const [usingOwnTwilio, setUsingOwnTwilio] = useState(false);
   const [humanNumbers, setHumanNumbers] = useState<{
     slack?: string;
@@ -65,25 +72,14 @@ export default function HumanAsATool() {
     setHumanNumbers((prev) => ({ ...prev, [uiChannel]: val }));
   };
 
+  const listRef = useRef<{ reload: () => void }>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const limits = await apiClient.getAccountLimits();
-        const res = await apiClient.getAccount();
-        const [ic] = res.data.data;
-        const localUiChannel =
-          (ic?.medium?.split("_")[0] as UiChannel) ?? "sms";
-        setHumanNumbers((prev) => ({
-          ...prev,
-          [localUiChannel]: ic?.humanNumber || "",
-        }));
-        setAgentNumber(ic?.agentNumber || "");
-        setWaitTime(ic?.waitTime || 60);
-        setUiChannel(localUiChannel);
-        setUsingOwnTwilio(ic?.medium === "sms");
         setHaatMessageCount(limits.data.haatMessageCount);
         setHaatMessageLimit(limits.data.haatMessageLimit);
-        setChannelId(ic?.id);
       } catch (err) {
         console.error(err);
       }
@@ -95,16 +91,14 @@ export default function HumanAsATool() {
   const handleSave = async () => {
     setSaveStatus("saving");
     try {
-      if (channelId) {
-        await apiClient.deleteInteractionChannel(channelId);
-      }
       const res = await apiClient.saveAccount(
         currentHumanNumber,
         usingOwnTwilio ? agentNumber : hostedAgentNumber,
         waitTime,
         mapUiChannelToMedium(uiChannel, usingOwnTwilio),
       );
-      setChannelId(res.data.id);
+      listRef.current?.reload(); // refresh the list
+
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 2000); // hide message after 2s
     } catch (err) {
@@ -115,7 +109,9 @@ export default function HumanAsATool() {
   };
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={3} sx={{
+      maxWidth: 900,
+    }}>
       <Box>
         <Typography>
           Enable your AI agent to loop in a human for help. Works with any agent
@@ -202,20 +198,7 @@ export default function HumanAsATool() {
             saveStatus === "saving"
           }
         >
-          Save
-        </Button>
-        <Button
-          onClick={() => apiClient.sendTestMessage(channelId)}
-          variant="outlined"
-          disabled={
-            !currentHumanNumber ||
-            (!agentNumber && usingOwnTwilio) ||
-            (!sid && usingOwnTwilio) ||
-            (!authToken && usingOwnTwilio) ||
-            saveStatus === "saving"
-          }
-        >
-          Send Test Message
+          Create
         </Button>
       </Stack>
       {saveStatus === "success" && (
@@ -224,6 +207,8 @@ export default function HumanAsATool() {
       {saveStatus === "error" && (
         <Typography color="danger">Failed to save settings.</Typography>
       )}
+
+      <ListInteractionChannels ref={listRef} />
     </Stack>
   );
 }
@@ -503,3 +488,123 @@ function MediumSelector({
     </RadioGroup>
   );
 }
+
+const ListInteractionChannels = forwardRef((_props, ref) => {
+  const [ics, setIcs] = useState<
+    Awaited<ReturnType<typeof apiClient.getInteractionChannels>>["data"]["data"]
+  >([]);
+
+  const getIcs = async () => {
+    const interactionChannels = await apiClient.getInteractionChannels();
+    setIcs(interactionChannels.data.data);
+  };
+
+  useEffect(() => {
+    void getIcs();
+  }, []);
+
+  useImperativeHandle(ref, () => ({
+    reload: getIcs,
+  }));
+
+  const handleCopy = (id: string) => {
+    navigator.clipboard.writeText(`https://mcp.pokulabs.com/${id}`);
+  };
+
+  return (
+    <Stack
+      direction="row"
+      gap={2}
+      sx={{ flexWrap: "wrap" }}
+    >
+      {ics.map((e) => {
+        const iconSrc =
+          e.medium === "slack"
+            ? slack
+            : e.medium === "whatsapp_poku"
+            ? whatsapp
+            : sms;
+
+        return (
+          <Card
+            key={e.id}
+            variant="outlined"
+            sx={{
+              borderRadius: "16px",
+              p: 2,
+              width: 280,
+              display: "flex",
+              flexDirection: "column",
+              // alignItems: "center",
+              // textAlign: "center",
+              boxShadow: "sm",
+            }}
+          >
+            <Box
+              component="img"
+              src={iconSrc}
+              sx={{ width: 32, height: 32, mb: 1 }}
+            />
+            <CardContent sx={{ p: 0 }}>
+              <Typography level="body-sm" sx={{ mb: 0.5 }}>
+                Human number: {e.humanNumber || "—"}
+              </Typography>
+              {(e.medium === "sms") && <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                Agent number: {e.agentNumber} seconds
+              </Typography>}
+              <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                Wait time: {e.waitTime} seconds
+              </Typography>
+              {e.webhookUrl && <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                Webhook URL: {e.webhookUrl} seconds
+              </Typography>}
+              {e.validTime && <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                Valid time: {e.validTime} seconds
+              </Typography>}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                  Copy MCP URL
+                </Typography>
+                <IconButton
+                  size="sm"
+                  variant="plain"
+                  color="neutral"
+                  onClick={() => handleCopy(e.id)}
+                >
+                  <ContentCopy fontSize="small" />
+                </IconButton>
+              </Box>
+            </CardContent>
+
+            <Divider sx={{ my: 1.5 }} />
+
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Button
+                size="sm"
+                variant="solid"
+                color="primary"
+                startDecorator={<Send />}
+                onClick={() => apiClient.sendTestMessage(e.id)}
+              >
+                Send Test
+              </Button>
+
+              <IconButton
+                size="sm"
+                variant="outlined"
+                color="danger"
+                onClick={async () => {
+                  await apiClient.deleteInteractionChannel(e.id);
+                  await getIcs();
+                }}
+              >
+                <DeleteOutline />
+              </IconButton>
+            </Box>
+
+          </Card>
+        );
+      })}
+    </Stack>
+  );
+});

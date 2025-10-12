@@ -61,7 +61,7 @@ function Hitl() {
                 flexDirection: "column",
                 p: 2,
                 width: "100%",
-                maxWidth: 500,
+                // maxWidth: 500,
               }}
             >
               <HumanAsATool />

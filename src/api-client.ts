@@ -85,7 +85,7 @@ class ApiClient {
         });
     }
 
-    async getAccount() {
+    async getInteractionChannels() {
         return this.api.get<{
             data: {
                 id: string;
@@ -93,6 +93,8 @@ class ApiClient {
                 agentNumber: string;
                 waitTime: number;
                 medium: Medium;
+                webhookUrl?: string;
+                validTime?: string;
             }[];
         }>("/account");
     }
