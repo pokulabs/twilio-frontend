@@ -190,6 +190,7 @@ export default function ChatsPane(props: {
               onUpdateFilters((prev) => ({
                 ...prev,
                 onlyUnread: filters.onlyUnread,
+                labelIds: filters.labelIds,
               }));
             }}
           />
@@ -294,15 +295,67 @@ function SearchContact(props: {
 }
 
 function MessageFilter(props: {
-  onChange: (filters: { onlyUnread: boolean }) => void;
+  onChange: (filters: { onlyUnread: boolean; labelIds?: string[] }) => void;
 }) {
   const { onChange } = props;
   const [onlyUnread, setOnlyUnread] = useState(false);
+  const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
+  const [labels, setLabels] = useState<{ id: string; name: string; color: string }[]>([]);
+  const [labelsLoading, setLabelsLoading] = useState(true);
+  const [labelSearch, setLabelSearch] = useState("");
+
+  // Function to load labels
+  const loadLabels = async () => {
+    setLabelsLoading(true);
+    try {
+      const response = await apiClient.listUserLabels();
+      setLabels(response.data.data);
+    } catch (err) {
+      console.error("Failed to load labels:", err);
+    } finally {
+      setLabelsLoading(false);
+    }
+  };
+
+  // Load labels on mount
+  React.useEffect(() => {
+    loadLabels();
+  }, []);
+
+  // Refresh labels when dropdown opens
+  const handleOpenChange = (_event: any, open: boolean) => {
+    if (open) {
+      loadLabels();
+      setLabelSearch(""); // Reset search when opening
+    }
+  };
+
+  const handleLabelToggle = (labelId: string) => {
+    const newSelectedLabels = selectedLabelIds.includes(labelId)
+      ? selectedLabelIds.filter((id) => id !== labelId)
+      : [...selectedLabelIds, labelId];
+    
+    setSelectedLabelIds(newSelectedLabels);
+    onChange({ 
+      onlyUnread, 
+      labelIds: newSelectedLabels.length > 0 ? newSelectedLabels : undefined 
+    });
+  };
+
+  // Filter labels based on search
+  const filteredLabels = labelSearch.trim() 
+    ? labels.filter(label => 
+        label.name.toLowerCase().includes(labelSearch.toLowerCase())
+      )
+    : labels;
+
+  const hasActiveFilters = onlyUnread || selectedLabelIds.length > 0;
+
 
   return (
-    <Dropdown>
+    <Dropdown onOpenChange={handleOpenChange}>
       <MenuButton slots={{ root: IconButton }}>
-        <Badge invisible={!onlyUnread}>
+        <Badge invisible={!hasActiveFilters}>
           <FilterAltOutlined />
         </Badge>
       </MenuButton>
@@ -310,7 +363,11 @@ function MessageFilter(props: {
         sx={{
           p: 2,
           gap: 1,
-          width: 250,
+          width: 280,
+          maxHeight: 300,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <Typography level="title-sm">Filters</Typography>
@@ -320,10 +377,85 @@ function MessageFilter(props: {
             checked={onlyUnread}
             onChange={(event) => {
               setOnlyUnread(event.target.checked);
-              onChange({ onlyUnread: event.target.checked });
+              onChange({ 
+                onlyUnread: event.target.checked, 
+                labelIds: selectedLabelIds.length > 0 ? selectedLabelIds : undefined 
+              });
             }}
           />
         </Sheet>
+        
+        {labels.length > 0 && (
+          <>
+            <Typography level="title-sm" sx={{ mt: 1 }}>Labels</Typography>
+            
+            {/* Search input */}
+            <Input
+              size="sm"
+              placeholder="Search labels..."
+              value={labelSearch}
+              onChange={(e) => setLabelSearch(e.target.value)}
+              startDecorator={<SearchRounded fontSize="small" />}
+              endDecorator={
+                labelSearch && (
+                  <IconButton
+                    size="sm"
+                    variant="plain"
+                    onClick={() => setLabelSearch("")}
+                  >
+                    <CloseRounded fontSize="small" />
+                  </IconButton>
+                )
+              }
+            />
+            
+            {/* Scrollable labels list */}
+            <Sheet 
+              sx={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                gap: 0.5,
+                maxHeight: 250,
+                overflowY: "auto",
+                pr: 0.5,
+              }}
+            >
+              {filteredLabels.length === 0 ? (
+                <Typography level="body-sm" sx={{ color: "text.tertiary", py: 2, textAlign: "center" }}>
+                  No labels found
+                </Typography>
+              ) : (
+                filteredLabels.map((label) => (
+                  <Checkbox
+                    key={label.id}
+                    label={
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: "50%",
+                            backgroundColor: label.color,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <Typography level="body-sm">{label.name}</Typography>
+                      </Box>
+                    }
+                    checked={selectedLabelIds.includes(label.id)}
+                    onChange={() => handleLabelToggle(label.id)}
+                  />
+                ))
+              )}
+            </Sheet>
+          </>
+        )}
+        
+        {labelsLoading && (
+          <Box sx={{ display: "flex", justifyContent: "center", p: 1 }}>
+            <CircularProgress size="sm" />
+          </Box>
+        )}
       </Menu>
     </Dropdown>
   );
@@ -335,39 +467,93 @@ export async function fetchChatsHelper(
   paginationState: PaginationState | undefined,
   filters: Filters,
 ) {
-  const newChatsRes = await twilioClient.getChats(filters.activeNumber, {
-    paginationState,
-    filters,
-    existingChatsId: existingChats.map((e) => e.chatId),
-  });
+  const TARGET_CHAT_COUNT = 10; // Target number of matching chats to fetch
+  const MAX_PAGES = 5; // Prevent infinite loops
+  
+  const allFetchedChats: ChatInfo[] = [];
+  const existingIds = new Set(existingChats.map(c => c.chatId));
+  let currentPaginationState = paginationState;
+  let pagesFetched = 0;
 
-  const newChats = newChatsRes.chats;
+  // Keep fetching pages until we have enough matching chats or run out of pages
+  while (
+    allFetchedChats.length < TARGET_CHAT_COUNT && 
+    pagesFetched < MAX_PAGES
+  ) {
+    const newChatsRes = await twilioClient.getChats(filters.activeNumber, {
+      paginationState: currentPaginationState,
+      filters,
+      existingChatsId: Array.from(existingIds),
+    });
 
-  // Apply unread status
-  const unreads = await twilioClient.hasUnread(filters.activeNumber, newChats);
-  newChats.forEach((c, i) => {
-    c.hasUnread = unreads[i];
-  });
+    const newChats = newChatsRes.chats;
+    currentPaginationState = newChatsRes.paginationState;
+    pagesFetched++;
 
-  if (newChats.length > 0) {
-    try {
-      const augmentations = await apiClient.getChats(newChats.map((c) => c.chatId));
-      for (const c of newChats) {
-        const found = augmentations.data.data.find((fc) => fc.chatCode === c.chatId);
-        if (found) {
-          // c.isDisabled = found.isDisabled;
-          c.isFlagged = found.isFlagged;
-          c.flaggedReason = found.flaggedReason;
-          c.flaggedMessage = found.flaggedMessage;
-          c.claimedBy = found.claimedBy;
-          c.enrichedData = found.enrichedData;
-          c.labels = found.labels;
+    if (newChats.length === 0) {
+      break; // No more chats available
+    }
+
+    // Apply unread status
+    const unreads = await twilioClient.hasUnread(filters.activeNumber, newChats);
+    newChats.forEach((c, i) => {
+      c.hasUnread = unreads[i];
+    });
+
+    // Augment with backend data (labels, flags, etc.)
+    if (newChats.length > 0) {
+      try {
+        const augmentations = await apiClient.getChats(
+          newChats.map((c) => c.chatId),
+          filters.labelIds
+        );
+        for (const c of newChats) {
+          const found = augmentations.data.data.find((fc) => fc.chatCode === c.chatId);
+          if (found) {
+            c.isFlagged = found.isFlagged;
+            c.flaggedReason = found.flaggedReason;
+            c.flaggedMessage = found.flaggedMessage;
+            c.claimedBy = found.claimedBy;
+            c.enrichedData = found.enrichedData;
+            c.labels = found.labels;
+          }
         }
+      } catch (err) {
+        // Continue even if augmentation fails
       }
-    } catch (err) {
-      return { chats: newChats };
+    }
+
+    // Filter by labels if needed
+    let chatsToAdd = newChats;
+    if (filters.labelIds && filters.labelIds.length > 0) {
+      chatsToAdd = newChats.filter(chat => {
+        if (!chat.labels || chat.labels.length === 0) return false;
+        const chatLabelIds = chat.labels.map(l => l.id);
+        return filters.labelIds!.some(labelId => chatLabelIds.includes(labelId));
+      });
+    }
+
+    // Add to accumulated chats (avoid duplicates)
+    for (const chat of chatsToAdd) {
+      if (!existingIds.has(chat.chatId)) {
+        allFetchedChats.push(chat);
+        existingIds.add(chat.chatId);
+      }
+    }
+
+    // If no more pages available, stop
+    if (!currentPaginationState?.hasMore) {
+      break;
+    }
+
+    // If no labels are filtered, we can stop after one page
+    if (!filters.labelIds || filters.labelIds.length === 0) {
+      break;
     }
   }
 
-  return newChatsRes;
+  return {
+    chats: allFetchedChats,
+    paginationState: currentPaginationState
+  };
 }
