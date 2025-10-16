@@ -335,39 +335,54 @@ export async function fetchChatsHelper(
   paginationState: PaginationState | undefined,
   filters: Filters,
 ) {
+
+  let beginningChats: ChatInfo[] = [];
+  const chatsWithFlagClaimUnfiltered = await apiClient.getChats({ isFlagged: true, isClaimed: true });
+  const chatsWithFlagClaim = chatsWithFlagClaimUnfiltered.data.data.filter((c) => !existingChats.some((e) => e.chatId === c.chatCode));
+  if (chatsWithFlagClaim.length > existingChats.length) {
+    const newChatsByIds = (await twilioClient.getChatsByIds(chatsWithFlagClaim.map((c) => c.chatCode))).filter(Boolean) as ChatInfo[];
+    beginningChats = mergeTwilioAndApiChats(newChatsByIds, chatsWithFlagClaim);
+    existingChats.push(...beginningChats);
+  }
+
   const newChatsRes = await twilioClient.getChats(filters.activeNumber, {
     paginationState,
     filters,
     existingChatsId: existingChats.map((e) => e.chatId),
+    chatsPageSize: beginningChats.length > 0 ? Math.max(1, 10 - beginningChats.length) : 10,
   });
 
-  const newChats = newChatsRes.chats;
+  const newTwilioChats = newChatsRes.chats;
+
+  if (!newTwilioChats.length) {
+    return { ...newChatsRes, chats: beginningChats };
+  }
 
   // Apply unread status
-  const unreads = await twilioClient.hasUnread(filters.activeNumber, newChats);
-  newChats.forEach((c, i) => {
+  const unreads = await twilioClient.hasUnread(filters.activeNumber, newTwilioChats);
+  newTwilioChats.forEach((c, i) => {
     c.hasUnread = unreads[i];
   });
 
-  if (newChats.length > 0) {
-    try {
-      const augmentations = await apiClient.getChats(newChats.map((c) => c.chatId));
-      for (const c of newChats) {
-        const found = augmentations.data.data.find((fc) => fc.chatCode === c.chatId);
-        if (found) {
-          // c.isDisabled = found.isDisabled;
-          c.isFlagged = found.isFlagged;
-          c.flaggedReason = found.flaggedReason;
-          c.flaggedMessage = found.flaggedMessage;
-          c.claimedBy = found.claimedBy;
-          c.enrichedData = found.enrichedData;
-          c.labels = found.labels;
-        }
-      }
-    } catch (err) {
-      return { chats: newChats };
-    }
+  let augmentations: Awaited<ReturnType<typeof apiClient.getChats>>;
+  try {
+    augmentations = await apiClient.getChats({ chatsOfInterest: newTwilioChats.map((c) => c.chatId) });
+  } catch (err) {
+    return { chats: [...beginningChats, ...newTwilioChats] };
   }
 
-  return newChatsRes;
+  newChatsRes.chats = mergeTwilioAndApiChats(newTwilioChats, augmentations.data.data);
+
+  return { ...newChatsRes, chats: [...beginningChats, ...newChatsRes.chats] };
+}
+
+function mergeTwilioAndApiChats(twilioChats: ChatInfo[], apiChats: Awaited<ReturnType<typeof apiClient.getChats>>["data"]["data"]) {
+  const mergedChats = [...twilioChats];
+  for (const c of mergedChats) {
+    const found = apiChats.find((fc) => c.chatId === fc.chatCode);
+    if (found) {
+      Object.assign(c, found);
+    }
+  }
+  return mergedChats;
 }

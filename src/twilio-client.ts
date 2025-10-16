@@ -54,6 +54,10 @@ class TwilioClient {
         return this.contactsService.getChats(activeNumber, opts);
     }
 
+    async getChatsByIds(chatIds: string[]) {
+        return this.contactsService.getChatsByIds(chatIds);
+    }
+
     async getMessages(activeNumber: string, contactNumber: string) {
         return this.messagesService.getMessages(activeNumber, contactNumber);
     }

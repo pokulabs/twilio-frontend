@@ -34,8 +34,8 @@ export function useNewMessageListener(
             };
 
             try {
-                const flagged = await apiClient.getChats([chatId]);
-                const match = flagged.data.data.find(
+                const augmentations = await apiClient.getChats({ chatsOfInterest: [chatId] });
+                const match = augmentations.data.data.find(
                     (e) => e.chatCode === chatId,
                 );
                 if (match) {

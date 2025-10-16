@@ -135,7 +135,7 @@ class ApiClient {
         return this.api.delete(`/agents/${id}`);
     }
 
-    async getChats(chatsOfInterest: string[]) {
+    async getChats(filters: { chatsOfInterest?: string[]; isFlagged?: boolean; isClaimed?: boolean; } = {}) {
         return this.api.get<{
             data: {
                 chatCode: string;
@@ -156,9 +156,7 @@ class ApiClient {
                 }[];
             }[];
         }>("/chats", {
-            params: {
-                chatsOfInterest: chatsOfInterest,
-            },
+            params: { ...filters },
             paramsSerializer: {
                 indexes: true,
             },
