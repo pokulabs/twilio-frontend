@@ -54,15 +54,7 @@ function useSubscribeWs(
     updater: ((prevChats: ChatInfo[]) => ChatInfo[]) | ChatInfo[],
   ) => void,
 ) {
-  useWebsocketEvents("flag-update", (payload) => {
-    setChats((prevChats) => {
-      return prevChats.map((c) =>
-        c.chatId === payload.chatCode ? { ...c, ...payload } : c,
-      );
-    });
-  });
-
-  useWebsocketEvents("claim-update", (payload) => {
+  useWebsocketEvents("chat-update", (payload) => {
     setChats((prevChats) => {
       return prevChats.map((c) =>
         c.chatId === payload.chatCode ? { ...c, ...payload } : c,
