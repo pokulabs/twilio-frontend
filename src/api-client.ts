@@ -35,6 +35,18 @@ class ApiClient {
                 signal: controller.signal,
             };
         });
+
+        // Add response interceptor to handle abort errors
+        this.api.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                // Check if the error is due to request abortion
+                if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
+                    return Promise.resolve({ data: undefined });
+                }
+                return Promise.reject(error);
+            }
+        );
     }
 
     async getTwilioCreds() {
@@ -77,7 +89,7 @@ class ApiClient {
         waitTime: number,
         medium: Medium,
     ) {
-        return this.api.post<{ id: string; }>("/account", {
+        return this.api.post<{ id: string; } | undefined>("/account", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
@@ -96,7 +108,7 @@ class ApiClient {
                 webhookUrl?: string;
                 validTime?: string;
             }[];
-        }>("/account");
+        } | undefined>("/account");
     }
 
     async getAccountLimits() {
@@ -104,7 +116,7 @@ class ApiClient {
             haatMessageCount: number;
             lastReset: Date | undefined;
             haatMessageLimit: number;
-        }>("/account/limits");
+        } | undefined>("/account/limits");
     }
 
     async deleteInteractionChannel(interactionChannelId: string) {
@@ -118,7 +130,7 @@ class ApiClient {
                 prompt: string;
                 messageDirection: MessageDirection;
             }[];
-        }>("/agents");
+        } | undefined>("/agents");
     }
 
     async createAgent(params: {
@@ -135,7 +147,7 @@ class ApiClient {
         return this.api.delete(`/agents/${id}`);
     }
 
-    async getChats(chatsOfInterest: string[]) {
+    async getChats(filters: { chatsOfInterest?: string[]; isFlagged?: boolean; isClaimed?: boolean; } = {}) {
         return this.api.get<{
             data: {
                 chatCode: string;
@@ -155,10 +167,8 @@ class ApiClient {
                     name: string;
                 }[];
             }[];
-        }>("/chats", {
-            params: {
-                chatsOfInterest: chatsOfInterest,
-            },
+        } | undefined>("/chats", {
+            params: { ...filters },
             paramsSerializer: {
                 indexes: true,
             },
@@ -187,13 +197,13 @@ class ApiClient {
     }
 
     async getChatLabels(chatId: string) {
-        return this.api.get<{ data: { id: string; name: string; color: string }[] }>(
+        return this.api.get<{ data: { id: string; name: string; color: string }[] } | undefined>(
             `/chats/${chatId}/labels`,
         );
     }
 
     async createLabel(name: string, color: string) {
-        return this.api.post<{ id: string; name: string; color: string }>(
+        return this.api.post<{ id: string; name: string; color: string } | undefined>(
           "/user-settings/labels",
           { name, color },
         );

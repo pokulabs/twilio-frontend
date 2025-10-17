@@ -26,7 +26,9 @@ export default function DecisionAgent(props: { hasLlmKey: boolean }) {
   useEffect(() => {
     const fetch = async () => {
       const res = await apiClient.getAgents();
-      setAgents(res.data.data);
+      if (res.data) {
+        setAgents(res.data.data);
+      }
     };
 
     fetch();

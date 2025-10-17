@@ -64,6 +64,16 @@ export function toggleMessagesPane() {
 export function makeChatId(activeNumber: string, contactNumber: string) {
     return activeNumber + contactNumber;
 }
+export function parseChatId(chatId: string) {
+    let [_, activeNumber, contactNumber] = chatId.split("+");
+    activeNumber = "+" + activeNumber;
+    contactNumber = "+" + contactNumber;
+
+    return {
+        activeNumber,
+        contactNumber,
+    };
+}
 
 export function displayDynamicDateTime(d: Date) {
     const now = new Date();

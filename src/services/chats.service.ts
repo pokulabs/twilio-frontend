@@ -1,4 +1,4 @@
-import { makeChatId } from "../utils.ts";
+import { makeChatId, parseChatId } from "../utils.ts";
 import TwilioRawClient from "./twilio-raw-client.ts";
 import { storage } from "../storage.ts";
 
@@ -15,7 +15,7 @@ export type PaginationState = {
 export type GetChatsOptions = {
     existingChatsId?: string[];
     chatsPageSize?: number;
-    filters?: Filters;
+    filters?: Pick<Filters, "onlyUnread">;
     paginationState?: PaginationState;
 };
 
@@ -63,6 +63,15 @@ export class ContactsService {
             inbound.items[0],
         );
         return this.createChatInfo(activeNumber, moreRecentMsg);
+    }
+
+    getChatsByIds(chatIds: string[]) {
+        return Promise.all(
+            chatIds.map(chatId => {
+                const { activeNumber, contactNumber } = parseChatId(chatId);
+                return this.getChat(activeNumber, contactNumber);
+            })
+        );
     }
 
     async getChats(

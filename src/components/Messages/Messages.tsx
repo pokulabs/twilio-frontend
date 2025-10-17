@@ -6,7 +6,6 @@ import ChatsPane from "./ChatsPane";
 import NewMessagesPane from "./NewMessagePane";
 import withTwilio from "../../context/withTwilio";
 import { useWebsocketEvents } from "../../hooks/use-websocket-events";
-import { useSortedChats } from "../../hooks/use-sorted-chats";
 
 import type { ChatInfo } from "../../types";
 import { Filters } from "../../services/chats.service";
@@ -18,7 +17,7 @@ function MessagesLayout() {
   const [filters, setFilters] = useState<Filters>({
     activeNumber: phoneNumbers[0],
   });
-  const [chats, setChats] = useSortedChats([]);
+  const [chats, setChats] = useState<ChatInfo[]>([]);
 
   const selectedChat = chats.find((c) => c.chatId === selectedChatId) ?? null;
 
