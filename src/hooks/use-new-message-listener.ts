@@ -33,15 +33,13 @@ export function useNewMessageListener(
                 recentMsgDirection: msg.direction,
             };
 
-            try {
-                const augmentations = await apiClient.getChats({ chatsOfInterest: [chatId] });
-                const match = augmentations.data.data.find(
-                    (e) => e.chatCode === chatId,
-                );
-                if (match) {
-                    Object.assign(newChat, match);
-                }
-            } catch {}
+            const augmentations = await apiClient.getChats({ chatsOfInterest: [chatId] });
+            const match = augmentations.data && augmentations.data.data.find(
+                (e) => e.chatCode === chatId,
+            );
+            if (match) {
+                Object.assign(newChat, match);
+            }
 
             setChats((prev) => {
                 const index = prev.findIndex((c) => c.chatId === chatId);

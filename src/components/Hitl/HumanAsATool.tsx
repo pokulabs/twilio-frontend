@@ -78,8 +78,10 @@ export default function HumanAsATool() {
     const fetchData = async () => {
       try {
         const limits = await apiClient.getAccountLimits();
-        setHaatMessageCount(limits.data.haatMessageCount);
-        setHaatMessageLimit(limits.data.haatMessageLimit);
+        if (limits.data) {
+          setHaatMessageCount(limits.data.haatMessageCount);
+          setHaatMessageLimit(limits.data.haatMessageLimit);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -491,12 +493,14 @@ function MediumSelector({
 
 const ListInteractionChannels = forwardRef((_props, ref) => {
   const [ics, setIcs] = useState<
-    Awaited<ReturnType<typeof apiClient.getInteractionChannels>>["data"]["data"]
+    NonNullable<Awaited<ReturnType<typeof apiClient.getInteractionChannels>>["data"]>["data"]
   >([]);
 
   const getIcs = async () => {
     const interactionChannels = await apiClient.getInteractionChannels();
-    setIcs(interactionChannels.data.data);
+    if (interactionChannels.data) {
+      setIcs(interactionChannels.data.data);
+    }
   };
 
   useEffect(() => {

@@ -118,11 +118,13 @@ export default function NotesLabelsModal(props: {
       } else if (selectedColor) {
         const name = newLabelName.trim() || colorNameFromHex(selectedColor);
         const created = await apiClient.createLabel(name, selectedColor);
-        const newLabel = created.data; // { id, name, color }
-        setAllLabels((prev) =>
-          prev.some((l) => l.id === newLabel.id) ? prev : [...prev, newLabel]
-        );
-        await apiClient.assignLabelToChat(chat.chatId, newLabel.id);
+        if (created.data) {
+          const newLabel = created.data; // { id, name, color }
+          setAllLabels((prev) =>
+            prev.some((l) => l.id === newLabel.id) ? prev : [...prev, newLabel]
+          );
+          await apiClient.assignLabelToChat(chat.chatId, newLabel.id);
+        }
       }
       await refreshAssigned();
       setExistingLabelId(null);
