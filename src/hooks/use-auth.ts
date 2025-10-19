@@ -30,6 +30,21 @@ export function useAuth() {
                     await authClient.organization.setActive({
                         organizationId: orgs.data[0].id,
                     });
+                    const orgMember = await authClient.organization.getActiveMember();
+                    if (orgMember.data?.role) {
+                        setOrgMemberRole(orgMember.data.role as "admin" | "member" | "owner");
+                    }
+        
+                    const fullOrg = await authClient.organization.getFullOrganization();
+                    if (fullOrg.data) {
+                        const memberList = fullOrg.data.members.map(e => {
+                            return {
+                                email: e.user.email,
+                                id: (e.user as any).id,
+                            };
+                        });
+                        setOrgMembers(memberList);
+                    }
                 }
             }
     
@@ -40,22 +55,6 @@ export function useAuth() {
             });
             if (hasPermission.data?.success) {
                 setIsAdmin(true);
-            }
-    
-            const orgMember = await authClient.organization.getActiveMember();
-            if (orgMember.data?.role) {
-                setOrgMemberRole(orgMember.data.role as "admin" | "member" | "owner");
-            }
-
-            const fullOrg = await authClient.organization.getFullOrganization();
-            if (fullOrg.data) {
-                const memberList = fullOrg.data.members.map(e => {
-                    return {
-                        email: e.user.email,
-                        id: (e.user as any).id,
-                    };
-                });
-                setOrgMembers(memberList);
             }
         };
 
