@@ -294,6 +294,13 @@ class ApiClient {
             assignee: assigneeUserId,
         });
     }
+
+    async sendDemoMessage(message: string, phoneNumber: string) {
+        return this.api.post("/playground/chat", {
+            message,
+            phoneNumber,
+        });
+    }
 }
 
 export const apiClient = new ApiClient();

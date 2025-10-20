@@ -37,15 +37,9 @@ function Account() {
           </Typography>
 
           <Stack sx={{ mt: "auto" }}>
-            {isAuthenticated ? (
-              <Button variant="outlined" component={Link} to="/hitl">
-                Human Intervention
-              </Button>
-            ) : (
-              <Button component={Link} to="/login?redirect=%2Fhitl">
-                Login
-              </Button>
-            )}
+            <Button variant="outlined" component={Link} to="/hitl">
+              Human-in-the-Loop
+            </Button>
           </Stack>
         </Card>
 
@@ -72,6 +66,15 @@ function Account() {
           </Button>
         </Card>
       </Stack>
+
+      {!isAuthenticated && (
+        <>
+          <Typography sx={{ textAlign: "center" }}>Or</Typography>
+          <Button component={Link} to="/login">
+            Login
+          </Button>
+        </>
+      )}
 
       <Divider />
 

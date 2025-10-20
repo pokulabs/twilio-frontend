@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import {
@@ -22,9 +23,9 @@ import {
   LogoutRounded,
   DescriptionRounded,
   SportsMartialArtsRounded,
-  CampaignRounded,
   Email,
   LocalPoliceRounded,
+  KeyboardArrowDown,
 } from "@mui/icons-material";
 
 import logo from "../assets/logo.png";
@@ -32,6 +33,37 @@ import slack from "../assets/slack.png";
 import ColorSchemeToggle from "./Messages/ColorSchemeToggle";
 import { closeSidebar, GITHUB_LINK, SLACK_LINK } from "../utils";
 import { useAuth } from "../hooks/use-auth";
+
+function Toggler(props: {
+  defaultExpanded?: boolean;
+  children: React.ReactNode;
+  renderToggle: (params: {
+    open: boolean;
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  }) => React.ReactNode;
+}) {
+  const { defaultExpanded = false, renderToggle, children } = props;
+  const [open, setOpen] = React.useState(defaultExpanded);
+  return (
+    <React.Fragment>
+      {renderToggle({ open, setOpen })}
+      <Box
+        sx={[
+          {
+            display: 'grid',
+            transition: '0.2s ease',
+            '& > *': {
+              overflow: 'hidden',
+            },
+          },
+          open ? { gridTemplateRows: '1fr' } : { gridTemplateRows: '0fr' },
+        ]}
+      >
+        {children}
+      </Box>
+    </React.Fragment>
+  );
+}
 
 export default function Sidebar() {
   const location = useLocation();
@@ -112,29 +144,49 @@ export default function Sidebar() {
             "--ListItem-radius": (theme) => theme.vars.radius.sm,
           }}
         >
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/messages"
-              selected={location.pathname === "/messages"}
+          <ListItem nested>
+            <Toggler
+              renderToggle={({ open, setOpen }) => (
+                <ListItemButton onClick={() => setOpen(!open)}>
+                  <QuestionAnswerRounded />
+                  <ListItemContent>
+                    <Typography level="title-sm">Inbox</Typography>
+                  </ListItemContent>
+                  <KeyboardArrowDown
+                    sx={[
+                      open
+                        ? {
+                            transform: 'rotate(180deg)',
+                          }
+                        : {
+                            transform: 'none',
+                          },
+                    ]}
+                  />
+                </ListItemButton>
+              )}
             >
-              <QuestionAnswerRounded />
-              <ListItemContent>
-                <Typography level="title-sm">Messages</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/campaigns"
-              selected={location.pathname === "/campaigns"}
-            >
-              <CampaignRounded />
-              <ListItemContent>
-                <Typography level="title-sm">Campaigns</Typography>
-              </ListItemContent>
-            </ListItemButton>
+              <List sx={{ gap: 0.5 }}>
+                <ListItem sx={{ mt: 0.5 }}>
+                  <ListItemButton
+                    component={Link}
+                    to="/messages"
+                    selected={location.pathname === "/messages"}
+                  >
+                    Messages
+                  </ListItemButton>
+                </ListItem>
+                <ListItem>
+                  <ListItemButton
+                    component={Link}
+                    to="/campaigns"
+                    selected={location.pathname === "/campaigns"}
+                  >
+                    Campaigns
+                  </ListItemButton>
+                </ListItem>
+              </List>
+            </Toggler>
           </ListItem>
           <ListItem>
             <ListItemButton
@@ -156,7 +208,7 @@ export default function Sidebar() {
             >
               <SportsMartialArtsRounded />
               <ListItemContent>
-                <Typography level="title-sm">Human Intervention</Typography>
+                <Typography level="title-sm">Human-in-the-Loop</Typography>
               </ListItemContent>
             </ListItemButton>
           </ListItem>

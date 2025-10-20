@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { apiClient } from "../../api-client";
 import DecisionAgent from "./Agent";
 import LlmKey from "./LlmKey";
+import withLoggedIn from "../../context/withLoggedIn";
 
-export default function Flagging() {
+function Flagging() {
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
@@ -22,3 +23,5 @@ export default function Flagging() {
     </>
   );
 }
+
+export default withLoggedIn(Flagging);

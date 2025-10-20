@@ -29,6 +29,7 @@ import { ContentCopy, DeleteOutline, Send } from "@mui/icons-material";
 import slack from "../../assets/slack-color.png";
 import whatsapp from "../../assets/whatsapp.png";
 import sms from "../../assets/sms.jpeg";
+import withLoggedIn from "../../context/withLoggedIn";
 
 type UiChannel = "slack" | "whatsapp" | "sms";
 
@@ -48,7 +49,7 @@ function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium {
   }
 }
 
-export default function HumanAsATool() {
+function HumanAsATool() {
   const { phoneNumbers, whatsappNumbers, isAuthenticated: hasTwilioCreds, sid, authToken } = useTwilio();
 
   const [agentNumber, setAgentNumber] = useState("");
@@ -612,3 +613,5 @@ const ListInteractionChannels = forwardRef((_props, ref) => {
     </Stack>
   );
 });
+
+export default withLoggedIn(HumanAsATool);

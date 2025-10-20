@@ -9,9 +9,9 @@ import {
   Typography,
 } from "@mui/joy";
 
-import withLoggedIn from "../../context/withLoggedIn";
 import HumanAsATool from "./HumanAsATool";
 import Flagging from "./Flagging";
+import TryIt from "./TryIt";
 
 function Hitl() {
   return (
@@ -47,13 +47,19 @@ function Hitl() {
             }}
           >
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={0}>
-              Human in the Loop
+              Try it
             </Tab>
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={1}>
+              Configure
+            </Tab>
+            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
               Flagging
             </Tab>
           </TabList>
           <TabPanel value={0}>
+            <TryIt />
+          </TabPanel>
+          <TabPanel value={1}>
             <Box
               sx={{
                 display: "flex",
@@ -67,7 +73,7 @@ function Hitl() {
               <HumanAsATool />
             </Box>
           </TabPanel>
-          <TabPanel value={1}>
+          <TabPanel value={2}>
             <Box
               sx={{
                 display: "flex",
@@ -112,4 +118,4 @@ function Hitl() {
   );
 }
 
-export default withLoggedIn(Hitl);
+export default Hitl;
