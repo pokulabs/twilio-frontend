@@ -147,8 +147,8 @@ class ApiClient {
         return this.api.delete(`/agents/${id}`);
     }
 
-    async getChats(filters: { chatsOfInterest?: string[]; isFlagged?: boolean; isClaimed?: boolean; } = {}) {
-        return this.api.get<{
+    async getChats(filters: { chatsOfInterest?: string[]; isFlagged?: boolean; isClaimed?: boolean; labelIds?: string[] } = {}) {
+        return this.api.post<{
             data: {
                 chatCode: string;
                 isDisabled: boolean;
@@ -167,12 +167,7 @@ class ApiClient {
                     name: string;
                 }[];
             }[];
-        } | undefined>("/chats", {
-            params: { ...filters },
-            paramsSerializer: {
-                indexes: true,
-            },
-        });
+        } | undefined>("/chats", filters);
     }
 
     async resolveChat(chatId: string) {
@@ -191,7 +186,7 @@ class ApiClient {
 
     // Labels APIs
     async listUserLabels() {
-        return this.api.get<{ data: { id: string; name: string; color: string }[] }>(
+        return this.api.get<{ data: { id: string; name: string; color: string }[] } | undefined>(
             "/user-settings/labels",
         );
     }

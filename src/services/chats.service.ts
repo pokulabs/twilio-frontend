@@ -15,7 +15,7 @@ export type PaginationState = {
 export type GetChatsOptions = {
     existingChatsId?: string[];
     chatsPageSize?: number;
-    filters?: Pick<Filters, "onlyUnread">;
+    onlyUnread?: boolean;
     paginationState?: PaginationState;
 };
 
@@ -23,6 +23,7 @@ export type Filters = {
     search?: string;
     onlyUnread?: boolean;
     activeNumber: string;
+    labelIds?: string[];
 };
 
 type GetChatsResult = {
@@ -161,7 +162,7 @@ export class ContactsService {
                 }
             }
 
-            if (opts.filters?.onlyUnread) {
+            if (opts.onlyUnread) {
                 const unread = await this.filterToUnread(
                     activeNumber,
                     newlyAddedChats,
