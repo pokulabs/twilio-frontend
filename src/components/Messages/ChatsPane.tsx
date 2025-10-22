@@ -26,7 +26,7 @@ import {
 } from "@mui/icons-material";
 
 import ChatListItem from "./ChatListItem";
-import { toggleMessagesPane } from "../../utils";
+import { parseChatId, toggleMessagesPane } from "../../utils";
 import { useAuthedTwilio } from "../../context/TwilioProvider";
 
 import type { ChatInfo } from "../../types";
@@ -338,11 +338,14 @@ export async function fetchChatsHelper(
 
   let priorityChats: ChatInfo[] = [];
   const chatsWithFlagClaim = await apiClient.getChats({ isFlagged: true, isClaimed: true });
+  const relevantChats = chatsWithFlagClaim.data?.data.filter((c) => {
+    if (!filters.activeNumber) return true;
+    return parseChatId(c.chatCode).activeNumber === filters.activeNumber;
+  });
 
-  // const chatsWithFlagClaim = chatsWithFlagClaimUnfiltered.data.data.filter((c) => !existingChats.some((e) => e.chatId === c.chatCode)); // not needed bc some reason
-  if (chatsWithFlagClaim.data && chatsWithFlagClaim.data.data.length) {
-    const newChatsByIds = (await twilioClient.getChatsByIds(chatsWithFlagClaim.data.data.map((c) => c.chatCode))).filter(Boolean) as ChatInfo[];
-    priorityChats = mergeTwilioAndApiChats(newChatsByIds, chatsWithFlagClaim.data.data);
+  if (relevantChats?.length) {
+    const newChatsByIds = (await twilioClient.getChatsByIds(relevantChats.map((c) => c.chatCode))).filter(Boolean) as ChatInfo[];
+    priorityChats = mergeTwilioAndApiChats(newChatsByIds, relevantChats);
     existingChats.push(...priorityChats);
   }
 
