@@ -83,17 +83,21 @@ class ApiClient {
         });
     }
 
-    async saveAccount(
+    async createInteractionChannel(
         humanNumber: string,
         agentNumber: string,
         waitTime: number,
         medium: Medium,
+        webhook?: string,
+        validTime?: number,
     ) {
         return this.api.post<{ id: string; } | undefined>("/account", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
             medium: medium,
+            webhook: webhook,
+            validTime: validTime,
         });
     }
 
@@ -105,7 +109,7 @@ class ApiClient {
                 agentNumber: string;
                 waitTime: number;
                 medium: Medium;
-                webhookUrl?: string;
+                webhook?: string;
                 validTime?: string;
             }[];
         } | undefined>("/account");

@@ -89,11 +89,11 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                 <Typography level="body-sm">
                   Wait time: {e.waitTime} seconds
                 </Typography>
-                {e.webhookUrl && <Typography level="body-sm">
-                  Webhook URL: {e.webhookUrl} seconds
+                {e.webhook && <Typography level="body-sm">
+                  Webhook URL: {e.webhook} seconds
                 </Typography>}
                 {e.validTime && <Typography level="body-sm">
-                  Valid time: {e.validTime} seconds
+                  Follow-up time: {e.validTime} seconds
                 </Typography>}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Typography level="body-sm">

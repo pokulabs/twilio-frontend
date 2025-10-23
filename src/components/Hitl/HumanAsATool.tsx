@@ -4,12 +4,12 @@ import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import withLoggedIn from "../../context/withLoggedIn";
 import { ListInteractionChannels } from "./ListInteractionChannels";
-import { Usage } from "../shared/Usage";
 import { MediumSelector } from "./MediumSelector";
 import { SmsInput } from "./SmsInput";
 import { SlackInput } from "./SlackInput";
 import { WhatsappInput } from "./WhatsappInput";
 import { WaitTimeInput } from "./WaitTimeInput";
+import { AdvancedOptions } from "./AdvancedOptions";
 import type { Medium } from "../../types";
 
 
@@ -53,6 +53,10 @@ function HumanAsATool() {
     setHumanNumbers((prev) => ({ ...prev, [uiChannel]: val }));
   };
 
+  // Advanced options values lifted here
+  const [webhook, setWebhook] = useState<string | undefined>(undefined);
+  const [validTimeSeconds, setValidTimeSeconds] = useState<number | undefined>(undefined);
+
   const listRef = useRef<{ reload: () => void }>(null);
 
   // Usage information is displayed via the shared <Usage /> component
@@ -60,11 +64,13 @@ function HumanAsATool() {
   const handleSave = async () => {
     setSaveStatus("saving");
     try {
-      await apiClient.saveAccount(
+      await apiClient.createInteractionChannel(
         currentHumanNumber,
         usingOwnTwilio ? agentNumber : hostedAgentNumber,
         waitTime,
         mapUiChannelToMedium(uiChannel, usingOwnTwilio),
+        uiChannel !== "slack" ? webhook : undefined,
+        uiChannel !== "slack" ? validTimeSeconds : undefined,
       );
       listRef.current?.reload(); // refresh the list
 
@@ -106,6 +112,14 @@ function HumanAsATool() {
         )}
 
         <WaitTimeInput value={waitTime} onChange={(val) => setWaitTime(val)} />
+
+        {(uiChannel === "sms" || uiChannel === "whatsapp") && (
+          <AdvancedOptions
+            webhook={webhook}
+            setWebhook={setWebhook}
+            setValidTimeSeconds={setValidTimeSeconds}
+          />
+        )}
 
         <Stack gap={1}>
           <Button
