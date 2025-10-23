@@ -1,6 +1,15 @@
-import { Box, Divider, Input, Option, Select, Stack, Typography } from "@mui/joy";
+import {
+  Box,
+  Divider,
+  Input,
+  Option,
+  Select,
+  Stack,
+  Typography,
+} from "@mui/joy";
 import { KeyboardArrowDown, KeyboardArrowRight } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
+import { InfoTooltip } from "../shared/InfoTooltip";
 
 type TimeUnit = "seconds" | "minutes" | "hours" | "days";
 
@@ -10,7 +19,11 @@ export type AdvancedOptionsProps = {
   setValidTimeSeconds: (val: number | undefined) => void;
 };
 
-export function AdvancedOptions({ webhook, setWebhook, setValidTimeSeconds }: AdvancedOptionsProps) {
+export function AdvancedOptions({
+  webhook,
+  setWebhook,
+  setValidTimeSeconds,
+}: AdvancedOptionsProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [currentUnit, setCurrentUnit] = useState<TimeUnit>("minutes");
   const [amount, setAmount] = useState("");
@@ -37,7 +50,12 @@ export function AdvancedOptions({ webhook, setWebhook, setValidTimeSeconds }: Ad
     <Box>
       <Box
         onClick={() => setShowAdvanced((s) => !s)}
-        sx={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 0.5 }}
+        sx={{
+          cursor: "pointer",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 0.5,
+        }}
       >
         {showAdvanced ? (
           <KeyboardArrowDown fontSize="small" />
@@ -49,17 +67,20 @@ export function AdvancedOptions({ webhook, setWebhook, setValidTimeSeconds }: Ad
       {showAdvanced && (
         <Stack gap={1.5} sx={{ mt: 1 }}>
           <Box>
-            <Typography level="body-sm" sx={{ mb: 0.5 }}>
-              Webhook URL (optional)
-            </Typography>
-            <Input
-              placeholder="https://cloud.n8n.com/webhook/a0e934fe-5920-49f1-8821-1b7ffc312573"
-              value={webhook || ""}
-              onChange={(e) => setWebhook(e.target.value || undefined)}
-            />
-          </Box>
-          <Box>
-            <Typography level="body-sm" sx={{ mb: 0.5 }}>
+            <Typography
+              level="body-sm"
+              sx={{ mb: 0.5 }}
+              endDecorator={
+                <InfoTooltip
+                  title={
+                    <Typography>
+                      After the tool call timeout expires, the AI agent will
+                      wait for a response from the human for this duration.
+                    </Typography>
+                  }
+                />
+              }
+            >
               Follow-up time (optional)
             </Typography>
             <Input
@@ -90,6 +111,28 @@ export function AdvancedOptions({ webhook, setWebhook, setValidTimeSeconds }: Ad
               }
             />
           </Box>
+          <Box>
+            <Typography
+              level="body-sm"
+              sx={{ mb: 0.5 }}
+              endDecorator={
+                <InfoTooltip
+                  title={
+                    <Typography>
+                      The human's response will be sent to this webhook URL.
+                    </Typography>
+                  }
+                />
+              }
+            >
+              Webhook URL (optional)
+            </Typography>
+            <Input
+              placeholder="https://cloud.n8n.com/webhook/a0e934fe-5920-49f1-8821-1b7ffc312573"
+              value={webhook || ""}
+              onChange={(e) => setWebhook(e.target.value || undefined)}
+            />
+          </Box>
         </Stack>
       )}
     </Box>
@@ -97,5 +140,3 @@ export function AdvancedOptions({ webhook, setWebhook, setValidTimeSeconds }: Ad
 }
 
 export default AdvancedOptions;
-
-

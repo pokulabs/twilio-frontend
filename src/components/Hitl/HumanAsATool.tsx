@@ -12,10 +12,12 @@ import { WaitTimeInput } from "./WaitTimeInput";
 import { AdvancedOptions } from "./AdvancedOptions";
 import type { Medium } from "../../types";
 
-
 export type UiChannel = "slack" | "whatsapp" | "sms";
 
-export function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium {
+export function mapUiChannelToMedium(
+  uc: UiChannel,
+  ownTwilio: boolean,
+): Medium {
   if (uc === "slack") {
     return uc;
   } else if (uc === "whatsapp") {
@@ -32,7 +34,13 @@ export function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium 
 }
 
 function HumanAsATool() {
-  const { phoneNumbers, whatsappNumbers, isAuthenticated: hasTwilioCreds, sid, authToken } = useTwilio();
+  const {
+    phoneNumbers,
+    whatsappNumbers,
+    isAuthenticated: hasTwilioCreds,
+    sid,
+    authToken,
+  } = useTwilio();
 
   const [agentNumber, setAgentNumber] = useState("");
   const [hostedAgentNumber] = useState("+16286001841");
@@ -55,7 +63,9 @@ function HumanAsATool() {
 
   // Advanced options values lifted here
   const [webhook, setWebhook] = useState<string | undefined>(undefined);
-  const [validTimeSeconds, setValidTimeSeconds] = useState<number | undefined>(undefined);
+  const [validTimeSeconds, setValidTimeSeconds] = useState<number | undefined>(
+    undefined,
+  );
 
   const listRef = useRef<{ reload: () => void }>(null);
 
@@ -84,9 +94,11 @@ function HumanAsATool() {
   };
 
   return (
-    <Box sx={{
-      maxWidth: 782,
-    }}>
+    <Box
+      sx={{
+        maxWidth: 782,
+      }}
+    >
       <Stack spacing={3} sx={{ mt: 2 }}>
         <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} />
 
@@ -146,7 +158,6 @@ function HumanAsATool() {
 
         <ListInteractionChannels ref={listRef} />
       </Stack>
-
     </Box>
   );
 }

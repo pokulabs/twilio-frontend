@@ -40,7 +40,7 @@ export function Usage() {
                   {messageLimit} free msgs/month
                 </Typography>
                 <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
-                  To increase please fund your account {" "}
+                  To increase please fund your account{" "}
                   <a
                     href="https://buy.stripe.com/28E5kF3XMfPh8Cv6PKeEo01"
                     target="_blank"
@@ -59,5 +59,3 @@ export function Usage() {
     </Box>
   );
 }
-
-

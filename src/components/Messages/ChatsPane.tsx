@@ -302,8 +302,16 @@ function MessageFilter(props: {
 }) {
   const { onChange } = props;
   const [onlyUnread, setOnlyUnread] = useState(false);
-  const [filterableLabels, setFilterableLabels] = useState<NonNullable<Awaited<ReturnType<typeof apiClient.listUserLabels>>["data"]>["data"]>([]);
-  const [selectedLabelIds, setSelectedLabelIds] = useState<NonNullable<Awaited<ReturnType<typeof apiClient.listUserLabels>>["data"]>["data"]>([]);
+  const [filterableLabels, setFilterableLabels] = useState<
+    NonNullable<
+      Awaited<ReturnType<typeof apiClient.listUserLabels>>["data"]
+    >["data"]
+  >([]);
+  const [selectedLabelIds, setSelectedLabelIds] = useState<
+    NonNullable<
+      Awaited<ReturnType<typeof apiClient.listUserLabels>>["data"]
+    >["data"]
+  >([]);
 
   useEffect(() => {
     const fetchLabels = async () => {
@@ -334,7 +342,10 @@ function MessageFilter(props: {
             checked={onlyUnread}
             onChange={(event) => {
               setOnlyUnread(event.target.checked);
-              onChange({ onlyUnread: event.target.checked, labelIds: selectedLabelIds.map((id) => id.id) });
+              onChange({
+                onlyUnread: event.target.checked,
+                labelIds: selectedLabelIds.map((id) => id.id),
+              });
             }}
           />
         </Sheet>
@@ -349,14 +360,11 @@ function MessageFilter(props: {
           disableCloseOnSelect
           noOptionsText="No labels found"
           options={filterableLabels}
-          getOptionLabel={option => option.name}
+          getOptionLabel={(option) => option.name}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           placeholder="Label(s) to filter by"
           renderOption={(props, option) => (
-            <AutocompleteOption
-              {...props}
-              key={option.id}
-            >
+            <AutocompleteOption {...props} key={option.id}>
               <Circle sx={{ fontSize: 14, color: option.color }} />
               {option.name}
             </AutocompleteOption>
@@ -373,12 +381,13 @@ export async function fetchChatsHelper(
   paginationState: PaginationState | undefined,
   filters: Filters,
 ) {
-
   let priorityChats: ChatInfo[] = [];
-  
+
   // If filtering by labels, fetch those chats directly from API, then hydrate via Twilio
   if (filters.labelIds?.length) {
-    const labeledChatsRes = await apiClient.getChats({ labelIds: filters.labelIds });
+    const labeledChatsRes = await apiClient.getChats({
+      labelIds: filters.labelIds,
+    });
     const apiChats = labeledChatsRes.data?.data ?? [];
 
     const relevantLabeled = apiChats.filter((c) => {
@@ -390,12 +399,15 @@ export async function fetchChatsHelper(
       return { chats: [], paginationState: undefined };
     }
 
-    const twilioLabeled = (await twilioClient.getChatsByIds(
-      relevantLabeled.map((c) => c.chatCode),
-    )).filter(Boolean) as ChatInfo[];
+    const twilioLabeled = (
+      await twilioClient.getChatsByIds(relevantLabeled.map((c) => c.chatCode))
+    ).filter(Boolean) as ChatInfo[];
 
     if (twilioLabeled.length) {
-      const unreads = await twilioClient.hasUnread(filters.activeNumber, twilioLabeled);
+      const unreads = await twilioClient.hasUnread(
+        filters.activeNumber,
+        twilioLabeled,
+      );
       twilioLabeled.forEach((c, i) => {
         c.hasUnread = unreads[i];
       });
@@ -407,19 +419,26 @@ export async function fetchChatsHelper(
       mergedLabeled = mergedLabeled.filter((c) => !!c.hasUnread);
     }
 
-    mergedLabeled.sort((a, b) => b.recentMsgDate.getTime() - a.recentMsgDate.getTime());
+    mergedLabeled.sort(
+      (a, b) => b.recentMsgDate.getTime() - a.recentMsgDate.getTime(),
+    );
 
     return { chats: mergedLabeled, paginationState: undefined };
   }
 
-  const chatsWithFlagClaim = await apiClient.getChats({ isFlagged: true, isClaimed: true });
+  const chatsWithFlagClaim = await apiClient.getChats({
+    isFlagged: true,
+    isClaimed: true,
+  });
   const relevantChats = chatsWithFlagClaim.data?.data.filter((c) => {
     if (!filters.activeNumber) return true;
     return parseChatId(c.chatCode).activeNumber === filters.activeNumber;
   });
 
   if (relevantChats?.length) {
-    const newChatsByIds = (await twilioClient.getChatsByIds(relevantChats.map((c) => c.chatCode))).filter(Boolean) as ChatInfo[];
+    const newChatsByIds = (
+      await twilioClient.getChatsByIds(relevantChats.map((c) => c.chatCode))
+    ).filter(Boolean) as ChatInfo[];
     priorityChats = mergeTwilioAndApiChats(newChatsByIds, relevantChats);
     existingChats.push(...priorityChats);
   }
@@ -428,7 +447,8 @@ export async function fetchChatsHelper(
     paginationState,
     onlyUnread: filters.onlyUnread,
     existingChatsId: existingChats.map((e) => e.chatId),
-    chatsPageSize: priorityChats.length > 0 ? Math.max(1, 10 - priorityChats.length) : 10,
+    chatsPageSize:
+      priorityChats.length > 0 ? Math.max(1, 10 - priorityChats.length) : 10,
   });
 
   const newTwilioChats = newChatsRes.chats;
@@ -438,23 +458,33 @@ export async function fetchChatsHelper(
   }
 
   // Apply unread status
-  const unreads = await twilioClient.hasUnread(filters.activeNumber, newTwilioChats);
+  const unreads = await twilioClient.hasUnread(
+    filters.activeNumber,
+    newTwilioChats,
+  );
   newTwilioChats.forEach((c, i) => {
     c.hasUnread = unreads[i];
   });
 
-  const augmentations = await apiClient.getChats({ chatsOfInterest: newTwilioChats.map((c) => c.chatId) });
+  const augmentations = await apiClient.getChats({
+    chatsOfInterest: newTwilioChats.map((c) => c.chatId),
+  });
   if (!augmentations.data || !augmentations.data.data.length) {
     return { ...newChatsRes, chats: [...priorityChats, ...newTwilioChats] };
   }
 
-  const augmentedChats = mergeTwilioAndApiChats(newTwilioChats, augmentations.data.data);
+  const augmentedChats = mergeTwilioAndApiChats(
+    newTwilioChats,
+    augmentations.data.data,
+  );
   return { ...newChatsRes, chats: [...priorityChats, ...augmentedChats] };
 }
 
 function mergeTwilioAndApiChats(
   twilioChats: ChatInfo[],
-  apiChats: NonNullable<Awaited<ReturnType<typeof apiClient.getChats>>["data"]>["data"]
+  apiChats: NonNullable<
+    Awaited<ReturnType<typeof apiClient.getChats>>["data"]
+  >["data"],
 ) {
   const mergedChats = [...twilioChats];
   for (const c of mergedChats) {

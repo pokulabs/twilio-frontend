@@ -50,13 +50,13 @@ function Toggler(props: {
       <Box
         sx={[
           {
-            display: 'grid',
-            transition: '0.2s ease',
-            '& > *': {
-              overflow: 'hidden',
+            display: "grid",
+            transition: "0.2s ease",
+            "& > *": {
+              overflow: "hidden",
             },
           },
-          open ? { gridTemplateRows: '1fr' } : { gridTemplateRows: '0fr' },
+          open ? { gridTemplateRows: "1fr" } : { gridTemplateRows: "0fr" },
         ]}
       >
         {children}
@@ -156,10 +156,10 @@ export default function Sidebar() {
                     sx={[
                       open
                         ? {
-                            transform: 'rotate(180deg)',
+                            transform: "rotate(180deg)",
                           }
                         : {
-                            transform: 'none',
+                            transform: "none",
                           },
                     ]}
                   />
@@ -233,18 +233,20 @@ export default function Sidebar() {
               </ListItemContent>
             </ListItemButton>
           </ListItem>
-          {isAdmin && <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/admin"
-              selected={location.pathname === "/admin"}
-            >
-              <LocalPoliceRounded />
-              <ListItemContent>
-                <Typography level="title-sm">Admin</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>}
+          {isAdmin && (
+            <ListItem>
+              <ListItemButton
+                component={Link}
+                to="/admin"
+                selected={location.pathname === "/admin"}
+              >
+                <LocalPoliceRounded />
+                <ListItemContent>
+                  <Typography level="title-sm">Admin</Typography>
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
 
         <List

@@ -37,8 +37,8 @@ function Flagging() {
       >
         <Box>
           <Typography>
-            Automatically flag messages for review based on your own
-            rules, using your own OpenAI Key.
+            Automatically flag messages for review based on your own rules,
+            using your own OpenAI Key.
           </Typography>
           <Typography>
             Learn more{" "}
@@ -53,7 +53,7 @@ function Flagging() {
           </Typography>
         </Box>
         <LlmKey isSaved={isSaved} setIsSaved={setIsSaved} />
-      <DecisionAgent hasLlmKey={isSaved} />
+        <DecisionAgent hasLlmKey={isSaved} />
       </Box>
     </Box>
   );

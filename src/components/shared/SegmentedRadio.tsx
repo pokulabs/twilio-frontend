@@ -20,7 +20,9 @@ export function SegmentedRadio<ValueT extends string | number>({
       value={value as any}
       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
         const raw = event.target.value;
-        const casted = (typeof value === "number" ? Number(raw) : (raw as any)) as ValueT;
+        const casted = (
+          typeof value === "number" ? Number(raw) : (raw as any)
+        ) as ValueT;
         onChange(casted);
       }}
       sx={{
@@ -68,5 +70,3 @@ export function SegmentedRadio<ValueT extends string | number>({
 }
 
 export default SegmentedRadio;
-
-

@@ -23,9 +23,9 @@ export function SlackInput({
               title={
                 <Typography>
                   This is the human your AI will reach out to in case of an
-                  interaction. In Slack, go to your user profile. Then click
-                  the 3 vertical dots button. Select "Copy Member ID" and
-                  paste it here.
+                  interaction. In Slack, go to your user profile. Then click the
+                  3 vertical dots button. Select "Copy Member ID" and paste it
+                  here.
                 </Typography>
               }
             />
@@ -43,5 +43,3 @@ export function SlackInput({
     </>
   );
 }
-
-

@@ -86,9 +86,12 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
               <MoreVertRounded />
             </MenuButton>
             <Menu>
-              <MenuItem disabled={!isAuthenticated} onClick={() => {
-                setCrmOpen(true);
-              }}>
+              <MenuItem
+                disabled={!isAuthenticated}
+                onClick={() => {
+                  setCrmOpen(true);
+                }}
+              >
                 Notes & labels
                 <OpenInNew></OpenInNew>
               </MenuItem>

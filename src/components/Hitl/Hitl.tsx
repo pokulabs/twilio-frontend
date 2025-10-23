@@ -56,12 +56,10 @@ function Hitl() {
               Instructions
             </Tab>
           </TabList>
-          <Box
-            sx={{ p: 2 }}
-          >
+          <Box sx={{ p: 2 }}>
             <Typography level="body-sm">
-              Enable your AI agent to loop in a human for help. Works with any agent
-              that can use MCP.
+              Enable your AI agent to loop in a human for help. Works with any
+              agent that can use MCP.
             </Typography>
             <Typography level="body-sm">
               Learn more{" "}

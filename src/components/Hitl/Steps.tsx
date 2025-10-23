@@ -34,10 +34,11 @@ export default function Steps() {
   const [selectedTool, setSelectedTool] = useState(0);
 
   return (
-    <Box sx={{
-      maxWidth: 782,
-    }}>
-
+    <Box
+      sx={{
+        maxWidth: 782,
+      }}
+    >
       <Typography sx={{ mt: 4, mb: 1 }}>
         <b>1.</b> Choose a human-in-the-loop feature
       </Typography>
@@ -88,12 +89,15 @@ export default function Steps() {
               <Typography sx={{ mt: 1 }}>
                 <strong>Server URL:</strong>
                 <br />
-                Copy from your channel card above. This URL is specific to the channel you have configured.
+                Copy from your channel card above. This URL is specific to the
+                channel you have configured.
               </Typography>
               <Typography sx={{ mb: 1, mt: 1 }}>
                 <strong>Timeout:</strong>
                 <br />
-                If your platform allows you to set a timeout, we recommend setting the same wait time as what you have configured on your interaction channel.
+                If your platform allows you to set a timeout, we recommend
+                setting the same wait time as what you have configured on your
+                interaction channel.
               </Typography>
               <Typography>
                 <strong>Headers:</strong>{" "}
@@ -178,16 +182,19 @@ export default function Steps() {
             <AccordionDetails sx={{ ml: 1 }}>
               <Typography>
                 <b>Example 1: </b>
-                Agent checks if a manager is available before transferring the call
+                Agent checks if a manager is available before transferring the
+                call
               </Typography>
               <Typography level="body-sm" sx={{ mt: 1, mb: 1 }}>
                 # HUMAN_TRANSFER_PROTOCOL
                 <br />
                 ## Workflow When Customer Requests a Human
                 <br />
-                **Step 1: Get Consent**  
+                **Step 1: Get Consent**
                 <br />
-                Ask: "Is it ok if I put you on hold for a minute while I check if a manager is available? I'll go silent but I'm still on the line."
+                Ask: "Is it ok if I put you on hold for a minute while I check
+                if a manager is available? I'll go silent but I'm still on the
+                line."
                 <br />
                 - If customer says NO → continue helping them yourself
                 <br />
@@ -195,32 +202,40 @@ export default function Steps() {
                 <br />
                 **Step 2: Check Availability**
                 <br />
-                Use `contact_human` with context: "Customer requesting human manager regarding [their issue]. Are you available?"
+                Use `contact_human` with context: "Customer requesting human
+                manager regarding [their issue]. Are you available?"
                 <br />
                 <br />
                 **Step 3: Act on Response**
                 <br />
-                - **Manager says YES** → "A manager is available. Transferring you now." → Use `transfer_call`
+                - **Manager says YES** → "A manager is available. Transferring
+                you now." → Use `transfer_call`
                 <br />
-                - **Manager says NO** → Share manager's input with customer → Continue conversation (no transfer)
+                - **Manager says NO** → Share manager's input with customer →
+                Continue conversation (no transfer)
                 <br />
-                - **No response/failure** → "I've left a note for the manager. Let me continue helping you." → Continue conversation (no transfer)
+                - **No response/failure** → "I've left a note for the manager.
+                Let me continue helping you." → Continue conversation (no
+                transfer)
                 <br />
                 ## Critical Rules
-                <br />
-                - NEVER use `transfer_call` without manager confirmation via `contact_human`
+                <br />- NEVER use `transfer_call` without manager confirmation
+                via `contact_human`
               </Typography>
 
               <Typography>
                 <b>Example 2: </b>
-                Agent escalates to a human when encountering a question outside the knowledge base
+                Agent escalates to a human when encountering a question outside
+                the knowledge base
               </Typography>
               <Typography level="body-sm" sx={{ mt: 1, mb: 1 }}>
-                If the user asks a question that is outside the scope of the knowledge base, ask: "Is it ok if I put you on hold for a minute while I check with a manager on your question? I'll go silent but I'm still on the line."
+                If the user asks a question that is outside the scope of the
+                knowledge base, ask: "Is it ok if I put you on hold for a minute
+                while I check with a manager on your question? I'll go silent
+                but I'm still on the line."
                 <br />
                 - If customer says NO → continue helping them yourself
-                <br />
-                - If customer says YES → use contact_human tool
+                <br />- If customer says YES → use contact_human tool
               </Typography>
             </AccordionDetails>
           </Accordion>
@@ -236,7 +251,6 @@ export default function Steps() {
         <Divider />
       </Box>
       <ListInteractionChannels />
-
     </Box>
   );
 }
@@ -291,7 +305,10 @@ function ExampleLightboxGallery({
               overflow: "hidden",
             }}
           >
-            <img src={img} style={{ width: 80, height: 50, objectFit: "cover" }} />
+            <img
+              src={img}
+              style={{ width: 80, height: 50, objectFit: "cover" }}
+            />
             <Typography level="body-xs" sx={{ textAlign: "center" }}>
               {key}
             </Typography>
@@ -302,9 +319,20 @@ function ExampleLightboxGallery({
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        sx={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10000,
+        }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           {selectedKey !== null && (
             <img
               src={imagesMap[selectedKey]}

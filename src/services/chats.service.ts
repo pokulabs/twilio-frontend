@@ -68,10 +68,10 @@ export class ContactsService {
 
     getChatsByIds(chatIds: string[]) {
         return Promise.all(
-            chatIds.map(chatId => {
+            chatIds.map((chatId) => {
                 const { activeNumber, contactNumber } = parseChatId(chatId);
                 return this.getChat(activeNumber, contactNumber);
-            })
+            }),
         );
     }
 

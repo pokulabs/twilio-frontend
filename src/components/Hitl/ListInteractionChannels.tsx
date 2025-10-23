@@ -16,9 +16,24 @@ import whatsapp from "../../assets/whatsapp.png";
 import sms from "../../assets/sms.png";
 import { Usage } from "../shared/Usage";
 
+function formatDuration(totalSeconds: number): string {
+  if (!Number.isFinite(totalSeconds)) return "—";
+  if (totalSeconds < 60) return `${totalSeconds} seconds`;
+  const minutes = totalSeconds / 60;
+  if (minutes < 60)
+    return `${Number.isInteger(minutes) ? minutes : minutes.toFixed(1)} minutes`;
+  const hours = minutes / 60;
+  if (hours < 24)
+    return `${Number.isInteger(hours) ? hours : hours.toFixed(1)} hours`;
+  const days = hours / 24;
+  return `${Number.isInteger(days) ? days : days.toFixed(1)} days`;
+}
+
 export const ListInteractionChannels = forwardRef((_props, ref) => {
   const [ics, setIcs] = useState<
-    NonNullable<Awaited<ReturnType<typeof apiClient.getInteractionChannels>>["data"]>["data"]
+    NonNullable<
+      Awaited<ReturnType<typeof apiClient.getInteractionChannels>>["data"]
+    >["data"]
   >([]);
 
   const getIcs = async () => {
@@ -48,18 +63,14 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
       <Box sx={{ mb: 2, mt: 1 }}>
         <Usage />
       </Box>
-      <Stack
-        direction="row"
-        gap={2}
-        sx={{ flexWrap: "wrap" }}
-      >
+      <Stack direction="row" gap={2} sx={{ flexWrap: "wrap" }}>
         {ics.map((e) => {
           const iconSrc =
             e.medium === "slack"
               ? slack
               : e.medium === "whatsapp_poku"
-              ? whatsapp
-              : sms;
+                ? whatsapp
+                : sms;
 
           return (
             <Card
@@ -83,22 +94,26 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                 <Typography level="body-sm" sx={{ mb: 0.5 }}>
                   Contact: {e.humanNumber || "—"}
                 </Typography>
-                {(e.medium === "sms") && <Typography level="body-sm">
-                  Agent number: {e.agentNumber} seconds
-                </Typography>}
+                {e.medium === "sms" && (
+                  <Typography level="body-sm">
+                    Agent number: {e.agentNumber}
+                  </Typography>
+                )}
                 <Typography level="body-sm">
                   Wait time: {e.waitTime} seconds
                 </Typography>
-                {e.webhook && <Typography level="body-sm">
-                  Webhook URL: {e.webhook} seconds
-                </Typography>}
-                {e.validTime && <Typography level="body-sm">
-                  Follow-up time: {e.validTime} seconds
-                </Typography>}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                {e.webhook && (
                   <Typography level="body-sm">
-                    Copy MCP URL
+                    Webhook URL: {e.webhook}
                   </Typography>
+                )}
+                {e.validTime && (
+                  <Typography level="body-sm">
+                    Follow-up time: {formatDuration(e.validTime)}
+                  </Typography>
+                )}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography level="body-sm">Copy MCP URL</Typography>
                   <IconButton
                     size="sm"
                     variant="plain"
@@ -135,7 +150,6 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                   <DeleteOutline />
                 </IconButton>
               </Box>
-
             </Card>
           );
         })}
@@ -143,5 +157,3 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
     </Box>
   );
 });
-
-

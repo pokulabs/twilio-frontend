@@ -50,11 +50,12 @@ class TwilioRawClient {
 
     async getPhoneNumbers() {
         const res = await this.axiosInstance.get<RawNumber>(
-            "/IncomingPhoneNumbers.json", {
+            "/IncomingPhoneNumbers.json",
+            {
                 params: {
                     PageSize: 1000,
                 },
-            }
+            },
         );
         return res.data.incoming_phone_numbers.map((e) => e.phone_number);
     }

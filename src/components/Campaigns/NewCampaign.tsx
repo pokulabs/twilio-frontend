@@ -30,10 +30,7 @@ type NewCampaignProps = {
   onCancel: () => void;
 };
 
-function NewCampaign({
-  onComplete,
-  onCancel,
-}: NewCampaignProps) {
+function NewCampaign({ onComplete, onCancel }: NewCampaignProps) {
   const { phoneNumbers, whatsappNumbers } = useTwilio();
   const [senderNumbers, setSenderNumbers] = useState<string[]>([]);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
