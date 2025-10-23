@@ -7,8 +7,6 @@ import {
   AccordionSummary,
   AccordionDetails,
   AccordionGroup,
-  RadioGroup,
-  Radio,
   Modal,
 } from "@mui/joy";
 import { Link as RLink } from "react-router-dom";
@@ -19,6 +17,7 @@ import vapiMcpImg from "../../assets/vapi-mcp.png";
 import vapiMcpProxyImg from "../../assets/vapi-mcp-proxy.png";
 import { ListInteractionChannels } from "./ListInteractionChannels";
 import { Usage } from "../shared/Usage";
+import SegmentedRadio from "../shared/SegmentedRadio";
 
 const mapContactHumanExamples = {
   n8n: n8nImg,
@@ -46,64 +45,14 @@ export default function Steps() {
         <b>1.</b> Choose a human-in-the-loop feature
       </Typography>
 
-      <Box sx={{ display: "flex", gap: 2 }}>
-        <RadioGroup
-          orientation="horizontal"
-          value={selectedTool}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setSelectedTool(+event.target.value)
-          }
-          sx={{
-            width: "100%",
-            minHeight: 35,
-            padding: "4px",
-            borderRadius: "12px",
-            bgcolor: "neutral.softBg",
-            "--RadioGroup-gap": "4px",
-            "--Radio-actionRadius": "8px",
-          }}
-        >
-          {[
-            {
-              value: 0,
-              label: "contact_human",
-            },
-            {
-              value: 1,
-              label: "tool_approval",
-            },
-          ].map((item) => (
-            <Radio
-              key={item.value.toString()}
-              color="neutral"
-              value={item.value}
-              disableIcon
-              label={item.label}
-              variant="plain"
-              sx={{
-                px: 2,
-                alignItems: "center",
-                flex: 1,
-                justifyContent: "center",
-                textAlign: "center",
-              }}
-              slotProps={{
-                action: ({ checked }) => ({
-                  sx: {
-                    ...(checked && {
-                      bgcolor: "background.surface",
-                      boxShadow: "sm",
-                      "&:hover": {
-                        bgcolor: "background.surface",
-                      },
-                    }),
-                  },
-                }),
-              }}
-            />
-          ))}
-        </RadioGroup>
-      </Box>
+      <SegmentedRadio
+        value={selectedTool}
+        onChange={(v) => setSelectedTool(v)}
+        options={[
+          { value: 0, label: "contact_human" },
+          { value: 1, label: "tool_approval" },
+        ]}
+      />
 
       {selectedTool === 0 ? (
         <Typography level="body-sm" sx={{ mt: 1 }}>
@@ -137,7 +86,7 @@ export default function Steps() {
                 <b>2.2</b> Navigate to your agent and create a MCP connection
               </Typography>
 
-              <ContactHumanExamples />
+              <ExampleLightboxGallery imagesMap={mapContactHumanExamples} />
 
               <Typography sx={{ mt: 1 }}>
                 <strong>Server URL:</strong>
@@ -209,7 +158,7 @@ export default function Steps() {
                 optional
               />
               <Typography sx={{ mt: 1 }}></Typography>
-              <ToolApprovalExamples />
+              <ExampleLightboxGallery imagesMap={mapToolApprovalExamples} />
 
               <Typography sx={{ mt: 1 }}>
                 <b>2.3</b> Select the tool(s) you want to gate with human
@@ -311,18 +260,6 @@ function CodeBlock({
         {text}
       </Typography>
     </Box>
-  );
-}
-
-function ContactHumanExamples() {
-  return (
-    <ExampleLightboxGallery imagesMap={mapContactHumanExamples} />
-  );
-}
-
-function ToolApprovalExamples() {
-  return (
-    <ExampleLightboxGallery imagesMap={mapToolApprovalExamples} />
   );
 }
 
