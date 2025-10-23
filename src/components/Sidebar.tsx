@@ -185,6 +185,15 @@ export default function Sidebar() {
                     Campaigns
                   </ListItemButton>
                 </ListItem>
+                <ListItem>
+                  <ListItemButton
+                    component={Link}
+                    to="/flagging"
+                    selected={location.pathname === "/flagging"}
+                  >
+                    Flagging
+                  </ListItemButton>
+                </ListItem>
               </List>
             </Toggler>
           </ListItem>

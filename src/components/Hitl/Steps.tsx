@@ -9,6 +9,7 @@ import {
   AccordionGroup,
   RadioGroup,
   Radio,
+  Modal,
 } from "@mui/joy";
 import { Link as RLink } from "react-router-dom";
 import n8nImg from "../../assets/n8n-contact-human-mcp.png";
@@ -16,6 +17,8 @@ import retellMcpImg from "../../assets/retell-mcp.png";
 import retellMcpProxyImg from "../../assets/retell-mcp-proxy.png";
 import vapiMcpImg from "../../assets/vapi-mcp.png";
 import vapiMcpProxyImg from "../../assets/vapi-mcp-proxy.png";
+import { ListInteractionChannels } from "./ListInteractionChannels";
+import { Usage } from "../shared/Usage";
 
 const mapContactHumanExamples = {
   n8n: n8nImg,
@@ -33,8 +36,14 @@ export default function Steps() {
 
   return (
     <Box>
-      <Typography sx={{ mb: 1 }}>
-        <b>Step 1.</b> Choose a human-in-the-loop feature
+      <ListInteractionChannels />
+
+      <Box sx={{ mt: 2 }}>
+        <Usage />
+      </Box>
+
+      <Typography sx={{ mt: 4, mb: 1 }}>
+        <b>1.</b> Choose a human-in-the-loop feature
       </Typography>
 
       <Box sx={{ display: "flex", gap: 2 }}>
@@ -112,7 +121,7 @@ export default function Steps() {
           <Accordion sx={{ mt: 2, p: 0 }}>
             <AccordionSummary sx={{ fontWeight: "normal" }}>
               <Box>
-                <b>Step 2.</b> Connect your agent to the Poku MCP server.
+                <b>2.</b> Connect your agent to the Poku MCP server.
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ ml: 1 }}>
@@ -131,17 +140,14 @@ export default function Steps() {
               <ContactHumanExamples />
 
               <Typography sx={{ mt: 1 }}>
-                <strong>Server URL (Streamable):</strong>{" "}
+                <strong>Server URL:</strong>
+                <br />
+                Copy from your channel card above. This URL is specific to the channel you have configured.
               </Typography>
-              <CodeBlock text="https://mcp.pokulabs.com" />
-              <Typography sx={{ mt: 1 }}>
-                <strong>Server URL (SSE):</strong>{" "}
-              </Typography>
-              <CodeBlock text="https://mcp.pokulabs.com/sse" />
               <Typography sx={{ mb: 1, mt: 1 }}>
                 <strong>Timeout:</strong>
                 <br />
-                60 sec (use same value as Wait Time in Step 4)
+                If your platform allows you to set a timeout, we recommend setting the same wait time as what you have configured on your interaction channel.
               </Typography>
               <Typography>
                 <strong>Headers:</strong>{" "}
@@ -155,7 +161,7 @@ export default function Steps() {
           <Accordion sx={{ mt: 2, p: 0 }}>
             <AccordionSummary sx={{ fontWeight: "normal" }}>
               <Box>
-                <b>Step 2.</b> Connect your agent to the Poku MCP Proxy server.
+                <b>2.</b> Connect your agent to the Poku MCP Proxy server.
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ ml: 1 }}>
@@ -219,47 +225,56 @@ export default function Steps() {
           <Accordion sx={{ mt: 2, p: 0 }}>
             <AccordionSummary sx={{ fontWeight: "normal" }}>
               <Box>
-                <b>Step 3.</b> Update your AI agent prompt to use the{" "}
+                <b>3.</b> Update your AI agent prompt to use the{" "}
                 <code>contact_human</code> tool.
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ ml: 1 }}>
               <Typography>
-                <b>Sample prompt 1:</b>
-                <br />
+                <b>Example 1: </b>
+                Agent checks if a manager is available before transferring the call
               </Typography>
-              <Typography level="body-sm" sx={{ mb: 1 }}>
-                When you encounter a question that's outside the scope of the
-                knowledge base, immediately use the <b>contact_human</b> tool to
-                request help from a manager.
+              <Typography level="body-sm" sx={{ mt: 1, mb: 1 }}>
+                # HUMAN_TRANSFER_PROTOCOL
+                <br />
+                ## Workflow When Customer Requests a Human
+                <br />
+                **Step 1: Get Consent**  
+                <br />
+                Ask: "Is it ok if I put you on hold for a minute while I check if a manager is available? I'll go silent but I'm still on the line."
+                <br />
+                - If customer says NO → continue helping them yourself
+                <br />
+                - If customer says YES → proceed to Step 3
+                <br />
+                **Step 2: Check Availability**
+                <br />
+                Use `contact_human` with context: "Customer requesting human manager regarding [their issue]. Are you available?"
+                <br />
+                <br />
+                **Step 3: Act on Response**
+                <br />
+                - **Manager says YES** → "A manager is available. Transferring you now." → Use `transfer_call`
+                <br />
+                - **Manager says NO** → Share manager's input with customer → Continue conversation (no transfer)
+                <br />
+                - **No response/failure** → "I've left a note for the manager. Let me continue helping you." → Continue conversation (no transfer)
+                <br />
+                ## Critical Rules
+                <br />
+                - NEVER use `transfer_call` without manager confirmation via `contact_human`
               </Typography>
 
               <Typography>
-                <b>Sample prompt 2:</b>
+                <b>Example 2: </b>
+                Agent escalates to a human when encountering a question outside the knowledge base
               </Typography>
-              <Typography level="body-sm">
-                ## Tool
+              <Typography level="body-sm" sx={{ mt: 1, mb: 1 }}>
+                If the user asks a question that is outside the scope of the knowledge base, ask: "Is it ok if I put you on hold for a minute while I check with a manager on your question? I'll go silent but I'm still on the line."
                 <br />
-                0. If you need manager input (see “Escalate When” list) you MUST
+                - If customer says NO → continue helping them yourself
                 <br />
-                - first get user consent to be put on hold by asking "Is it ok
-                if I put you on a brief hold while I check with my manager?"
-                <br />- if user says yes, use <b>contact_human</b> tool.
-                <br />
-                Tool calls are exempt from all style rules (filler words, length
-                caps, etc.).
-                <br />
-                - If the user says no, let user know you will note this down and
-                have your manager follow-up with them later.
-                <br />
-                <br />
-                ### Escalate When:
-                <br />
-                - User asks a question that you do not have the answer to in the
-                knowledge base.
-                <br />
-                - User asks to speak with a manager.
-                <br />- User asks for a discount beyond 10% off.
+                - If customer says YES → use contact_human tool
               </Typography>
             </AccordionDetails>
           </Accordion>
@@ -267,7 +282,7 @@ export default function Steps() {
       )}
 
       <Typography sx={{ mt: 2 }}>
-        <b>Step {selectedTool === 0 ? "4" : "3"}.</b> Configure the channel your
+        <b>{selectedTool === 0 ? "4" : "3"}.</b> Configure the channel your
         agent will use to contact a human.
       </Typography>
     </Box>
@@ -300,74 +315,46 @@ function CodeBlock({
 }
 
 function ContactHumanExamples() {
-  const [contactHumanExample, setContactHumanExample] = useState("n8n");
-
   return (
-    <>
-      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-        {Object.entries(mapContactHumanExamples).map(([key, img]) => (
-          <Box
-            key={key}
-            onClick={() => setContactHumanExample(key)}
-            sx={{
-              cursor: "pointer",
-              border:
-                contactHumanExample === key
-                  ? "2px solid blue"
-                  : "1px solid silver",
-              borderRadius: 4,
-              overflow: "hidden",
-            }}
-          >
-            <img
-              src={img}
-              style={{ width: 80, height: 50, objectFit: "cover" }}
-            />
-            <Typography level="body-xs" sx={{ textAlign: "center" }}>
-              {key}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-
-      {contactHumanExample && (
-        <img
-          src={
-            mapContactHumanExamples[
-              contactHumanExample as keyof typeof mapContactHumanExamples
-            ]
-          }
-          style={{ width: "100%", maxWidth: 400, border: "1px solid silver" }}
-        />
-      )}
-    </>
+    <ExampleLightboxGallery imagesMap={mapContactHumanExamples} initialKey="n8n" />
   );
 }
 
 function ToolApprovalExamples() {
-  const [toolApprovalExample, setToolApprovalExample] = useState("retell");
+  return (
+    <ExampleLightboxGallery imagesMap={mapToolApprovalExamples} initialKey="retell" />
+  );
+}
+
+function ExampleLightboxGallery({
+  imagesMap,
+  initialKey,
+}: {
+  imagesMap: Record<string, string>;
+  initialKey: string;
+}) {
+  const [selectedKey, setSelectedKey] = useState(initialKey);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
       <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-        {Object.entries(mapToolApprovalExamples).map(([key, img]) => (
+        {Object.entries(imagesMap).map(([key, img]) => (
           <Box
             key={key}
-            onClick={() => setToolApprovalExample(key)}
+            onClick={() => {
+              setSelectedKey(key);
+              setOpen(true);
+            }}
             sx={{
               cursor: "pointer",
               border:
-                toolApprovalExample === key
-                  ? "2px solid blue"
-                  : "1px solid silver",
+                selectedKey === key ? "2px solid blue" : "1px solid silver",
               borderRadius: 4,
               overflow: "hidden",
             }}
           >
-            <img
-              src={img}
-              style={{ width: 80, height: 50, objectFit: "cover" }}
-            />
+            <img src={img} style={{ width: 80, height: 50, objectFit: "cover" }} />
             <Typography level="body-xs" sx={{ textAlign: "center" }}>
               {key}
             </Typography>
@@ -375,16 +362,24 @@ function ToolApprovalExamples() {
         ))}
       </Box>
 
-      {toolApprovalExample && (
-        <img
-          src={
-            mapToolApprovalExamples[
-              toolApprovalExample as keyof typeof mapToolApprovalExamples
-            ]
-          }
-          style={{ width: "100%", maxWidth: 400, border: "1px solid silver" }}
-        />
-      )}
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {selectedKey && (
+            <img
+              src={imagesMap[selectedKey]}
+              style={{
+                objectFit: "contain",
+                borderRadius: 8,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+              }}
+            />
+          )}
+        </Box>
+      </Modal>
     </>
   );
 }

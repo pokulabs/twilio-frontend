@@ -1,0 +1,138 @@
+import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
+import {
+  Button,
+  Typography,
+  Stack,
+  Card,
+  CardContent,
+  Divider,
+  IconButton,
+  Box,
+} from "@mui/joy";
+import { ContentCopy, DeleteOutline, Send } from "@mui/icons-material";
+import { apiClient } from "../../api-client";
+import slack from "../../assets/slack-color.png";
+import whatsapp from "../../assets/whatsapp.png";
+import sms from "../../assets/sms.jpeg";
+
+export const ListInteractionChannels = forwardRef((_props, ref) => {
+  const [ics, setIcs] = useState<
+    NonNullable<Awaited<ReturnType<typeof apiClient.getInteractionChannels>>["data"]>["data"]
+  >([]);
+
+  const getIcs = async () => {
+    const interactionChannels = await apiClient.getInteractionChannels();
+    if (interactionChannels.data) {
+      setIcs(interactionChannels.data.data);
+    }
+  };
+
+  useEffect(() => {
+    void getIcs();
+  }, []);
+
+  useImperativeHandle(ref, () => ({
+    reload: getIcs,
+  }));
+
+  const handleCopy = (id: string) => {
+    navigator.clipboard.writeText(`https://mcp.pokulabs.com/${id}`);
+  };
+
+  return (
+    <Stack
+      direction="row"
+      gap={2}
+      sx={{ flexWrap: "wrap" }}
+    >
+      {ics.map((e) => {
+        const iconSrc =
+          e.medium === "slack"
+            ? slack
+            : e.medium === "whatsapp_poku"
+            ? whatsapp
+            : sms;
+
+        return (
+          <Card
+            key={e.id}
+            variant="outlined"
+            sx={{
+              borderRadius: "16px",
+              p: 2,
+              width: 280,
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "sm",
+            }}
+          >
+            <Box
+              component="img"
+              src={iconSrc}
+              sx={{ width: 32, height: 32, mb: 1 }}
+            />
+            <CardContent sx={{ p: 0 }}>
+              <Typography level="body-sm" sx={{ mb: 0.5 }}>
+                Human number: {e.humanNumber || "—"}
+              </Typography>
+              {(e.medium === "sms") && <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                Agent number: {e.agentNumber} seconds
+              </Typography>}
+              <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                Wait time: {e.waitTime} seconds
+              </Typography>
+              {e.webhookUrl && <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                Webhook URL: {e.webhookUrl} seconds
+              </Typography>}
+              {e.validTime && <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                Valid time: {e.validTime} seconds
+              </Typography>}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography level="body-sm" sx={{ color: "text.secondary" }}>
+                  Copy MCP URL
+                </Typography>
+                <IconButton
+                  size="sm"
+                  variant="plain"
+                  color="neutral"
+                  onClick={() => handleCopy(e.id)}
+                >
+                  <ContentCopy fontSize="small" />
+                </IconButton>
+              </Box>
+            </CardContent>
+
+            <Divider sx={{ my: 1.5 }} />
+
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Button
+                size="sm"
+                variant="solid"
+                color="primary"
+                startDecorator={<Send />}
+                onClick={() => apiClient.sendTestMessage(e.id)}
+              >
+                Send Test
+              </Button>
+
+              <IconButton
+                size="sm"
+                variant="outlined"
+                color="danger"
+                onClick={async () => {
+                  await apiClient.deleteInteractionChannel(e.id);
+                  await getIcs();
+                }}
+              >
+                <DeleteOutline />
+              </IconButton>
+            </Box>
+
+          </Card>
+        );
+      })}
+    </Stack>
+  );
+});
+
+

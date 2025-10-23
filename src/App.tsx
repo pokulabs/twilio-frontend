@@ -13,6 +13,7 @@ import { WebsocketProvider } from "./context/WebsocketProvider";
 import Campaigns from "./components/Campaigns/Campaigns";
 import Login from "./components/Login";
 import Admin from "./components/Admin/Admin";
+import Flagging from "./components/Hitl/Flagging";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
               <Routes>
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/campaigns" element={<Campaigns />} />
+                <Route path="/flagging" element={<Flagging />} />
                 <Route path="/integrations" element={<Integrations />} />
                 <Route path="/" element={<Account />} />
                 <Route path="/hitl" element={<Hitl />} />
