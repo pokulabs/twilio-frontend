@@ -8,15 +8,15 @@ import {
   AccordionDetails,
   AccordionGroup,
   Modal,
+  Divider,
 } from "@mui/joy";
 import { Link as RLink } from "react-router-dom";
-import n8nImg from "../../assets/n8n-contact-human-mcp.png";
-import retellMcpImg from "../../assets/retell-mcp.png";
+import n8nImg from "../../assets/n8n-contact-human-mcp.jpeg";
+import retellMcpImg from "../../assets/retell-mcp.jpg";
 import retellMcpProxyImg from "../../assets/retell-mcp-proxy.png";
-import vapiMcpImg from "../../assets/vapi-mcp.png";
+import vapiMcpImg from "../../assets/vapi-mcp.jpeg";
 import vapiMcpProxyImg from "../../assets/vapi-mcp-proxy.png";
 import { ListInteractionChannels } from "./ListInteractionChannels";
-import { Usage } from "../shared/Usage";
 import SegmentedRadio from "../shared/SegmentedRadio";
 
 const mapContactHumanExamples = {
@@ -34,12 +34,9 @@ export default function Steps() {
   const [selectedTool, setSelectedTool] = useState(0);
 
   return (
-    <Box>
-      <ListInteractionChannels />
-
-      <Box sx={{ mt: 2 }}>
-        <Usage />
-      </Box>
+    <Box sx={{
+      maxWidth: 782,
+    }}>
 
       <Typography sx={{ mt: 4, mb: 1 }}>
         <b>1.</b> Choose a human-in-the-loop feature
@@ -234,6 +231,12 @@ export default function Steps() {
         <b>{selectedTool === 0 ? "4" : "3"}.</b> Configure the channel your
         agent will use to contact a human.
       </Typography>
+
+      <Box sx={{ my: 2 }}>
+        <Divider />
+      </Box>
+      <ListInteractionChannels />
+
     </Box>
   );
 }
@@ -299,7 +302,7 @@ function ExampleLightboxGallery({
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}
       >
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
           {selectedKey !== null && (
@@ -307,6 +310,8 @@ function ExampleLightboxGallery({
               src={imagesMap[selectedKey]}
               style={{
                 objectFit: "contain",
+                maxWidth: "95vw",
+                maxHeight: "95vh",
                 borderRadius: 8,
                 boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
               }}

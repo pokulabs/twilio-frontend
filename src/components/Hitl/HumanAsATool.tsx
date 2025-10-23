@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Button, Typography, Stack, Box, Link } from "@mui/joy";
+import { Button, Typography, Stack, Box, Divider } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import withLoggedIn from "../../context/withLoggedIn";
@@ -78,79 +78,62 @@ function HumanAsATool() {
   };
 
   return (
-    <Stack spacing={3} sx={{
-      maxWidth: 900,
+    <Box sx={{
+      maxWidth: 782,
     }}>
-      <Box>
-        <Typography>
-          Enable your AI agent to loop in a human for help. Works with any agent
-          that can use MCP.
-        </Typography>
-        <Typography>
-          Learn more{" "}
-          <Link
-            href="https://www.pokulabs.com/guides/poku-human-in-the-loop-tools"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            here
-          </Link>
-          .
-        </Typography>
-      </Box>
-
-      <Usage />
-
-      <Box sx={{ display: "flex" }}>
+      <Stack spacing={3} sx={{ mt: 2 }}>
         <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} />
-      </Box>
 
-      {uiChannel === "slack" ? (
-        <SlackInput value={currentHumanNumber} onChange={updateHumanNumber} />
-      ) : uiChannel === "sms" ? (
-        <SmsInput
-          usingOwnTwilio={usingOwnTwilio}
-          setUsingOwnTwilio={setUsingOwnTwilio}
-          value={currentHumanNumber}
-          onChange={updateHumanNumber}
-          agentNumber={agentNumber}
-          setAgentNumber={setAgentNumber}
-          hasTwilioCreds={hasTwilioCreds}
-          phoneNumbers={phoneNumbers}
-          whatsappNumbers={whatsappNumbers}
-        />
-      ) : (
-        <WhatsappInput
-          value={currentHumanNumber}
-          onChange={updateHumanNumber}
-        />
-      )}
+        {uiChannel === "slack" ? (
+          <SlackInput value={currentHumanNumber} onChange={updateHumanNumber} />
+        ) : uiChannel === "sms" ? (
+          <SmsInput
+            usingOwnTwilio={usingOwnTwilio}
+            setUsingOwnTwilio={setUsingOwnTwilio}
+            value={currentHumanNumber}
+            onChange={updateHumanNumber}
+            agentNumber={agentNumber}
+            setAgentNumber={setAgentNumber}
+            hasTwilioCreds={hasTwilioCreds}
+            phoneNumbers={phoneNumbers}
+            whatsappNumbers={whatsappNumbers}
+          />
+        ) : (
+          <WhatsappInput
+            value={currentHumanNumber}
+            onChange={updateHumanNumber}
+          />
+        )}
 
-      <WaitTimeInput value={waitTime} onChange={(val) => setWaitTime(val)} />
+        <WaitTimeInput value={waitTime} onChange={(val) => setWaitTime(val)} />
 
-      <Stack gap={1}>
-        <Button
-          onClick={handleSave}
-          disabled={
-            !currentHumanNumber ||
-            (!agentNumber && usingOwnTwilio) ||
-            (!sid && usingOwnTwilio) ||
-            (!authToken && usingOwnTwilio) ||
-            saveStatus === "saving"
-          }
-        >
-          Create
-        </Button>
+        <Stack gap={1}>
+          <Button
+            onClick={handleSave}
+            disabled={
+              !currentHumanNumber ||
+              (!agentNumber && usingOwnTwilio) ||
+              (!sid && usingOwnTwilio) ||
+              (!authToken && usingOwnTwilio) ||
+              saveStatus === "saving"
+            }
+          >
+            Create
+          </Button>
+        </Stack>
+        {saveStatus === "success" && (
+          <Typography color="success">Settings saved!</Typography>
+        )}
+        {saveStatus === "error" && (
+          <Typography color="danger">Failed to save settings.</Typography>
+        )}
+
+        <Divider />
+
+        <ListInteractionChannels ref={listRef} />
       </Stack>
-      {saveStatus === "success" && (
-        <Typography color="success">Settings saved!</Typography>
-      )}
-      {saveStatus === "error" && (
-        <Typography color="danger">Failed to save settings.</Typography>
-      )}
 
-      <ListInteractionChannels ref={listRef} />
-    </Stack>
+    </Box>
   );
 }
 export default withLoggedIn(HumanAsATool);

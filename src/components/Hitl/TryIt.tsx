@@ -125,7 +125,7 @@ export default function TryIt() {
     <Box
       sx={{
         mx: "auto",
-        mt: "5%",
+        mt: 2,
         display: "flex",
         flexDirection: "column",
       }}

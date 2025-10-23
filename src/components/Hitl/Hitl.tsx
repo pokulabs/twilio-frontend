@@ -1,10 +1,12 @@
 import {
   Box,
+  Link,
   Tab,
   tabClasses,
   TabList,
   TabPanel,
   Tabs,
+  Typography,
 } from "@mui/joy";
 
 import HumanAsATool from "./HumanAsATool";
@@ -54,36 +56,34 @@ function Hitl() {
               Instructions
             </Tab>
           </TabList>
-          <TabPanel value={0}>
-            <TryIt />
-          </TabPanel>
-          <TabPanel value={1}>
-            <Box
-              sx={{
-                display: "flex",
-                marginTop: 5,
-                flexDirection: "column",
-                p: 2,
-                width: "100%",
-                // maxWidth: 500,
-              }}
-            >
+          <Box
+            sx={{ p: 2 }}
+          >
+            <Typography level="body-sm">
+              Enable your AI agent to loop in a human for help. Works with any agent
+              that can use MCP.
+            </Typography>
+            <Typography level="body-sm">
+              Learn more{" "}
+              <Link
+                href="https://www.pokulabs.com/guides/poku-human-in-the-loop-tools"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                here
+              </Link>
+              .
+            </Typography>
+            <TabPanel value={0} sx={{ p: 0 }}>
+              <TryIt />
+            </TabPanel>
+            <TabPanel value={1} sx={{ p: 0 }}>
               <HumanAsATool />
-            </Box>
-          </TabPanel>
-          <TabPanel value={2}>
-            <Box
-              sx={{
-                display: "flex",
-                marginTop: 5,
-                flexDirection: "column",
-                p: 1,
-                maxWidth: 900,
-              }}
-            >
+            </TabPanel>
+            <TabPanel value={2} sx={{ p: 0 }}>
               <Steps />
-            </Box>
-          </TabPanel>
+            </TabPanel>
+          </Box>
         </Tabs>
       </Box>
     </Box>
