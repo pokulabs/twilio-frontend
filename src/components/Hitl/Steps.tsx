@@ -316,24 +316,22 @@ function CodeBlock({
 
 function ContactHumanExamples() {
   return (
-    <ExampleLightboxGallery imagesMap={mapContactHumanExamples} initialKey="n8n" />
+    <ExampleLightboxGallery imagesMap={mapContactHumanExamples} />
   );
 }
 
 function ToolApprovalExamples() {
   return (
-    <ExampleLightboxGallery imagesMap={mapToolApprovalExamples} initialKey="retell" />
+    <ExampleLightboxGallery imagesMap={mapToolApprovalExamples} />
   );
 }
 
 function ExampleLightboxGallery({
   imagesMap,
-  initialKey,
 }: {
   imagesMap: Record<string, string>;
-  initialKey: string;
 }) {
-  const [selectedKey, setSelectedKey] = useState(initialKey);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
   return (
@@ -348,8 +346,7 @@ function ExampleLightboxGallery({
             }}
             sx={{
               cursor: "pointer",
-              border:
-                selectedKey === key ? "2px solid blue" : "1px solid silver",
+              border: "1px solid silver",
               borderRadius: 4,
               overflow: "hidden",
             }}
@@ -368,7 +365,7 @@ function ExampleLightboxGallery({
         sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
       >
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-          {selectedKey && (
+          {selectedKey !== null && (
             <img
               src={imagesMap[selectedKey]}
               style={{
