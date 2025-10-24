@@ -39,6 +39,7 @@ export function Usage() {
                 <Typography level="body-sm" sx={{ mt: 1 }} color="warning">
                   {messageLimit} free msgs/month
                 </Typography>
+                <br />
                 <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
                   To increase please fund your account{" "}
                   <a

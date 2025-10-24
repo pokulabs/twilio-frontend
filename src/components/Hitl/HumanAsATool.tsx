@@ -35,6 +35,14 @@ export function mapUiChannelToMedium(
   }
 }
 
+export const mediumToUiChannelMap: Record<Medium, string> = {
+  slack: "Slack",
+  whatsapp_poku: "WhatsApp",
+  call_poku: "Call",
+  sms: "SMS",
+  sms_poku: "SMS",
+};
+
 export type ConfigureIcState = {
   uiChannel: "slack" | "whatsapp" | "sms" | "call";
   usingOwnTwilio: boolean;

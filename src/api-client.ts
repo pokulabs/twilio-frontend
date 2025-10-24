@@ -327,6 +327,36 @@ class ApiClient {
             phoneNumber,
         });
     }
+
+  async getInteractions(params: { page?: number; pageSize?: number } = {}) {
+    const search = new URLSearchParams();
+    if (params.page) search.set("page", String(params.page));
+    if (params.pageSize) search.set("pageSize", String(params.pageSize));
+    const qs = search.toString();
+    return this.api.get<
+      | {
+          data: {
+            id: string;
+            createdAt: string;
+            type: string;
+            humanNumber: string;
+            agentNumber: string;
+            waitTime: number;
+            medium: Medium;
+            message: string;
+            response: string | null;
+            responseTime: string | null;
+          }[];
+          pagination: {
+            page: number;
+            pageSize: number;
+            total: number;
+            totalPages: number;
+          };
+        }
+      | undefined
+    >(`/interactions${qs ? `?${qs}` : ""}`);
+  }
 }
 
 export const apiClient = new ApiClient();

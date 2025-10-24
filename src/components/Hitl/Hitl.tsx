@@ -12,6 +12,7 @@ import {
 import HumanAsATool from "./HumanAsATool";
 import TryIt from "./TryIt";
 import Steps from "./Steps";
+import InteractionsLog from "./InteractionsLog";
 
 function Hitl() {
   return (
@@ -55,6 +56,9 @@ function Hitl() {
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
               Instructions
             </Tab>
+            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={3}>
+              Log
+            </Tab>
           </TabList>
           <Box sx={{ p: 2 }}>
             <Typography level="body-sm">
@@ -80,6 +84,9 @@ function Hitl() {
             </TabPanel>
             <TabPanel value={2} sx={{ p: 0 }}>
               <Steps />
+            </TabPanel>
+            <TabPanel value={3} sx={{ p: 0 }}>
+              <InteractionsLog />
             </TabPanel>
           </Box>
         </Tabs>
