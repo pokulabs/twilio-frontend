@@ -44,7 +44,7 @@ export function AdvancedOptions({
 
   useEffect(() => {
     setValidTimeSeconds(derivedSeconds);
-  }, [derivedSeconds, setValidTimeSeconds]);
+  }, [derivedSeconds]);
 
   return (
     <Box>

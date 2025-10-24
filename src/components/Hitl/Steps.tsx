@@ -89,7 +89,7 @@ export default function Steps() {
               <Typography sx={{ mt: 1 }}>
                 <strong>Server URL:</strong>
                 <br />
-                Copy from your channel card above. This URL is specific to the
+                Copy from your channel card below. This URL is specific to the
                 channel you have configured.
               </Typography>
               <Typography sx={{ mb: 1, mt: 1 }}>
