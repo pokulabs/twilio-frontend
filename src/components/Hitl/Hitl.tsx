@@ -24,7 +24,7 @@ function Hitl() {
           pt: 10,
         }}
       >
-        <Tabs defaultValue={0} sx={{ bgcolor: "transparent" }}>
+        <Tabs defaultValue={1} sx={{ bgcolor: "transparent" }}>
           <TabList
             tabFlex={1}
             size="sm"
