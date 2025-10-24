@@ -13,7 +13,7 @@ import { WebsocketProvider } from "./context/WebsocketProvider";
 import Campaigns from "./components/Campaigns/Campaigns";
 import Login from "./components/Login";
 import Admin from "./components/Admin/Admin";
-import Flagging from "./components/Hitl/Flagging";
+import Flagging from "./components/Flagging/Flagging";
 
 export default function App() {
   return (

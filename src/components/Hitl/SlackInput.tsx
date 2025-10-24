@@ -3,10 +3,8 @@ import { InfoTooltip } from "../shared/InfoTooltip";
 import { SLACK_LINK } from "../../utils";
 
 export function SlackInput({
-  value,
   onChange,
 }: {
-  value: string;
   onChange: (val: string) => void;
 }) {
   return (
@@ -35,7 +33,6 @@ export function SlackInput({
         </Typography>
 
         <Input
-          value={value}
           onChange={(e) => onChange(e.target.value || "")}
           placeholder="Ex: U08LGBTCBNH"
         />

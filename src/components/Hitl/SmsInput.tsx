@@ -3,7 +3,6 @@ import { Link as RLink } from "react-router-dom";
 import { InfoTooltip } from "../shared/InfoTooltip";
 
 export function SmsInput({
-  value,
   onChange,
   usingOwnTwilio,
   setUsingOwnTwilio,
@@ -13,7 +12,6 @@ export function SmsInput({
   phoneNumbers,
   whatsappNumbers,
 }: {
-  value: string;
   onChange: (val: string) => void;
   usingOwnTwilio: boolean;
   setUsingOwnTwilio: (val: boolean) => void;
@@ -76,7 +74,6 @@ export function SmsInput({
         </Typography>
 
         <Input
-          value={value}
           onChange={(e) => onChange(e.target.value || "")}
           placeholder="Ex: +12223334444"
         />

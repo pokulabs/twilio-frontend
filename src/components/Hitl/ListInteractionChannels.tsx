@@ -14,6 +14,7 @@ import { apiClient } from "../../api-client";
 import slack from "../../assets/slack-color.png";
 import whatsapp from "../../assets/whatsapp.png";
 import sms from "../../assets/sms.png";
+import call from "../../assets/call.png";
 import { Usage } from "../shared/Usage";
 
 function formatDuration(totalSeconds: number): string {
@@ -65,12 +66,13 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
       </Box>
       <Stack direction="row" gap={2} sx={{ flexWrap: "wrap" }}>
         {ics.map((e) => {
-          const iconSrc =
-            e.medium === "slack"
-              ? slack
-              : e.medium === "whatsapp_poku"
-                ? whatsapp
-                : sms;
+          const mediumIconMap: Record<string, string> = {
+            slack,
+            whatsapp_poku: whatsapp,
+            call_poku: call,
+            sms,
+          };
+          const iconSrc = mediumIconMap[e.medium] || sms;
 
           return (
             <Card
