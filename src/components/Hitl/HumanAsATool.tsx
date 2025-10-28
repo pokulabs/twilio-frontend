@@ -11,7 +11,7 @@ import { WhatsappInput } from "./WhatsappInput";
 import { WaitTimeInput } from "./WaitTimeInput";
 import { AdvancedOptions } from "./AdvancedOptions";
 import CreateButton from "../shared/CreateButton";
-import type { Medium } from "../../types";
+import { Medium } from "../../types/backend-frontend";
 
 export function mapUiChannelToMedium(
   uc: ConfigureIcState["uiChannel"],
@@ -77,7 +77,7 @@ function HumanAsATool() {
   const handleSave = async () => {
     await apiClient.createInteractionChannel(
       form.humanNumber,
-      form.usingOwnTwilio ? form.agentNumber : "+16286001841",
+      form.usingOwnTwilio ? form.agentNumber : "",
       form.waitTime,
       mapUiChannelToMedium(form.uiChannel, form.usingOwnTwilio),
       form.webhook,

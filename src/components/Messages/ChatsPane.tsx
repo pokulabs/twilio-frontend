@@ -32,7 +32,7 @@ import ChatListItem from "./ChatListItem";
 import { parseChatId, toggleMessagesPane } from "../../utils";
 import { useAuthedTwilio } from "../../context/TwilioProvider";
 
-import type { ChatInfo } from "../../types";
+import type { ChatInfo } from "../../types/types";
 import { Filters, PaginationState } from "../../services/chats.service";
 import TwilioClient from "../../twilio-client";
 import { apiClient } from "../../api-client";

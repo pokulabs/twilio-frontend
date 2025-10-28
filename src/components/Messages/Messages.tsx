@@ -7,7 +7,7 @@ import NewMessagesPane from "./NewMessagePane";
 import withTwilio from "../../context/withTwilio";
 import { useWebsocketEvents } from "../../hooks/use-websocket-events";
 
-import type { ChatInfo } from "../../types";
+import type { ChatInfo } from "../../types/types";
 import { Filters } from "../../services/chats.service";
 import { useAuthedTwilio } from "../../context/TwilioProvider";
 

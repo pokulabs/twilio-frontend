@@ -15,7 +15,7 @@ import {
   Textarea,
   Typography,
 } from "@mui/joy";
-import type { ChatInfo } from "../../types";
+import type { ChatInfo } from "../../types/types";
 import { apiClient } from "../../api-client";
 
 type LabelInfo = { id: string; name: string; color: string };

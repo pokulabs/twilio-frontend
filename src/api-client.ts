@@ -1,7 +1,8 @@
 import axios, { type AxiosInstance } from "axios";
-import type { Medium, MessageDirection } from "./types";
+import type { MessageDirection } from "./types/types";
 import { Recipient } from "./components/Campaigns/CsvUploader";
 import { checkIsAuthenticated } from "./services/auth";
+import { Medium } from "./types/backend-frontend";
 
 class ApiClient {
     private api: AxiosInstance;

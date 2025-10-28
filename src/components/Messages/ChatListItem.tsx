@@ -15,7 +15,7 @@ import {
 
 import { displayDynamicDateTime, toggleMessagesPane } from "../../utils";
 
-import type { ChatInfo } from "../../types";
+import type { ChatInfo } from "../../types/types";
 import { useAuth } from "../../hooks/use-auth";
 type ChatListItemProps = ListItemButtonProps & {
   chat: ChatInfo;

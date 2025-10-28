@@ -11,7 +11,7 @@ import {
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
-import { ChatInfo } from "../../types";
+import { ChatInfo } from "../../types/types";
 
 export default function AssignModal(props: {
   open: boolean;

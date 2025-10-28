@@ -5,7 +5,7 @@ import {
 } from "./services/chats.service";
 import { PhoneNumbersService } from "./services/phone-numbers.service";
 import TwilioRawClient from "./services/twilio-raw-client";
-import type { ChatInfo, PlainMessage } from "./types";
+import type { ChatInfo, PlainMessage } from "./types/types";
 
 class TwilioClient {
     axiosInstance: TwilioRawClient;

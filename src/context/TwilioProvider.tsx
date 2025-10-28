@@ -10,7 +10,7 @@ import TwilioClient from "../twilio-client";
 import { EventEmitter } from "../event-emitter";
 import { storage } from "../storage";
 
-import type { WebhooksActivationStatus } from "../types";
+import type { WebhooksActivationStatus } from "../types/types";
 import { useAuth } from "../hooks/use-auth";
 import { apiClient } from "../api-client";
 

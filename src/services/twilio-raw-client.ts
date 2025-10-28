@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 
-import type { RawMsg, RawNumber, TwilioMsg } from "../types";
+import type { RawMsg, RawNumber, TwilioMsg } from "../types/types";
 
 function transform(rawMsg: RawMsg): TwilioMsg {
     return {

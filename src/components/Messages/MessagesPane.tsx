@@ -5,7 +5,7 @@ import MessageInput from "./MessageInput";
 import MessagesPaneHeader from "./MessagesPaneHeader";
 import { useAuthedTwilio } from "../../context/TwilioProvider";
 
-import type { ChatInfo } from "../../types";
+import type { ChatInfo } from "../../types/types";
 import { useChatMessages } from "../../hooks/use-messages";
 import { useAuth } from "../../hooks/use-auth";
 

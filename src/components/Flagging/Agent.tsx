@@ -13,7 +13,7 @@ import {
 } from "@mui/joy";
 import { Delete } from "@mui/icons-material";
 import { apiClient } from "../../api-client";
-import type { MessageDirection } from "../../types";
+import type { MessageDirection } from "../../types/types";
 
 export default function DecisionAgent(props: { hasLlmKey: boolean }) {
   const { hasLlmKey } = props;

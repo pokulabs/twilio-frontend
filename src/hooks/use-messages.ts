@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { ChatInfo, PlainMessage } from "../types";
+import type { ChatInfo, PlainMessage } from "../types/types";
 import { useAuthedTwilio } from "../context/TwilioProvider";
 
 export function useChatMessages(chat: ChatInfo) {

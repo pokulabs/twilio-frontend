@@ -114,9 +114,9 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                     Agent number: {e.agentNumber}
                   </Typography>
                 )}
-                <Typography level="body-sm">
+                {e.waitTime && <Typography level="body-sm">
                   Wait time: {e.waitTime} seconds
-                </Typography>
+                </Typography>}
                 {e.webhook && (
                   <Typography level="body-sm" sx={{ overflow: "scroll" }}>
                     Webhook URL: {e.webhook}

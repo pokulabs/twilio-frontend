@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAuthedTwilio } from "../context/TwilioProvider";
-import type { ChatInfo } from "../types";
+import type { ChatInfo } from "../types/types";
 import { makeChatId } from "../utils";
 import { apiClient } from "../api-client";
 

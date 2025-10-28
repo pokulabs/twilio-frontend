@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { useTwilio } from "../context/TwilioProvider";
 
-import type { WebhooksActivationStatus } from "../types";
+import type { WebhooksActivationStatus } from "../types/types";
 
 class WebhookClient {
     private webhookUrl: string;

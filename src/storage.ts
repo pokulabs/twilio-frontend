@@ -1,5 +1,5 @@
 import { User } from "oidc-client-ts";
-import type { WebhooksActivationStatus } from "./types";
+import type { WebhooksActivationStatus } from "./types/types";
 
 type Store = {
     sid: string;
