@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import {
   Box,
   Stack,
@@ -32,8 +33,8 @@ export default function TryIt() {
       id: "1",
       content: `Howdy!
 1. Enter your phone number above
-2. Start chatting
-3. At some point, ask to speak to a human
+2. Start chatting. E.g. "What are the best destinations for a vacation home?"
+3. Ask to speak to a human. E.g. "Is a human available to chat about this?"
 4. Check your texts and reply!`,
       isBot: true,
       timestamp: new Date(),
@@ -100,11 +101,21 @@ export default function TryIt() {
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
       console.error("Error sending message:", err);
-      setError("Failed to send message. Please try again.");
+
+      let friendlyMessage = "Sorry, I encountered an error. Please try again.";
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        if (status === 429) {
+          friendlyMessage =
+            "You've reached the weekly limit of playground messages. Please try again next week.";
+        }
+      }
+
+      setError(friendlyMessage);
 
       const errorMessage: DemoMessage = {
         id: (Date.now() + 1).toString(),
-        content: "Sorry, I encountered an error. Please try again.",
+        content: friendlyMessage,
         isBot: true,
         timestamp: new Date(),
       };
@@ -132,9 +143,9 @@ export default function TryIt() {
     >
       <Box sx={{ pb: 3 }}>
         <FormControl>
-          <FormLabel>Enter Phone Number</FormLabel>
+          <FormLabel>Enter Your Phone Number</FormLabel>
           <Input
-            placeholder="+1234567890"
+            placeholder="+12223334444"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             startDecorator={<PhoneRounded />}

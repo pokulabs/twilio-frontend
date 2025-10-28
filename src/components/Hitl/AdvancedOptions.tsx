@@ -119,7 +119,7 @@ export function AdvancedOptions({
                 <InfoTooltip
                   title={
                     <Typography>
-                      The human's response will be sent to this webhook URL.
+                      The human's response and any metadata will be sent to this webhook URL.
                     </Typography>
                   }
                 />

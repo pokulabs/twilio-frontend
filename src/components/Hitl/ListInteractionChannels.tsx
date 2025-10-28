@@ -56,6 +56,19 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
     navigator.clipboard.writeText(`https://mcp.pokulabs.com/${id}`);
   };
 
+  if (ics.length === 0) {
+    return (
+      <Box sx={{ mt: 4, mb: 4, textAlign: "center" }}>
+        <Typography level="body-lg" color="neutral">
+          No interaction channels found.
+        </Typography>
+        <Typography level="body-md" color="neutral" sx={{ mt: 1 }}>
+          Please configure a new interaction channel to get started.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box>
       <Typography level="title-md" sx={{ mt: 2 }}>
@@ -105,7 +118,7 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                   Wait time: {e.waitTime} seconds
                 </Typography>
                 {e.webhook && (
-                  <Typography level="body-sm">
+                  <Typography level="body-sm" sx={{ overflow: "scroll" }}>
                     Webhook URL: {e.webhook}
                   </Typography>
                 )}

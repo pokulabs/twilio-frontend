@@ -37,7 +37,7 @@ export function Usage() {
             title={
               <Box>
                 <Typography level="body-sm" sx={{ mt: 1 }} color="warning">
-                  {messageLimit} free msgs/month
+                  {messageLimit} free interactions/month
                 </Typography>
                 <br />
                 <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
