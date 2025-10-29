@@ -1,6 +1,6 @@
 import TwilioRawClient from "./twilio-raw-client";
 
-import type { PlainMessage, TwilioMsg } from "../types";
+import type { PlainMessage, TwilioMsg } from "../types/types";
 
 export class MessagesService {
     private client: TwilioRawClient;

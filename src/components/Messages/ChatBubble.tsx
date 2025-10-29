@@ -2,7 +2,7 @@ import Box from "@mui/joy/Box";
 import Stack from "@mui/joy/Stack";
 import Sheet from "@mui/joy/Sheet";
 import Typography from "@mui/joy/Typography";
-import type { PlainMessage } from "../../types";
+import type { PlainMessage } from "../../types/types";
 import { displayDynamicDateTime } from "../../utils";
 import React from "react";
 import { Link } from "@mui/joy";

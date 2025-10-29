@@ -48,9 +48,13 @@ export function TwilioForm() {
         value={authTokenInput}
         onChange={(e) => setAuthTokenInput(e.target.value)}
       />
-      <Button type="submit" variant="solid" onClick={() => {
-        setCredentials(sidInput, authTokenInput);
-      }}>
+      <Button
+        type="submit"
+        variant="solid"
+        onClick={() => {
+          setCredentials(sidInput, authTokenInput);
+        }}
+      >
         Save
       </Button>
       {isAuthenticated && !isLoading && (

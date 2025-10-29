@@ -1,4 +1,4 @@
-import type { WebhooksActivationStatus } from "../../types";
+import type { WebhooksActivationStatus } from "../../types/types";
 
 const EX_1_REQ = `{
     "event": "update-autonomy-state",

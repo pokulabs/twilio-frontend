@@ -15,7 +15,7 @@ import {
   Textarea,
   Typography,
 } from "@mui/joy";
-import type { ChatInfo } from "../../types";
+import type { ChatInfo } from "../../types/types";
 import { apiClient } from "../../api-client";
 
 type LabelInfo = { id: string; name: string; color: string };
@@ -121,7 +121,7 @@ export default function NotesLabelsModal(props: {
         if (created.data) {
           const newLabel = created.data; // { id, name, color }
           setAllLabels((prev) =>
-            prev.some((l) => l.id === newLabel.id) ? prev : [...prev, newLabel]
+            prev.some((l) => l.id === newLabel.id) ? prev : [...prev, newLabel],
           );
           await apiClient.assignLabelToChat(chat.chatId, newLabel.id);
         }
@@ -187,7 +187,11 @@ export default function NotesLabelsModal(props: {
             <Stack sx={{ flex: 2, minWidth: 0, minHeight: 0 }} spacing={1.25}>
               {chat.enrichedData?.displayName && (
                 <Stack spacing={0.5}>
-                  <Typography><Link href={chat.enrichedData.url} target="_blank">{chat.enrichedData.displayName}</Link></Typography>
+                  <Typography>
+                    <Link href={chat.enrichedData.url} target="_blank">
+                      {chat.enrichedData.displayName}
+                    </Link>
+                  </Typography>
                 </Stack>
               )}
               {chat.enrichedData?.card && (
@@ -200,7 +204,9 @@ export default function NotesLabelsModal(props: {
               <Stack spacing={0.5} sx={{ flex: 1, minHeight: 0 }}>
                 <Textarea
                   minRows={4}
-                  placeholder={loading ? "Loading..." : "Add notes about this contact"}
+                  placeholder={
+                    loading ? "Loading..." : "Add notes about this contact"
+                  }
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   sx={{
@@ -220,7 +226,12 @@ export default function NotesLabelsModal(props: {
                   <Typography level="body-sm" textColor="text.tertiary">
                     Assigned Labels
                   </Typography>
-                  <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap">
+                  <Stack
+                    direction="row"
+                    spacing={0.75}
+                    useFlexGap
+                    flexWrap="wrap"
+                  >
                     {assignedLabels.map((label) => (
                       <Chip
                         key={label.id}
@@ -230,7 +241,16 @@ export default function NotesLabelsModal(props: {
                           color: "var(--joy-palette-text-primary)",
                           bgcolor: `${label.color}20`,
                         }}
-                        startDecorator={<Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: label.color }} />}
+                        startDecorator={
+                          <Box
+                            sx={{
+                              width: 10,
+                              height: 10,
+                              borderRadius: "50%",
+                              bgcolor: label.color,
+                            }}
+                          />
+                        }
                         endDecorator={
                           <Box sx={{ pointerEvents: "auto" }}>
                             <IconButton
@@ -276,13 +296,22 @@ export default function NotesLabelsModal(props: {
                 <Select
                   placeholder="Select a label"
                   value={existingLabelId}
-                  onChange={(_, v) => setExistingLabelId(v ? (v as string) : null)}
+                  onChange={(_, v) =>
+                    setExistingLabelId(v ? (v as string) : null)
+                  }
                   disabled={disableExistingSelect}
                 >
                   <Option value="">Select a label</Option>
                   {availableLabels.map((l) => (
                     <Option key={l.id} value={l.id}>
-                      <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: l.color }} />
+                      <Box
+                        sx={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          bgcolor: l.color,
+                        }}
+                      />
                       {l.name}
                     </Option>
                   ))}
@@ -305,18 +334,32 @@ export default function NotesLabelsModal(props: {
                     <IconButton
                       key={c.color}
                       variant={selectedColor === c.color ? "soft" : "plain"}
-                      onClick={() => setSelectedColor(selectedColor === c.color ? null : c.color)}
+                      onClick={() =>
+                        setSelectedColor(
+                          selectedColor === c.color ? null : c.color,
+                        )
+                      }
                       sx={{
                         width: 28,
                         height: 28,
                         borderRadius: "50%",
                         p: 0,
-                        border: selectedColor === c.color ? `2px solid ${c.color}` : "2px solid transparent",
+                        border:
+                          selectedColor === c.color
+                            ? `2px solid ${c.color}`
+                            : "2px solid transparent",
                         bgcolor: "transparent",
                       }}
                       disabled={disableCreateFields}
                     >
-                      <Box sx={{ width: 20, height: 20, borderRadius: "50%", bgcolor: c.color }} />
+                      <Box
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          borderRadius: "50%",
+                          bgcolor: c.color,
+                        }}
+                      />
                     </IconButton>
                   ))}
                 </Stack>
@@ -339,7 +382,12 @@ export default function NotesLabelsModal(props: {
             direction="row"
             justifyContent="flex-end"
             spacing={1.5}
-            sx={{ mt: "auto", pt: 2, borderTop: "1px solid", borderColor: "divider" }}
+            sx={{
+              mt: "auto",
+              pt: 2,
+              borderTop: "1px solid",
+              borderColor: "divider",
+            }}
           >
             <Button
               variant="solid"

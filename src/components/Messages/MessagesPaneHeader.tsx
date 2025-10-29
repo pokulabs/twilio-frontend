@@ -27,7 +27,7 @@ import { Link as RLink } from "react-router-dom";
 
 import { toggleMessagesPane } from "../../utils";
 
-import type { ChatInfo } from "../../types";
+import type { ChatInfo } from "../../types/types";
 import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
 import { InfoTooltip } from "../shared/InfoTooltip";
@@ -86,9 +86,12 @@ export default function MessagesPaneHeader(props: MessagesPaneHeaderProps) {
               <MoreVertRounded />
             </MenuButton>
             <Menu>
-              <MenuItem disabled={!isAuthenticated} onClick={() => {
-                setCrmOpen(true);
-              }}>
+              <MenuItem
+                disabled={!isAuthenticated}
+                onClick={() => {
+                  setCrmOpen(true);
+                }}
+              >
                 Notes & labels
                 <OpenInNew></OpenInNew>
               </MenuItem>

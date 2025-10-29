@@ -1,15 +1,18 @@
 import {
   Box,
+  Link,
   Tab,
   tabClasses,
   TabList,
   TabPanel,
   Tabs,
+  Typography,
 } from "@mui/joy";
 
 import HumanAsATool from "./HumanAsATool";
 import TryIt from "./TryIt";
 import Steps from "./Steps";
+import InteractionsLog from "./InteractionsLog";
 
 function Hitl() {
   return (
@@ -22,7 +25,7 @@ function Hitl() {
           pt: 10,
         }}
       >
-        <Tabs defaultValue={0} sx={{ bgcolor: "transparent" }}>
+        <Tabs defaultValue={1} sx={{ bgcolor: "transparent" }}>
           <TabList
             tabFlex={1}
             size="sm"
@@ -53,37 +56,39 @@ function Hitl() {
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
               Instructions
             </Tab>
+            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={3}>
+              Log
+            </Tab>
           </TabList>
-          <TabPanel value={0}>
-            <TryIt />
-          </TabPanel>
-          <TabPanel value={1}>
-            <Box
-              sx={{
-                display: "flex",
-                marginTop: 5,
-                flexDirection: "column",
-                p: 2,
-                width: "100%",
-                // maxWidth: 500,
-              }}
-            >
+          <Box sx={{ p: 2 }}>
+            <Typography level="body-sm">
+              Enable your AI agent to loop in a human for help. Works with any
+              agent that can use MCP.
+            </Typography>
+            <Typography level="body-sm">
+              Learn more{" "}
+              <Link
+                href="https://www.pokulabs.com/guides/poku-human-in-the-loop-tools"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                here
+              </Link>
+              .
+            </Typography>
+            <TabPanel value={0} sx={{ p: 0 }}>
+              <TryIt />
+            </TabPanel>
+            <TabPanel value={1} sx={{ p: 0 }}>
               <HumanAsATool />
-            </Box>
-          </TabPanel>
-          <TabPanel value={2}>
-            <Box
-              sx={{
-                display: "flex",
-                marginTop: 5,
-                flexDirection: "column",
-                p: 1,
-                maxWidth: 900,
-              }}
-            >
+            </TabPanel>
+            <TabPanel value={2} sx={{ p: 0 }}>
               <Steps />
-            </Box>
-          </TabPanel>
+            </TabPanel>
+            <TabPanel value={3} sx={{ p: 0 }}>
+              <InteractionsLog />
+            </TabPanel>
+          </Box>
         </Tabs>
       </Box>
     </Box>

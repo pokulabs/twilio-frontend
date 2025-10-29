@@ -1,12 +1,12 @@
 import { Box, Radio, RadioGroup, radioClasses } from "@mui/joy";
-import type { UiChannel } from "./helpers";
+import { ConfigureIcState } from "./HumanAsATool";
 
 export function MediumSelector({
   uiChannel,
   setUiChannel,
 }: {
-  uiChannel: UiChannel;
-  setUiChannel: (m: UiChannel) => void;
+  uiChannel: ConfigureIcState["uiChannel"];
+  setUiChannel: (m: ConfigureIcState["uiChannel"]) => void;
 }) {
   return (
     <RadioGroup
@@ -16,14 +16,14 @@ export function MediumSelector({
       variant="outlined"
       value={uiChannel}
       onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-        setUiChannel(event.target.value as UiChannel)
+        setUiChannel(event.target.value as ConfigureIcState["uiChannel"])
       }
       sx={{
         display: "flex",
         width: "100%",
       }}
     >
-      {["sms", "whatsapp", "slack"].map((item) => (
+      {["sms", "whatsapp", "slack", "call"].map((item) => (
         <Box
           key={item}
           sx={(theme) => ({
@@ -56,9 +56,10 @@ export function MediumSelector({
                 slack: "Slack",
                 whatsapp: "WhatsApp",
                 sms: "SMS",
-              }[item as UiChannel]
+                call: "Call",
+              }[item as ConfigureIcState["uiChannel"]]
             }
-            variant={uiChannel === (item as UiChannel) ? "solid" : "plain"}
+            variant={uiChannel === (item as ConfigureIcState["uiChannel"]) ? "solid" : "plain"}
             slotProps={{
               input: { "aria-label": item },
               action: {
@@ -72,5 +73,3 @@ export function MediumSelector({
     </RadioGroup>
   );
 }
-
-

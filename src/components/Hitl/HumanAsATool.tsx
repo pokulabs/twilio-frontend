@@ -1,21 +1,22 @@
 import { useRef, useState } from "react";
-import { Button, Typography, Stack, Box, Link } from "@mui/joy";
+import { Stack, Box, Divider } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import withLoggedIn from "../../context/withLoggedIn";
 import { ListInteractionChannels } from "./ListInteractionChannels";
-import { Usage } from "../shared/Usage";
 import { MediumSelector } from "./MediumSelector";
 import { SmsInput } from "./SmsInput";
 import { SlackInput } from "./SlackInput";
 import { WhatsappInput } from "./WhatsappInput";
 import { WaitTimeInput } from "./WaitTimeInput";
-import type { Medium } from "../../types";
+import { AdvancedOptions } from "./AdvancedOptions";
+import CreateButton from "../shared/CreateButton";
+import { Medium } from "../../types/backend-frontend";
 
-
-export type UiChannel = "slack" | "whatsapp" | "sms";
-
-export function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium {
+export function mapUiChannelToMedium(
+  uc: ConfigureIcState["uiChannel"],
+  ownTwilio: boolean,
+): Medium {
   if (uc === "slack") {
     return uc;
   } else if (uc === "whatsapp") {
@@ -26,131 +27,145 @@ export function mapUiChannelToMedium(uc: UiChannel, ownTwilio: boolean): Medium 
     } else {
       return "sms_poku";
     }
-  } else {
+  } else if (uc === "call") {
+    return "call_poku";
+  }
+  else {
     throw new Error("Couldn't find uiChannel");
   }
 }
 
+export const mediumToUiChannelMap: Record<Medium, string> = {
+  slack: "Slack",
+  whatsapp_poku: "WhatsApp",
+  call_poku: "Call",
+  sms: "SMS",
+  sms_poku: "SMS",
+};
+
+export type ConfigureIcState = {
+  uiChannel: "slack" | "whatsapp" | "sms" | "call";
+  usingOwnTwilio: boolean;
+  humanNumber: string;
+  agentNumber: string;
+  waitTime: number;
+  webhook?: string;
+  validTimeSeconds?: number;
+};
+
 function HumanAsATool() {
-  const { phoneNumbers, whatsappNumbers, isAuthenticated: hasTwilioCreds, sid, authToken } = useTwilio();
+  const {
+    phoneNumbers,
+    whatsappNumbers,
+    isAuthenticated: hasTwilioCreds,
+    sid,
+    authToken,
+  } = useTwilio();
 
-  const [agentNumber, setAgentNumber] = useState("");
-  const [hostedAgentNumber] = useState("+16286001841");
-  const [waitTime, setWaitTime] = useState(60);
-  const [saveStatus, setSaveStatus] = useState<
-    "idle" | "saving" | "success" | "error"
-  >("idle");
-
-  const [uiChannel, setUiChannel] = useState<UiChannel>("sms");
-  const [usingOwnTwilio, setUsingOwnTwilio] = useState(false);
-  const [humanNumbers, setHumanNumbers] = useState<{
-    slack?: string;
-    whatsapp?: string;
-    sms?: string;
-  }>({});
-  const currentHumanNumber = humanNumbers[uiChannel] || "";
-  const updateHumanNumber = (val: string) => {
-    setHumanNumbers((prev) => ({ ...prev, [uiChannel]: val }));
-  };
+  const [form, setForm] = useState<ConfigureIcState>({
+    uiChannel: "sms",
+    usingOwnTwilio: false,
+    humanNumber: "",
+    agentNumber: "",
+    waitTime: 60,
+    webhook: undefined,
+    validTimeSeconds: undefined,
+  });
 
   const listRef = useRef<{ reload: () => void }>(null);
 
-  // Usage information is displayed via the shared <Usage /> component
-
   const handleSave = async () => {
-    setSaveStatus("saving");
-    try {
-      await apiClient.saveAccount(
-        currentHumanNumber,
-        usingOwnTwilio ? agentNumber : hostedAgentNumber,
-        waitTime,
-        mapUiChannelToMedium(uiChannel, usingOwnTwilio),
-      );
-      listRef.current?.reload(); // refresh the list
-
-      setSaveStatus("success");
-      setTimeout(() => setSaveStatus("idle"), 2000); // hide message after 2s
-    } catch (err) {
-      console.error(err);
-      setSaveStatus("error");
-      setTimeout(() => setSaveStatus("idle"), 4000);
-    }
+    await apiClient.createInteractionChannel(
+      form.humanNumber,
+      form.usingOwnTwilio ? form.agentNumber : "",
+      form.waitTime,
+      mapUiChannelToMedium(form.uiChannel, form.usingOwnTwilio),
+      form.webhook,
+      form.validTimeSeconds,
+    );
+    listRef.current?.reload();
   };
 
   return (
-    <Stack spacing={3} sx={{
-      maxWidth: 900,
-    }}>
-      <Box>
-        <Typography>
-          Enable your AI agent to loop in a human for help. Works with any agent
-          that can use MCP.
-        </Typography>
-        <Typography>
-          Learn more{" "}
-          <Link
-            href="https://www.pokulabs.com/guides/poku-human-in-the-loop-tools"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            here
-          </Link>
-          .
-        </Typography>
-      </Box>
-
-      <Usage />
-
-      <Box sx={{ display: "flex" }}>
-        <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} />
-      </Box>
-
-      {uiChannel === "slack" ? (
-        <SlackInput value={currentHumanNumber} onChange={updateHumanNumber} />
-      ) : uiChannel === "sms" ? (
-        <SmsInput
-          usingOwnTwilio={usingOwnTwilio}
-          setUsingOwnTwilio={setUsingOwnTwilio}
-          value={currentHumanNumber}
-          onChange={updateHumanNumber}
-          agentNumber={agentNumber}
-          setAgentNumber={setAgentNumber}
-          hasTwilioCreds={hasTwilioCreds}
-          phoneNumbers={phoneNumbers}
-          whatsappNumbers={whatsappNumbers}
-        />
-      ) : (
-        <WhatsappInput
-          value={currentHumanNumber}
-          onChange={updateHumanNumber}
-        />
-      )}
-
-      <WaitTimeInput value={waitTime} onChange={(val) => setWaitTime(val)} />
-
-      <Stack gap={1}>
-        <Button
-          onClick={handleSave}
-          disabled={
-            !currentHumanNumber ||
-            (!agentNumber && usingOwnTwilio) ||
-            (!sid && usingOwnTwilio) ||
-            (!authToken && usingOwnTwilio) ||
-            saveStatus === "saving"
+    <Box
+      sx={{
+        maxWidth: 782,
+      }}
+    >
+      <Stack spacing={3} sx={{ mt: 2 }}>
+        <MediumSelector
+          uiChannel={form.uiChannel}
+          setUiChannel={(val) =>
+            setForm((prev) => ({ ...prev, uiChannel: val }))
           }
-        >
-          Create
-        </Button>
-      </Stack>
-      {saveStatus === "success" && (
-        <Typography color="success">Settings saved!</Typography>
-      )}
-      {saveStatus === "error" && (
-        <Typography color="danger">Failed to save settings.</Typography>
-      )}
+        />
 
-      <ListInteractionChannels ref={listRef} />
-    </Stack>
+        {form.uiChannel === "slack" && (
+          <SlackInput onChange={(val) => setForm((prev) => ({ ...prev, humanNumber: val }))} />
+        )}
+        {form.uiChannel === "sms" && (
+          <SmsInput
+            usingOwnTwilio={form.usingOwnTwilio}
+            setUsingOwnTwilio={(val) =>
+              setForm((prev) => ({ ...prev, usingOwnTwilio: val }))
+            }
+            onChange={(val) => setForm((prev) => ({ ...prev, humanNumber: val }))}
+            agentNumber={form.agentNumber}
+            setAgentNumber={(val) =>
+              setForm((prev) => ({ ...prev, agentNumber: val }))
+            }
+            hasTwilioCreds={hasTwilioCreds}
+            phoneNumbers={phoneNumbers}
+            whatsappNumbers={whatsappNumbers}
+          />
+        )}
+        {form.uiChannel === "whatsapp" && (
+          <WhatsappInput
+            onChange={(val) => setForm((prev) => ({ ...prev, humanNumber: val }))}
+          />
+        )}
+        {form.uiChannel === "call" && (
+          <WhatsappInput onChange={(val) => setForm((prev) => ({ ...prev, humanNumber: val }))} />
+        )}
+
+        {form.uiChannel !== "call" && (
+          <WaitTimeInput
+            value={form.waitTime}
+            onChange={(val) => setForm((prev) => ({ ...prev, waitTime: val }))}
+          />
+        )}
+
+        {(form.uiChannel === "sms" || form.uiChannel === "whatsapp") && (
+          <AdvancedOptions
+            webhook={form.webhook}
+            setWebhook={(val) =>
+              setForm((prev) => ({ ...prev, webhook: val }))
+            }
+            setValidTimeSeconds={(val) =>
+              setForm((prev) => ({ ...prev, validTimeSeconds: val }))
+            }
+          />
+        )}
+
+        <Stack gap={1}>
+          <CreateButton
+            onCreate={handleSave}
+            disabled={
+              !form.humanNumber ||
+              (!form.agentNumber && form.usingOwnTwilio) ||
+              (!sid && form.usingOwnTwilio) ||
+              (!authToken && form.usingOwnTwilio)
+            }
+          >
+            Create
+          </CreateButton>
+        </Stack>
+
+        <Divider />
+
+        <ListInteractionChannels ref={listRef} />
+      </Stack>
+    </Box>
   );
 }
 export default withLoggedIn(HumanAsATool);

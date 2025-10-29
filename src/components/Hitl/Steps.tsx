@@ -7,18 +7,17 @@ import {
   AccordionSummary,
   AccordionDetails,
   AccordionGroup,
-  RadioGroup,
-  Radio,
   Modal,
+  Divider,
 } from "@mui/joy";
 import { Link as RLink } from "react-router-dom";
-import n8nImg from "../../assets/n8n-contact-human-mcp.png";
-import retellMcpImg from "../../assets/retell-mcp.png";
+import n8nImg from "../../assets/n8n-contact-human-mcp.jpeg";
+import retellMcpImg from "../../assets/retell-mcp.jpg";
 import retellMcpProxyImg from "../../assets/retell-mcp-proxy.png";
-import vapiMcpImg from "../../assets/vapi-mcp.png";
+import vapiMcpImg from "../../assets/vapi-mcp.jpeg";
 import vapiMcpProxyImg from "../../assets/vapi-mcp-proxy.png";
 import { ListInteractionChannels } from "./ListInteractionChannels";
-import { Usage } from "../shared/Usage";
+import SegmentedRadio from "../shared/SegmentedRadio";
 
 const mapContactHumanExamples = {
   n8n: n8nImg,
@@ -35,75 +34,23 @@ export default function Steps() {
   const [selectedTool, setSelectedTool] = useState(0);
 
   return (
-    <Box>
-      <ListInteractionChannels />
-
-      <Box sx={{ mt: 2 }}>
-        <Usage />
-      </Box>
-
+    <Box
+      sx={{
+        maxWidth: 782,
+      }}
+    >
       <Typography sx={{ mt: 4, mb: 1 }}>
         <b>1.</b> Choose a human-in-the-loop feature
       </Typography>
 
-      <Box sx={{ display: "flex", gap: 2 }}>
-        <RadioGroup
-          orientation="horizontal"
-          value={selectedTool}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setSelectedTool(+event.target.value)
-          }
-          sx={{
-            width: "100%",
-            minHeight: 35,
-            padding: "4px",
-            borderRadius: "12px",
-            bgcolor: "neutral.softBg",
-            "--RadioGroup-gap": "4px",
-            "--Radio-actionRadius": "8px",
-          }}
-        >
-          {[
-            {
-              value: 0,
-              label: "contact_human",
-            },
-            {
-              value: 1,
-              label: "tool_approval",
-            },
-          ].map((item) => (
-            <Radio
-              key={item.value.toString()}
-              color="neutral"
-              value={item.value}
-              disableIcon
-              label={item.label}
-              variant="plain"
-              sx={{
-                px: 2,
-                alignItems: "center",
-                flex: 1,
-                justifyContent: "center",
-                textAlign: "center",
-              }}
-              slotProps={{
-                action: ({ checked }) => ({
-                  sx: {
-                    ...(checked && {
-                      bgcolor: "background.surface",
-                      boxShadow: "sm",
-                      "&:hover": {
-                        bgcolor: "background.surface",
-                      },
-                    }),
-                  },
-                }),
-              }}
-            />
-          ))}
-        </RadioGroup>
-      </Box>
+      <SegmentedRadio
+        value={selectedTool}
+        onChange={(v) => setSelectedTool(v)}
+        options={[
+          { value: 0, label: "contact_human" },
+          { value: 1, label: "tool_approval" },
+        ]}
+      />
 
       {selectedTool === 0 ? (
         <Typography level="body-sm" sx={{ mt: 1 }}>
@@ -137,17 +84,20 @@ export default function Steps() {
                 <b>2.2</b> Navigate to your agent and create a MCP connection
               </Typography>
 
-              <ContactHumanExamples />
+              <ExampleLightboxGallery imagesMap={mapContactHumanExamples} />
 
               <Typography sx={{ mt: 1 }}>
                 <strong>Server URL:</strong>
                 <br />
-                Copy from your channel card above. This URL is specific to the channel you have configured.
+                Copy from your channel card below. This URL is specific to the
+                channel you have configured.
               </Typography>
               <Typography sx={{ mb: 1, mt: 1 }}>
                 <strong>Timeout:</strong>
                 <br />
-                If your platform allows you to set a timeout, we recommend setting the same wait time as what you have configured on your interaction channel.
+                If your platform allows you to set a timeout, we recommend
+                setting the same wait time as what you have configured on your
+                interaction channel.
               </Typography>
               <Typography>
                 <strong>Headers:</strong>{" "}
@@ -209,7 +159,7 @@ export default function Steps() {
                 optional
               />
               <Typography sx={{ mt: 1 }}></Typography>
-              <ToolApprovalExamples />
+              <ExampleLightboxGallery imagesMap={mapToolApprovalExamples} />
 
               <Typography sx={{ mt: 1 }}>
                 <b>2.3</b> Select the tool(s) you want to gate with human
@@ -232,16 +182,19 @@ export default function Steps() {
             <AccordionDetails sx={{ ml: 1 }}>
               <Typography>
                 <b>Example 1: </b>
-                Agent checks if a manager is available before transferring the call
+                Agent checks if a manager is available before transferring the
+                call
               </Typography>
               <Typography level="body-sm" sx={{ mt: 1, mb: 1 }}>
                 # HUMAN_TRANSFER_PROTOCOL
                 <br />
                 ## Workflow When Customer Requests a Human
                 <br />
-                **Step 1: Get Consent**  
+                **Step 1: Get Consent**
                 <br />
-                Ask: "Is it ok if I put you on hold for a minute while I check if a manager is available? I'll go silent but I'm still on the line."
+                Ask: "Is it ok if I put you on hold for a minute while I check
+                if a manager is available? I'll go silent but I'm still on the
+                line."
                 <br />
                 - If customer says NO → continue helping them yourself
                 <br />
@@ -249,32 +202,40 @@ export default function Steps() {
                 <br />
                 **Step 2: Check Availability**
                 <br />
-                Use `contact_human` with context: "Customer requesting human manager regarding [their issue]. Are you available?"
+                Use `contact_human` with context: "Customer requesting human
+                manager regarding [their issue]. Are you available?"
                 <br />
                 <br />
                 **Step 3: Act on Response**
                 <br />
-                - **Manager says YES** → "A manager is available. Transferring you now." → Use `transfer_call`
+                - **Manager says YES** → "A manager is available. Transferring
+                you now." → Use `transfer_call`
                 <br />
-                - **Manager says NO** → Share manager's input with customer → Continue conversation (no transfer)
+                - **Manager says NO** → Share manager's input with customer →
+                Continue conversation (no transfer)
                 <br />
-                - **No response/failure** → "I've left a note for the manager. Let me continue helping you." → Continue conversation (no transfer)
+                - **No response/failure** → "I've left a note for the manager.
+                Let me continue helping you." → Continue conversation (no
+                transfer)
                 <br />
                 ## Critical Rules
-                <br />
-                - NEVER use `transfer_call` without manager confirmation via `contact_human`
+                <br />- NEVER use `transfer_call` without manager confirmation
+                via `contact_human`
               </Typography>
 
               <Typography>
                 <b>Example 2: </b>
-                Agent escalates to a human when encountering a question outside the knowledge base
+                Agent escalates to a human when encountering a question outside
+                the knowledge base
               </Typography>
               <Typography level="body-sm" sx={{ mt: 1, mb: 1 }}>
-                If the user asks a question that is outside the scope of the knowledge base, ask: "Is it ok if I put you on hold for a minute while I check with a manager on your question? I'll go silent but I'm still on the line."
+                If the user asks a question that is outside the scope of the
+                knowledge base, ask: "Is it ok if I put you on hold for a minute
+                while I check with a manager on your question? I'll go silent
+                but I'm still on the line."
                 <br />
                 - If customer says NO → continue helping them yourself
-                <br />
-                - If customer says YES → use contact_human tool
+                <br />- If customer says YES → use contact_human tool
               </Typography>
             </AccordionDetails>
           </Accordion>
@@ -285,6 +246,11 @@ export default function Steps() {
         <b>{selectedTool === 0 ? "4" : "3"}.</b> Configure the channel your
         agent will use to contact a human.
       </Typography>
+
+      <Box sx={{ my: 2 }}>
+        <Divider />
+      </Box>
+      <ListInteractionChannels />
     </Box>
   );
 }
@@ -314,18 +280,6 @@ function CodeBlock({
   );
 }
 
-function ContactHumanExamples() {
-  return (
-    <ExampleLightboxGallery imagesMap={mapContactHumanExamples} />
-  );
-}
-
-function ToolApprovalExamples() {
-  return (
-    <ExampleLightboxGallery imagesMap={mapToolApprovalExamples} />
-  );
-}
-
 function ExampleLightboxGallery({
   imagesMap,
 }: {
@@ -351,7 +305,10 @@ function ExampleLightboxGallery({
               overflow: "hidden",
             }}
           >
-            <img src={img} style={{ width: 80, height: 50, objectFit: "cover" }} />
+            <img
+              src={img}
+              style={{ width: 80, height: 50, objectFit: "cover" }}
+            />
             <Typography level="body-xs" sx={{ textAlign: "center" }}>
               {key}
             </Typography>
@@ -362,14 +319,27 @@ function ExampleLightboxGallery({
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10000,
+        }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           {selectedKey !== null && (
             <img
               src={imagesMap[selectedKey]}
               style={{
                 objectFit: "contain",
+                maxWidth: "95vw",
+                maxHeight: "95vh",
                 borderRadius: 8,
                 boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
               }}

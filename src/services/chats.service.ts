@@ -2,7 +2,7 @@ import { makeChatId, parseChatId } from "../utils.ts";
 import TwilioRawClient from "./twilio-raw-client.ts";
 import { storage } from "../storage.ts";
 
-import type { ChatInfo, PlainMessage, TwilioMsg } from "../types.ts";
+import type { ChatInfo, PlainMessage, TwilioMsg } from "../types/types.ts";
 
 type MessagePaginator = Awaited<ReturnType<TwilioRawClient["getMessages"]>>;
 
@@ -68,10 +68,10 @@ export class ContactsService {
 
     getChatsByIds(chatIds: string[]) {
         return Promise.all(
-            chatIds.map(chatId => {
+            chatIds.map((chatId) => {
                 const { activeNumber, contactNumber } = parseChatId(chatId);
                 return this.getChat(activeNumber, contactNumber);
-            })
+            }),
         );
     }
 

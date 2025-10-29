@@ -1,7 +1,7 @@
 import { POLL_INTERVAL } from "./utils";
 import TwilioRawClient from "./services/twilio-raw-client";
 
-import type { PlainMessage, TwilioMsg } from "./types";
+import type { PlainMessage, TwilioMsg } from "./types/types";
 
 type Event = "new-message";
 type CB = (msg: PlainMessage) => void;

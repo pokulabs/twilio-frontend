@@ -11,8 +11,7 @@ import {
 } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
-import { ChatInfo } from "../../types";
-
+import { ChatInfo } from "../../types/types";
 
 export default function AssignModal(props: {
   open: boolean;
@@ -52,20 +51,24 @@ export default function AssignModal(props: {
               setAssignee(newAssignee!);
             }}
           >
-            {orgMembers.map(e => {
+            {orgMembers.map((e) => {
               return (
-                <Option key={e.id} value={e.id}>{e.email}</Option>
+                <Option key={e.id} value={e.id}>
+                  {e.email}
+                </Option>
               );
             })}
           </Select>
 
-          <Button disabled={!assignee} onClick={async () => {
-            await apiClient.assignChat(props.chat.chatId, assignee!);
-            props.onClose();
-          }}>
+          <Button
+            disabled={!assignee}
+            onClick={async () => {
+              await apiClient.assignChat(props.chat.chatId, assignee!);
+              props.onClose();
+            }}
+          >
             Assign
           </Button>
-          
         </Stack>
       </Sheet>
     </Modal>

@@ -1,7 +1,8 @@
 import axios, { type AxiosInstance } from "axios";
-import type { Medium, MessageDirection } from "./types";
+import type { MessageDirection } from "./types/types";
 import { Recipient } from "./components/Campaigns/CsvUploader";
 import { checkIsAuthenticated } from "./services/auth";
+import { Medium } from "./types/backend-frontend";
 
 class ApiClient {
     private api: AxiosInstance;
@@ -41,24 +42,31 @@ class ApiClient {
             (response) => response,
             (error) => {
                 // Check if the error is due to request abortion
-                if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
+                if (
+                    error.name === "AbortError" ||
+                    error.code === "ERR_CANCELED"
+                ) {
                     return Promise.resolve({ data: undefined });
                 }
                 return Promise.reject(error);
-            }
+            },
         );
     }
 
     async getTwilioCreds() {
-        return this.api.get<{ id: string; key: string; } | undefined>("/account/keys/twilio");
+        return this.api.get<{ id: string; key: string } | undefined>(
+            "/account/keys/twilio",
+        );
     }
 
     async checkLlmKeyExists() {
-        return this.api.get<{ key: string; } | undefined>("/account/keys/openai");
+        return this.api.get<{ key: string } | undefined>(
+            "/account/keys/openai",
+        );
     }
 
     async checkVapiKeyExists() {
-        return this.api.get<{ key: string; } | undefined>("/account/keys/vapi");
+        return this.api.get<{ key: string } | undefined>("/account/keys/vapi");
     }
 
     async createLlmKey(key: string) {
@@ -83,40 +91,50 @@ class ApiClient {
         });
     }
 
-    async saveAccount(
+    async createInteractionChannel(
         humanNumber: string,
         agentNumber: string,
         waitTime: number,
         medium: Medium,
+        webhook?: string,
+        validTime?: number,
     ) {
-        return this.api.post<{ id: string; } | undefined>("/account", {
+        return this.api.post<{ id: string } | undefined>("/account", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
             medium: medium,
+            webhook: webhook,
+            validTime: validTime,
         });
     }
 
     async getInteractionChannels() {
-        return this.api.get<{
-            data: {
-                id: string;
-                humanNumber: string;
-                agentNumber: string;
-                waitTime: number;
-                medium: Medium;
-                webhookUrl?: string;
-                validTime?: string;
-            }[];
-        } | undefined>("/account");
+        return this.api.get<
+            | {
+                  data: {
+                      id: string;
+                      humanNumber: string;
+                      agentNumber: string;
+                      waitTime: number;
+                      medium: Medium;
+                      webhook?: string;
+                      validTime?: number;
+                  }[];
+              }
+            | undefined
+        >("/account");
     }
 
     async getAccountLimits() {
-        return this.api.get<{
-            haatMessageCount: number;
-            lastReset: Date | undefined;
-            haatMessageLimit: number;
-        } | undefined>("/account/limits");
+        return this.api.get<
+            | {
+                  haatMessageCount: number;
+                  lastReset: Date | undefined;
+                  haatMessageLimit: number;
+              }
+            | undefined
+        >("/account/limits");
     }
 
     async deleteInteractionChannel(interactionChannelId: string) {
@@ -124,13 +142,16 @@ class ApiClient {
     }
 
     async getAgents() {
-        return this.api.get<{
-            data: {
-                id: string;
-                prompt: string;
-                messageDirection: MessageDirection;
-            }[];
-        } | undefined>("/agents");
+        return this.api.get<
+            | {
+                  data: {
+                      id: string;
+                      prompt: string;
+                      messageDirection: MessageDirection;
+                  }[];
+              }
+            | undefined
+        >("/agents");
     }
 
     async createAgent(params: {
@@ -147,27 +168,37 @@ class ApiClient {
         return this.api.delete(`/agents/${id}`);
     }
 
-    async getChats(filters: { chatsOfInterest?: string[]; isFlagged?: boolean; isClaimed?: boolean; labelIds?: string[] } = {}) {
-        return this.api.post<{
-            data: {
-                chatCode: string;
-                isDisabled: boolean;
-                isFlagged: boolean;
-                flaggedReason?: string;
-                flaggedMessage?: string;
-                claimedBy?: string;
-                enrichedData?: {
-                    displayName: string;
-                    card: string;
-                    url: string;
-                };
-                labels?: {
-                    id: string;
-                    color: string;
-                    name: string;
-                }[];
-            }[];
-        } | undefined>("/chats", filters);
+    async getChats(
+        filters: {
+            chatsOfInterest?: string[];
+            isFlagged?: boolean;
+            isClaimed?: boolean;
+            labelIds?: string[];
+        } = {},
+    ) {
+        return this.api.post<
+            | {
+                  data: {
+                      chatCode: string;
+                      isDisabled: boolean;
+                      isFlagged: boolean;
+                      flaggedReason?: string;
+                      flaggedMessage?: string;
+                      claimedBy?: string;
+                      enrichedData?: {
+                          displayName: string;
+                          card: string;
+                          url: string;
+                      };
+                      labels?: {
+                          id: string;
+                          color: string;
+                          name: string;
+                      }[];
+                  }[];
+              }
+            | undefined
+        >("/chats", filters);
     }
 
     async resolveChat(chatId: string) {
@@ -186,24 +217,23 @@ class ApiClient {
 
     // Labels APIs
     async listUserLabels() {
-        return this.api.get<{ data: { id: string; name: string; color: string }[] } | undefined>(
-            "/user-settings/labels",
-        );
+        return this.api.get<
+            { data: { id: string; name: string; color: string }[] } | undefined
+        >("/user-settings/labels");
     }
 
     async getChatLabels(chatId: string) {
-        return this.api.get<{ data: { id: string; name: string; color: string }[] } | undefined>(
-            `/chats/${chatId}/labels`,
-        );
+        return this.api.get<
+            { data: { id: string; name: string; color: string }[] } | undefined
+        >(`/chats/${chatId}/labels`);
     }
 
     async createLabel(name: string, color: string) {
-        return this.api.post<{ id: string; name: string; color: string } | undefined>(
-          "/user-settings/labels",
-          { name, color },
-        );
-      }
-      async assignLabelToChat(chatId: string, labelId: string) {
+        return this.api.post<
+            { id: string; name: string; color: string } | undefined
+        >("/user-settings/labels", { name, color });
+    }
+    async assignLabelToChat(chatId: string, labelId: string) {
         return this.api.post(`/chats/${chatId}/labels/${labelId}`);
     }
 
@@ -213,7 +243,9 @@ class ApiClient {
 
     // Notes (lazy-loaded) for CRM modal
     async getChatNotes(chatId: string) {
-        return this.api.get<{ notes: string | null | undefined }>(`/chats/${chatId}/notes`);
+        return this.api.get<{ notes: string | null | undefined }>(
+            `/chats/${chatId}/notes`,
+        );
     }
 
     async saveChatNotes(chatId: string, notes: string) {
@@ -296,6 +328,36 @@ class ApiClient {
             phoneNumber,
         });
     }
+
+  async getInteractions(params: { page?: number; pageSize?: number } = {}) {
+    const search = new URLSearchParams();
+    if (params.page) search.set("page", String(params.page));
+    if (params.pageSize) search.set("pageSize", String(params.pageSize));
+    const qs = search.toString();
+    return this.api.get<
+      | {
+          data: {
+            id: string;
+            createdAt: string;
+            type: string;
+            humanNumber: string;
+            agentNumber: string;
+            waitTime: number;
+            medium: Medium;
+            message: string;
+            response: string | null;
+            responseTime: string | null;
+          }[];
+          pagination: {
+            page: number;
+            pageSize: number;
+            total: number;
+            totalPages: number;
+          };
+        }
+      | undefined
+    >(`/interactions${qs ? `?${qs}` : ""}`);
+  }
 }
 
 export const apiClient = new ApiClient();

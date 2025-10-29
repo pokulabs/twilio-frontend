@@ -3,7 +3,6 @@ import { Link as RLink } from "react-router-dom";
 import { InfoTooltip } from "../shared/InfoTooltip";
 
 export function SmsInput({
-  value,
   onChange,
   usingOwnTwilio,
   setUsingOwnTwilio,
@@ -13,7 +12,6 @@ export function SmsInput({
   phoneNumbers,
   whatsappNumbers,
 }: {
-  value: string;
   onChange: (val: string) => void;
   usingOwnTwilio: boolean;
   setUsingOwnTwilio: (val: boolean) => void;
@@ -63,10 +61,10 @@ export function SmsInput({
             <InfoTooltip
               title={
                 <Typography>
-                  Who would you like your AI agent to reach out to in case of
-                  an escalation? Enter the number of the human staff member
-                  below. This is the person who will respond to the AI agent in
-                  case of an escalation.
+                  Who would you like your AI agent to reach out to in case of an
+                  escalation? Enter the number of the human staff member below.
+                  This is the person who will respond to the AI agent in case of
+                  an escalation.
                 </Typography>
               }
             />
@@ -76,7 +74,6 @@ export function SmsInput({
         </Typography>
 
         <Input
-          value={value}
           onChange={(e) => onChange(e.target.value || "")}
           placeholder="Ex: +12223334444"
         />
@@ -84,5 +81,3 @@ export function SmsInput({
     </>
   );
 }
-
-

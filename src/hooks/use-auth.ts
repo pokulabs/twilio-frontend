@@ -3,17 +3,24 @@ import { authClient } from "../services/auth";
 
 export function useAuth() {
     const { data, isPending, error } = authClient.useSession();
-    const [organizations, setOrganizations] = useState<{
-        id: string;
-        name: string;
-        slug: string;
-        createdAt: Date;
-        logo?: string | null | undefined | undefined;
-        metadata?: any;
-    }[] | null>(null);
+    const [organizations, setOrganizations] = useState<
+        | {
+              id: string;
+              name: string;
+              slug: string;
+              createdAt: Date;
+              logo?: string | null | undefined | undefined;
+              metadata?: any;
+          }[]
+        | null
+    >(null);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [orgMemberRole, setOrgMemberRole] = useState<"owner" | "admin" | "member" | null>(null);
-    const [orgMembers, setOrgMembers] = useState<{ email: string, id: string; }[]>([]);
+    const [orgMemberRole, setOrgMemberRole] = useState<
+        "owner" | "admin" | "member" | null
+    >(null);
+    const [orgMembers, setOrgMembers] = useState<
+        { email: string; id: string }[]
+    >([]);
     const isAuthenticated = !!data;
 
     useEffect(() => {
@@ -30,14 +37,18 @@ export function useAuth() {
                     await authClient.organization.setActive({
                         organizationId: orgs.data[0].id,
                     });
-                    const orgMember = await authClient.organization.getActiveMember();
+                    const orgMember =
+                        await authClient.organization.getActiveMember();
                     if (orgMember.data?.role) {
-                        setOrgMemberRole(orgMember.data.role as "admin" | "member" | "owner");
+                        setOrgMemberRole(
+                            orgMember.data.role as "admin" | "member" | "owner",
+                        );
                     }
-        
-                    const fullOrg = await authClient.organization.getFullOrganization();
+
+                    const fullOrg =
+                        await authClient.organization.getFullOrganization();
                     if (fullOrg.data) {
-                        const memberList = fullOrg.data.members.map(e => {
+                        const memberList = fullOrg.data.members.map((e) => {
                             return {
                                 email: e.user.email,
                                 id: (e.user as any).id,
@@ -47,11 +58,11 @@ export function useAuth() {
                     }
                 }
             }
-    
+
             const hasPermission = await authClient.admin.hasPermission({
                 permissions: {
                     user: ["create"],
-                }
+                },
             });
             if (hasPermission.data?.success) {
                 setIsAdmin(true);
@@ -59,7 +70,6 @@ export function useAuth() {
         };
 
         void setAuthInfo();
-
     }, [isAuthenticated]);
 
     return {

@@ -1,10 +1,16 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 import TwilioClient from "../twilio-client";
 import { EventEmitter } from "../event-emitter";
 import { storage } from "../storage";
 
-import type { WebhooksActivationStatus } from "../types";
+import type { WebhooksActivationStatus } from "../types/types";
 import { useAuth } from "../hooks/use-auth";
 import { apiClient } from "../api-client";
 
@@ -89,7 +95,9 @@ export const TwilioProvider: React.FC<{ children: ReactNode }> = ({
         storage.setCredentials("", "");
         const creds = await apiClient.getTwilioCreds();
         if (creds.data) {
-          await setCredentials(creds.data.id, creds.data.key, { skipPersist: true });
+          await setCredentials(creds.data.id, creds.data.key, {
+            skipPersist: true,
+          });
         }
       } else {
         const sid = storage.get("sid");
@@ -100,7 +108,11 @@ export const TwilioProvider: React.FC<{ children: ReactNode }> = ({
     init();
   }, [isLoggedIn, isAuthLoading]);
 
-  const setCredentials = async (sid: string | null, authToken: string | null, { skipPersist = false } = {}) => {
+  const setCredentials = async (
+    sid: string | null,
+    authToken: string | null,
+    { skipPersist = false } = {},
+  ) => {
     if (!sid || !authToken) {
       return;
     }

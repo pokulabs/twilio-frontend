@@ -3,10 +3,8 @@ import { InfoTooltip } from "../shared/InfoTooltip";
 import { SLACK_LINK } from "../../utils";
 
 export function SlackInput({
-  value,
   onChange,
 }: {
-  value: string;
   onChange: (val: string) => void;
 }) {
   return (
@@ -23,9 +21,9 @@ export function SlackInput({
               title={
                 <Typography>
                   This is the human your AI will reach out to in case of an
-                  interaction. In Slack, go to your user profile. Then click
-                  the 3 vertical dots button. Select "Copy Member ID" and
-                  paste it here.
+                  interaction. In Slack, go to your user profile. Then click the
+                  3 vertical dots button. Select "Copy Member ID" and paste it
+                  here.
                 </Typography>
               }
             />
@@ -35,7 +33,6 @@ export function SlackInput({
         </Typography>
 
         <Input
-          value={value}
           onChange={(e) => onChange(e.target.value || "")}
           placeholder="Ex: U08LGBTCBNH"
         />
@@ -43,5 +40,3 @@ export function SlackInput({
     </>
   );
 }
-
-

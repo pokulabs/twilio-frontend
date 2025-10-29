@@ -7,11 +7,15 @@ import {
   Typography,
   Avatar,
 } from "@mui/joy";
-import { Circle, DoNotTouchRounded, ThumbUpOffAltOutlined } from "@mui/icons-material";
+import {
+  Circle,
+  DoNotTouchRounded,
+  ThumbUpOffAltOutlined,
+} from "@mui/icons-material";
 
 import { displayDynamicDateTime, toggleMessagesPane } from "../../utils";
 
-import type { ChatInfo } from "../../types";
+import type { ChatInfo } from "../../types/types";
 import { useAuth } from "../../hooks/use-auth";
 type ChatListItemProps = ListItemButtonProps & {
   chat: ChatInfo;
@@ -72,7 +76,6 @@ export default function ChatListItem(props: ChatListItemProps) {
               alignItems="center"
               justifyContent="space-between"
             >
-
               <Typography
                 level="body-sm"
                 sx={{
@@ -95,13 +98,18 @@ export default function ChatListItem(props: ChatListItemProps) {
                     titleAccess={e.name}
                   />
                 ))}
-                {chat.claimedBy && (chat.claimedBy === userEmail ? 
-                  <ThumbUpOffAltOutlined sx={{ fontSize: 14 }} titleAccess={chat.claimedBy} />
-                  : <DoNotTouchRounded
-                    sx={{ fontSize: 14 }}
-                    titleAccess={chat.claimedBy}
-                  />
-                )}
+                {chat.claimedBy &&
+                  (chat.claimedBy === userEmail ? (
+                    <ThumbUpOffAltOutlined
+                      sx={{ fontSize: 14 }}
+                      titleAccess={chat.claimedBy}
+                    />
+                  ) : (
+                    <DoNotTouchRounded
+                      sx={{ fontSize: 14 }}
+                      titleAccess={chat.claimedBy}
+                    />
+                  ))}
               </Stack>
             </Stack>
           </Stack>

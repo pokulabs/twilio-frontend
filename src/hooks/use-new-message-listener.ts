@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAuthedTwilio } from "../context/TwilioProvider";
-import type { ChatInfo } from "../types";
+import type { ChatInfo } from "../types/types";
 import { makeChatId } from "../utils";
 import { apiClient } from "../api-client";
 
@@ -33,10 +33,12 @@ export function useNewMessageListener(
                 recentMsgDirection: msg.direction,
             };
 
-            const augmentations = await apiClient.getChats({ chatsOfInterest: [chatId] });
-            const match = augmentations.data && augmentations.data.data.find(
-                (e) => e.chatCode === chatId,
-            );
+            const augmentations = await apiClient.getChats({
+                chatsOfInterest: [chatId],
+            });
+            const match =
+                augmentations.data &&
+                augmentations.data.data.find((e) => e.chatCode === chatId);
             if (match) {
                 Object.assign(newChat, match);
             }
