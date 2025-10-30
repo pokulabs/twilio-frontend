@@ -16,27 +16,24 @@ import { Medium } from "../../types/backend-frontend";
 export function mapUiChannelToMedium(
   uc: ConfigureIcState["uiChannel"],
   ownTwilio: boolean,
+  ownSlack: boolean,
 ): Medium {
   if (uc === "slack") {
-    return "slack_poku";
+    return ownSlack ? "slack" : "slack_poku";
   } else if (uc === "whatsapp") {
     return "whatsapp_poku";
   } else if (uc === "sms") {
-    if (ownTwilio) {
-      return "sms";
-    } else {
-      return "sms_poku";
-    }
+    return ownTwilio ? "sms" : "sms_poku";
   } else if (uc === "call") {
     return "call_poku";
-  }
-  else {
+  } else {
     throw new Error("Couldn't find uiChannel");
   }
 }
 
 export const mediumToUiChannelMap: Record<Medium, string> = {
   slack_poku: "Slack",
+  slack: "Slack",
   whatsapp_poku: "WhatsApp",
   call_poku: "Call",
   sms: "SMS",
@@ -46,6 +43,7 @@ export const mediumToUiChannelMap: Record<Medium, string> = {
 export type ConfigureIcState = {
   uiChannel: "slack" | "whatsapp" | "sms" | "call";
   usingOwnTwilio: boolean;
+  usingOwnSlack: boolean;
   humanNumber: string;
   agentNumber: string;
   waitTime: number;
@@ -55,9 +53,6 @@ export type ConfigureIcState = {
 
 function HumanAsATool() {
   const {
-    phoneNumbers,
-    whatsappNumbers,
-    isAuthenticated: hasTwilioCreds,
     sid,
     authToken,
   } = useTwilio();
@@ -65,6 +60,7 @@ function HumanAsATool() {
   const [form, setForm] = useState<ConfigureIcState>({
     uiChannel: "sms",
     usingOwnTwilio: false,
+    usingOwnSlack: false,
     humanNumber: "",
     agentNumber: "",
     waitTime: 60,
@@ -75,11 +71,18 @@ function HumanAsATool() {
   const listRef = useRef<{ reload: () => void }>(null);
 
   const handleSave = async () => {
+    const shouldSendAgentNumber =
+      (form.uiChannel === "slack" && form.usingOwnSlack) ||
+      (form.uiChannel === "sms" && form.usingOwnTwilio);
     await apiClient.createInteractionChannel(
       form.humanNumber,
-      form.usingOwnTwilio ? form.agentNumber : "",
-      form.uiChannel === "call" ? form.waitTime : undefined,
-      mapUiChannelToMedium(form.uiChannel, form.usingOwnTwilio),
+      shouldSendAgentNumber ? form.agentNumber : "",
+      form.uiChannel !== "call" ? form.waitTime : undefined,
+      mapUiChannelToMedium(
+        form.uiChannel,
+        form.usingOwnTwilio,
+        form.usingOwnSlack,
+      ),
       form.webhook,
       form.validTimeSeconds,
     );
@@ -101,7 +104,21 @@ function HumanAsATool() {
         />
 
         {form.uiChannel === "slack" && (
-          <SlackInput onChange={(val) => setForm((prev) => ({ ...prev, humanNumber: val }))} />
+          <SlackInput
+            value={{
+              usingOwnSlack: form.usingOwnSlack,
+              agentNumber: form.agentNumber,
+              humanNumber: form.humanNumber,
+            }}
+            onChange={({ usingOwnSlack, agentNumber, humanNumber }) =>
+              setForm((prev) => ({
+                ...prev,
+                usingOwnSlack,
+                agentNumber,
+                humanNumber,
+              }))
+            }
+          />
         )}
         {form.uiChannel === "sms" && (
           <SmsInput
@@ -114,9 +131,6 @@ function HumanAsATool() {
             setAgentNumber={(val) =>
               setForm((prev) => ({ ...prev, agentNumber: val }))
             }
-            hasTwilioCreds={hasTwilioCreds}
-            phoneNumbers={phoneNumbers}
-            whatsappNumbers={whatsappNumbers}
           />
         )}
         {form.uiChannel === "whatsapp" && (
@@ -152,9 +166,12 @@ function HumanAsATool() {
             onCreate={handleSave}
             disabled={
               !form.humanNumber ||
-              (!form.agentNumber && form.usingOwnTwilio) ||
-              (!sid && form.usingOwnTwilio) ||
-              (!authToken && form.usingOwnTwilio)
+              (form.uiChannel === "sms" && form.usingOwnTwilio &&
+                !form.agentNumber) ||
+              (form.uiChannel === "slack" && form.usingOwnSlack &&
+                !form.agentNumber) ||
+              (form.uiChannel === "sms" && form.usingOwnTwilio && !sid) ||
+              (form.uiChannel === "sms" && form.usingOwnTwilio && !authToken)
             }
           >
             Create

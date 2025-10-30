@@ -1,18 +1,59 @@
-import { Box, Input, Link, Typography } from "@mui/joy";
+import { Box, Checkbox, Input, Link, Typography } from "@mui/joy";
 import { InfoTooltip } from "../shared/InfoTooltip";
 import { SLACK_LINK } from "../../utils";
 
+type SlackValues = { usingOwnSlack: boolean; agentNumber: string; humanNumber: string };
+
 export function SlackInput({
+  value,
   onChange,
 }: {
-  onChange: (val: string) => void;
+  value: SlackValues;
+  onChange: (next: SlackValues) => void;
 }) {
+
   return (
     <>
-      <Typography level="body-sm">
+      <Box>
+        <Checkbox
+          label="Use my own Slack workspace"
+          checked={value.usingOwnSlack}
+          onChange={(e) => onChange({ ...value, usingOwnSlack: e.target.checked })}
+        />
+        {value.usingOwnSlack && (
+          <>
+            <Typography level="body-sm" sx={{ mb: 1 }}>
+              Make sure you've installed the Slack app in your workspace, then enter your Team ID below.
+            </Typography>
+            <a target="_blank" href="https://slack.com/oauth/v2/authorize?client_id=8696401389877.9342964367269&scope=chat:write,chat:write.public,im:history,im:write,users:read,mpim:write,incoming-webhook&user_scope="><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+            <Box sx={{ mt: 1 }}>
+              <Typography
+                level="title-md"
+                endDecorator={
+                  <InfoTooltip
+                    title={
+                      <Typography>
+                        This is the ID of your Slack workspace. You can find it <a href="https://slack.com/help/articles/221769328-Locate-your-Slack-URL-or-ID#find-your-workspace-or-org-id" target="_blank" rel="noopener noreferrer">here</a>.
+                      </Typography>
+                    }
+                  />
+                }
+              >Slack Team ID</Typography>
+              <Input
+                value={value.agentNumber}
+                onChange={(e) => onChange({ ...value, agentNumber: e.target.value || "" })}
+                placeholder="Ex: T0123456789"
+              />
+            </Box>
+
+          </>
+        )}
+      </Box>
+
+      {!value.usingOwnSlack && <Typography level="body-sm">
         Join our <Link href={SLACK_LINK}>Slack channel</Link> and reply in a
         thread to your agent.
-      </Typography>
+      </Typography>}
       <Box>
         <Typography
           level="title-md"
@@ -33,7 +74,8 @@ export function SlackInput({
         </Typography>
 
         <Input
-          onChange={(e) => onChange(e.target.value || "")}
+          value={value.humanNumber}
+          onChange={(e) => onChange({ ...value, humanNumber: e.target.value || "" })}
           placeholder="Ex: U08LGBTCBNH"
         />
       </Box>
