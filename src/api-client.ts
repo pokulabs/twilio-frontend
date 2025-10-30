@@ -94,7 +94,7 @@ class ApiClient {
     async createInteractionChannel(
         humanNumber: string,
         agentNumber: string,
-        waitTime: number,
+        waitTime: number | undefined,
         medium: Medium,
         webhook?: string,
         validTime?: number,
