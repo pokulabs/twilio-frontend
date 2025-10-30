@@ -78,7 +78,7 @@ function HumanAsATool() {
     await apiClient.createInteractionChannel(
       form.humanNumber,
       form.usingOwnTwilio ? form.agentNumber : "",
-      form.uiChannel === "call" ? form.waitTime : undefined,
+      form.uiChannel !== "call" ? form.waitTime : undefined,
       mapUiChannelToMedium(form.uiChannel, form.usingOwnTwilio),
       form.webhook,
       form.validTimeSeconds,
