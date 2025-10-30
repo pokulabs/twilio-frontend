@@ -18,7 +18,7 @@ export function mapUiChannelToMedium(
   ownTwilio: boolean,
 ): Medium {
   if (uc === "slack") {
-    return uc;
+    return "slack_poku";
   } else if (uc === "whatsapp") {
     return "whatsapp_poku";
   } else if (uc === "sms") {
@@ -36,7 +36,7 @@ export function mapUiChannelToMedium(
 }
 
 export const mediumToUiChannelMap: Record<Medium, string> = {
-  slack: "Slack",
+  slack_poku: "Slack",
   whatsapp_poku: "WhatsApp",
   call_poku: "Call",
   sms: "SMS",

@@ -80,7 +80,7 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
       <Stack direction="row" gap={2} sx={{ flexWrap: "wrap" }}>
         {ics.map((e) => {
           const mediumIconMap: Record<string, string> = {
-            slack,
+            slack_poku: slack,
             whatsapp_poku: whatsapp,
             call_poku: call,
             sms,
