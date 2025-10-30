@@ -16,6 +16,7 @@ import whatsapp from "../../assets/whatsapp.png";
 import sms from "../../assets/sms.png";
 import call from "../../assets/call.png";
 import { Usage } from "../shared/Usage";
+import { Medium } from "../../types/backend-frontend";
 
 function formatDuration(totalSeconds: number): string {
   if (!Number.isFinite(totalSeconds)) return "—";
@@ -79,13 +80,15 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
       </Box>
       <Stack direction="row" gap={2} sx={{ flexWrap: "wrap" }}>
         {ics.map((e) => {
-          const mediumIconMap: Record<string, string> = {
+          const mediumIconMap: Record<Medium, string> = {
+            slack: slack,
             slack_poku: slack,
             whatsapp_poku: whatsapp,
             call_poku: call,
-            sms,
+            sms: sms,
+            sms_poku: sms,
           };
-          const iconSrc = mediumIconMap[e.medium] || sms;
+          const iconSrc = mediumIconMap[e.medium];
 
           return (
             <Card
@@ -105,11 +108,11 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                 src={iconSrc}
                 sx={{ width: 32, height: 32, mb: 1 }}
               />
-              <CardContent sx={{ p: 0 }}>
-                <Typography level="body-sm" sx={{ mb: 0.5 }}>
-                  Contact: {e.humanNumber || "—"}
+              <CardContent >
+                <Typography level="body-sm">
+                  Contact: {e.humanNumber}
                 </Typography>
-                {e.medium === "sms" && (
+                {e.agentNumber && (
                   <Typography level="body-sm">
                     Agent number: {e.agentNumber}
                   </Typography>

@@ -1,26 +1,27 @@
 import { Box, Checkbox, Input, Option, Select, Typography } from "@mui/joy";
 import { Link as RLink } from "react-router-dom";
 import { InfoTooltip } from "../shared/InfoTooltip";
+import { useTwilio } from "../../context/TwilioProvider";
 
 export function SmsInput({
   onChange,
   usingOwnTwilio,
   setUsingOwnTwilio,
-  hasTwilioCreds,
   agentNumber,
   setAgentNumber,
-  phoneNumbers,
-  whatsappNumbers,
 }: {
   onChange: (val: string) => void;
   usingOwnTwilio: boolean;
   setUsingOwnTwilio: (val: boolean) => void;
-  hasTwilioCreds: boolean;
   agentNumber: string;
   setAgentNumber: (val: string) => void;
-  phoneNumbers: string[];
-  whatsappNumbers: string[];
 }) {
+  const {
+    phoneNumbers,
+    whatsappNumbers,
+    isAuthenticated: hasTwilioCreds,
+  } = useTwilio();
+
   return (
     <>
       <Box>
