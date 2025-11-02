@@ -14,6 +14,7 @@ import Campaigns from "./components/Campaigns/Campaigns";
 import Login from "./components/Login";
 import Admin from "./components/Admin/Admin";
 import Flagging from "./components/Flagging/Flagging";
+import PublicReply from "./components/PublicReply/PublicReply";
 
 export default function App() {
   return (
@@ -22,11 +23,7 @@ export default function App() {
         <CssVarsProvider disableTransitionOnChange>
           <CssBaseline />
           <Router>
-            <Box
-              sx={{
-                display: "flex",
-              }}
-            >
+            <Box sx={{ display: "flex" }}>
               <Sidebar />
               <Header />
               <Routes>
@@ -38,6 +35,7 @@ export default function App() {
                 <Route path="/hitl" element={<Hitl />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/reply/:token" element={<PublicReply />} />
               </Routes>
             </Box>
           </Router>

@@ -96,8 +96,9 @@ class ApiClient {
         agentNumber: string,
         waitTime: number | undefined,
         medium: Medium,
-        webhook?: string,
-        validTime?: number,
+        webhook: string | undefined,
+        validTime: number | undefined,
+        linkEnabled: boolean | undefined,
     ) {
         return this.api.post<{ id: string } | undefined>("/account", {
             humanNumber: humanNumber,
@@ -106,6 +107,7 @@ class ApiClient {
             medium: medium,
             webhook: webhook,
             validTime: validTime,
+            linkEnabled: linkEnabled,
         });
     }
 
@@ -120,6 +122,7 @@ class ApiClient {
                       medium: Medium;
                       webhook?: string;
                       validTime?: number;
+                    linkEnabled?: boolean;
                   }[];
               }
             | undefined

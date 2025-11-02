@@ -1,5 +1,6 @@
 import {
   Box,
+  Checkbox,
   Divider,
   Input,
   Option,
@@ -17,12 +18,16 @@ export type AdvancedOptionsProps = {
   webhook?: string;
   setWebhook: (val: string | undefined) => void;
   setValidTimeSeconds: (val: number | undefined) => void;
+  linkEnabled?: boolean;
+  setLinkEnabled?: (val: boolean) => void;
 };
 
 export function AdvancedOptions({
   webhook,
   setWebhook,
   setValidTimeSeconds,
+  linkEnabled,
+  setLinkEnabled,
 }: AdvancedOptionsProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [currentUnit, setCurrentUnit] = useState<TimeUnit>("minutes");
@@ -66,6 +71,13 @@ export function AdvancedOptions({
       </Box>
       {showAdvanced && (
         <Stack gap={1.5} sx={{ mt: 1 }}>
+          <Box>
+            <Checkbox
+              label="Include reply link (Poku page)"
+              checked={!!linkEnabled}
+              onChange={(e) => setLinkEnabled?.(e.target.checked)}
+            />
+          </Box>
           <Box>
             <Typography
               level="body-sm"

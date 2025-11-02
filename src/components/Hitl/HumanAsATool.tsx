@@ -49,6 +49,7 @@ export type ConfigureIcState = {
   waitTime: number;
   webhook?: string;
   validTimeSeconds?: number;
+  linkEnabled?: boolean;
 };
 
 function HumanAsATool() {
@@ -66,6 +67,7 @@ function HumanAsATool() {
     waitTime: 60,
     webhook: undefined,
     validTimeSeconds: undefined,
+    linkEnabled: false,
   });
 
   const listRef = useRef<{ reload: () => void }>(null);
@@ -85,6 +87,7 @@ function HumanAsATool() {
       ),
       form.webhook,
       form.validTimeSeconds,
+      form.linkEnabled,
     );
     listRef.current?.reload();
   };
@@ -157,6 +160,10 @@ function HumanAsATool() {
             }
             setValidTimeSeconds={(val) =>
               setForm((prev) => ({ ...prev, validTimeSeconds: val }))
+            }
+            linkEnabled={form.linkEnabled}
+            setLinkEnabled={(val) =>
+              setForm((prev) => ({ ...prev, linkEnabled: val }))
             }
           />
         )}

@@ -130,6 +130,11 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                     Follow-up time: {formatDuration(e.validTime)}
                   </Typography>
                 )}
+                {e.linkEnabled && (
+                  <Typography level="body-sm">
+                    Reply link: {e.linkEnabled ? "On" : "Off"}
+                  </Typography>
+                )}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Typography level="body-sm">Copy MCP URL</Typography>
                   <IconButton
