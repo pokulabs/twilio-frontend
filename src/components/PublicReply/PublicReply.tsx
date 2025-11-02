@@ -79,8 +79,8 @@ export default function PublicReply() {
 
   if (status === "success") {
     return (
-      <Sheet sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", p: 2 }}>
-        <Box sx={{ maxWidth: 560 }}>
+      <Sheet sx={{ display: "flex", alignItems: "center", justifyContent: "center", p: 2, mx: "auto", width: "100%" }}>
+        <Box>
           <Typography level="h3" sx={{ mb: 1 }}>Thanks!</Typography>
           <Typography level="body-lg">Your response has been recorded.</Typography>
         </Box>
@@ -89,8 +89,8 @@ export default function PublicReply() {
   }
 
   return (
-    <Sheet sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", p: 2 }}>
-      <Box sx={{ width: "100%", maxWidth: 680 }}>
+    <Sheet sx={{ display: "flex", alignItems: "center", justifyContent: "center", p: 2, mx: "auto", width: "100%" }}>
+      <Box>
         <Typography level="h3" sx={{ mb: 1 }}>Reply to the request</Typography>
 
         {loading ? (
