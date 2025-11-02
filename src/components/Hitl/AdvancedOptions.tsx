@@ -20,6 +20,8 @@ export type AdvancedOptionsProps = {
   setValidTimeSeconds: (val: number | undefined) => void;
   linkEnabled?: boolean;
   setLinkEnabled?: (val: boolean) => void;
+  showFollowUp?: boolean;
+  showWebhook?: boolean;
 };
 
 export function AdvancedOptions({
@@ -28,6 +30,8 @@ export function AdvancedOptions({
   setValidTimeSeconds,
   linkEnabled,
   setLinkEnabled,
+  showFollowUp = true,
+  showWebhook = true,
 }: AdvancedOptionsProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [currentUnit, setCurrentUnit] = useState<TimeUnit>("minutes");
@@ -78,6 +82,7 @@ export function AdvancedOptions({
               onChange={(e) => setLinkEnabled?.(e.target.checked)}
             />
           </Box>
+          {showFollowUp && (
           <Box>
             <Typography
               level="body-sm"
@@ -106,7 +111,7 @@ export function AdvancedOptions({
                   <Select
                     value={currentUnit}
                     variant="plain"
-                    onChange={(_, next) => setCurrentUnit(next || "seconds")}
+                    onChange={(_, next) => setCurrentUnit((next ?? "seconds") as TimeUnit)}
                     slotProps={{
                       listbox: {
                         variant: "outlined",
@@ -123,6 +128,8 @@ export function AdvancedOptions({
               }
             />
           </Box>
+          )}
+          {showWebhook && (
           <Box>
             <Typography
               level="body-sm"
@@ -145,6 +152,7 @@ export function AdvancedOptions({
               onChange={(e) => setWebhook(e.target.value || undefined)}
             />
           </Box>
+          )}
         </Stack>
       )}
     </Box>

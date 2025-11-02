@@ -167,6 +167,23 @@ function HumanAsATool() {
             }
           />
         )}
+        {form.uiChannel === "slack" && (
+          <AdvancedOptions
+            webhook={form.webhook}
+            setWebhook={(val) =>
+              setForm((prev) => ({ ...prev, webhook: val }))
+            }
+            setValidTimeSeconds={(val) =>
+              setForm((prev) => ({ ...prev, validTimeSeconds: val }))
+            }
+            linkEnabled={form.linkEnabled}
+            setLinkEnabled={(val) =>
+              setForm((prev) => ({ ...prev, linkEnabled: val }))
+            }
+            showFollowUp={false}
+            showWebhook={false}
+          />
+        )}
 
         <Stack gap={1}>
           <CreateButton
