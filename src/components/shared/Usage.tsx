@@ -35,7 +35,7 @@ export function CreditsRemaining() {
                   <br />
                   Add more credits{" "}
                   <a
-                    href="https://buy.stripe.com/28E5kF3XMfPh8Cv6PKeEo01"
+                    href="https://buy.stripe.com/8x2dRb9i66eH3ib6PKeEo02"
                     target="_blank"
                   >
                     here
