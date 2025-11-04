@@ -129,15 +129,13 @@ class ApiClient {
         >("/account");
     }
 
-    async getAccountLimits() {
+    async getAccountCredits() {
         return this.api.get<
             | {
-                  haatMessageCount: number;
-                  lastReset: Date | undefined;
-                  haatMessageLimit: number;
+                  creditsRemaining: number;
               }
             | undefined
-        >("/account/limits");
+        >("/account/credits");
     }
 
     async deleteInteractionChannel(interactionChannelId: string) {

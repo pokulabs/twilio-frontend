@@ -15,7 +15,7 @@ import slack from "../../assets/slack-color.png";
 import whatsapp from "../../assets/whatsapp.png";
 import sms from "../../assets/sms.png";
 import call from "../../assets/call.png";
-import { Usage } from "../shared/Usage";
+import { CreditsRemaining } from "../shared/Usage";
 import { Medium } from "../../types/backend-frontend";
 
 function formatDuration(totalSeconds: number): string {
@@ -76,7 +76,7 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
         My Channels
       </Typography>
       <Box sx={{ mb: 2, mt: 1 }}>
-        <Usage />
+        <CreditsRemaining />
       </Box>
       <Stack direction="row" gap={2} sx={{ flexWrap: "wrap" }}>
         {ics.map((e) => {
