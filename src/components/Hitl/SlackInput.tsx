@@ -25,7 +25,7 @@ export function SlackInput({
             <Typography level="body-sm" sx={{ mb: 1 }}>
               Make sure you've installed the Slack app in your workspace, then enter your Team ID below.
             </Typography>
-            <a target="_blank" href="https://slack.com/oauth/v2/authorize?client_id=8696401389877.9342964367269&scope=chat:write,chat:write.public,im:history,im:write,users:read,mpim:write,incoming-webhook&user_scope="><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+            <a target="_blank" href="https://slack.com/oauth/v2/authorize?client_id=8696401389877.9342964367269&scope=chat:write,chat:write.public,im:history,im:write,users:read,mpim:write&user_scope="><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
             <Box sx={{ mt: 1 }}>
               <Typography
                 level="title-md"
