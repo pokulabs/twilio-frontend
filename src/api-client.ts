@@ -330,6 +330,32 @@ class ApiClient {
         });
     }
 
+  async getActiveInteractions() {
+    return this.api.get<
+      | {
+          data: {
+            id: string;
+            createdAt: string;
+            type: string;
+            humanNumber: string;
+            agentNumber: string | null;
+            waitTime: number;
+            medium: Medium;
+            message: string;
+            metadata: Record<string, unknown> | null;
+            expiresAt: string;
+          }[];
+        }
+      | undefined
+    >("/interactions/active");
+  }
+
+  async respondToInteraction(interactionId: string, response: string) {
+    return this.api.post(`/interactions/${interactionId}/respond`, {
+      response,
+    });
+  }
+
   async getInteractions(params: { page?: number; pageSize?: number } = {}) {
     const search = new URLSearchParams();
     if (params.page) search.set("page", String(params.page));
