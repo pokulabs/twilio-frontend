@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/joy";
+import { Box, Button, Typography } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { InfoTooltip } from "./InfoTooltip";
 
@@ -22,32 +22,36 @@ export function CreditsRemaining() {
   }, []);
 
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        gap: 1,
+      }}
+    >
       <Typography
         level="body-sm"
-        sx={{ mb: 1 }}
+        sx={{ mb: 0 }}
         endDecorator={
           <InfoTooltip
             title={
-              <Box>
-                <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
-                  1 credit per message. 5 credits per voice call.
-                  <br />
-                  Add more credits{" "}
-                  <a
-                    href="https://buy.stripe.com/8x2dRb9i66eH3ib6PKeEo02"
-                    target="_blank"
-                  >
-                    here
-                  </a>
-                </Typography>
-              </Box>
+              <Typography level="body-sm" color="warning">
+                1 credit per message. 10 credits per voice call.
+              </Typography>
             }
           />
         }
       >
         Credits remaining: {creditsRemaining ?? "--"}
       </Typography>
+      <Button
+        size="sm"
+        variant="soft"
+        component="a"
+        href="https://buy.stripe.com/8x2dRb9i66eH3ib6PKeEo02"
+        target="_blank"
+      >
+        Add credits
+      </Button>
     </Box>
   );
 }
