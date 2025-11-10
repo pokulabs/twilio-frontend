@@ -168,24 +168,19 @@ export default function ChatsPane(props: {
         </IconButton>
       </Stack>
       <Stack sx={{ px: 2, pb: 1.5 }} spacing={1}>
-        <Select
+        <Autocomplete
           value={filters.activeNumber}
-          onChange={(_event, newPhoneNumber) => {
-            if (!newPhoneNumber) return;
+          onChange={(_event, newValue) => {
+            if (!newValue) return;
             onUpdateFilters((prev) => ({
               ...prev,
-              activeNumber: newPhoneNumber,
+              activeNumber: newValue,
             }));
           }}
-        >
-          {phoneNumbers.concat(whatsappNumbers).map((e) => {
-            return (
-              <Option key={e} value={e}>
-                {e}
-              </Option> // Ensure each Option has a unique key and correct display value
-            );
-          })}
-        </Select>
+          disableClearable={true}
+          options={phoneNumbers.concat(whatsappNumbers)}
+          placeholder="Select a number"
+        />
         <Stack direction="row" spacing={1}>
           <SearchContact onUpdateFilters={onUpdateFilters} />
           <MessageFilter
