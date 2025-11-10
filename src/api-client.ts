@@ -4,6 +4,16 @@ import { Recipient } from "./components/Campaigns/CsvUploader";
 import { checkIsAuthenticated } from "./services/auth";
 import { Medium } from "./types/backend-frontend";
 
+declare module "axios" {
+    interface AxiosRequestConfig {
+        skipAuth?: boolean;
+    }
+
+    interface InternalAxiosRequestConfig {
+        skipAuth?: boolean;
+    }
+}
+
 class ApiClient {
     private api: AxiosInstance;
 
@@ -15,6 +25,10 @@ class ApiClient {
         });
 
         this.api.interceptors.request.use(async (config) => {
+            if (config.skipAuth) {
+                return config;
+            }
+
             const controller = new AbortController();
 
             const isAuthenticated = await checkIsAuthenticated();
@@ -324,10 +338,31 @@ class ApiClient {
     }
 
     async sendDemoMessage(message: string, phoneNumber: string) {
-        return this.api.post("/playground/chat", {
-            message,
-            phoneNumber,
-        });
+        return this.api.post(
+            "/playground/chat",
+            {
+                message,
+                phoneNumber,
+            },
+            { skipAuth: true },
+        );
+    }
+
+    async getPublicReply(token: string) {
+        return this.api.get<{
+            message: string;
+            secondsRemaining: number;
+            expired: boolean;
+            alreadyResponded: boolean;
+        } | undefined>(`/public/reply/${token}`, { skipAuth: true });
+    }
+
+    async submitPublicReply(token: string, message: string) {
+        return this.api.post(
+            `/public/reply/${token}`,
+            { message },
+            { skipAuth: true },
+        );
     }
 
   async getActiveInteractions() {

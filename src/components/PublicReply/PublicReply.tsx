@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import { Box, Button, Sheet, Textarea, Typography } from "@mui/joy";
+import { apiClient } from "../../api-client";
 
+// TODO: use apiClient (need to be signed in to use it?)
+// remove secondsRemaining from api response and share code with "active interactions" page
 export default function PublicReply() {
   const { token } = useParams<{ token: string }>();
   const [message, setMessage] = useState("");
@@ -16,13 +18,6 @@ export default function PublicReply() {
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const api = useMemo(() => {
-    return axios.create({
-      baseURL: import.meta.env.VITE_API_URL,
-      withCredentials: false,
-    });
-  }, []);
-
   useEffect(() => {
     let timer: number | undefined;
     if (!token) return;
@@ -30,13 +25,13 @@ export default function PublicReply() {
     setError(null);
     (async () => {
       try {
-        const res = await api.get(`/public/reply/${token}`);
-        const data = res.data as {
-          message: string;
-          secondsRemaining: number;
-          expired: boolean;
-          alreadyResponded: boolean;
-        };
+        const res = await apiClient.getPublicReply(token);
+        const data = res?.data;
+        if (!data) {
+          setError("Invalid or expired link");
+          setInfo(null);
+          return;
+        }
         setInfo(data);
         // Start countdown locally
         if (!data.expired && !data.alreadyResponded) {
@@ -69,7 +64,7 @@ export default function PublicReply() {
     setStatus("submitting");
     setError(null);
     try {
-      await api.post(`/public/reply/${token}`, { message });
+      await apiClient.submitPublicReply(token, message);
       setStatus("success");
     } catch (e: any) {
       setStatus("error");
