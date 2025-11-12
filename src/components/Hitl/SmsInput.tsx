@@ -1,7 +1,15 @@
-import { Box, Checkbox, Input, Option, Select, Typography } from "@mui/joy";
+import {
+  Box,
+  Checkbox,
+  Option,
+  Select,
+  Typography,
+} from "@mui/joy";
 import { Link as RLink } from "react-router-dom";
 import { InfoTooltip } from "../shared/InfoTooltip";
 import { useTwilio } from "../../context/TwilioProvider";
+import { HumanNumberInput } from "../shared/HumanNumberInput";
+
 
 export function SmsInput({
   onChange,
@@ -74,10 +82,7 @@ export function SmsInput({
           Human Number
         </Typography>
 
-        <Input
-          onChange={(e) => onChange(e.target.value || "")}
-          placeholder="Ex: +12223334444"
-        />
+        <HumanNumberInput onChange={onChange} />
       </Box>
     </>
   );

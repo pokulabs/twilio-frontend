@@ -1,5 +1,6 @@
-import { Box, Input, Typography } from "@mui/joy";
+import { Box, Typography } from "@mui/joy";
 import { InfoTooltip } from "../shared/InfoTooltip";
+import { HumanNumberInput } from "../shared/HumanNumberInput";
 
 export function WhatsappInput({
   onChange,
@@ -26,10 +27,7 @@ export function WhatsappInput({
         Human Number
       </Typography>
 
-      <Input
-        onChange={(e) => onChange(e.target.value || "")}
-        placeholder="Ex: +12223334444"
-      />
+      <HumanNumberInput onChange={onChange} />
     </Box>
   );
 }
