@@ -27,6 +27,7 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-oidc-context": "^3.3.0",
+    "react-phone-number-input": "^3.4.13",
     "react-router-dom": "^7.5.2",
     "react-use-websocket": "^4.13.0"
   },
