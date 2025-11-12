@@ -49,7 +49,7 @@ export default function Login() {
           {magicLinkSent ? (
             <Box sx={{ textAlign: "center", py: 4 }}>
               <Typography level="title-lg" sx={{ mb: 1 }}>
-                📬 Check your email
+                📬 Check your email (and spam)
               </Typography>
               <Typography>
                 We've sent a login link to <strong>{email}</strong>
