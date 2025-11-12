@@ -13,9 +13,14 @@ import { displayDateTime } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
 import withLoggedIn from "../../context/withLoggedIn";
 
-type Interaction = NonNullable<
-  Awaited<ReturnType<typeof apiClient.getInteractions>>["data"]
-> extends { data: infer D } ? D extends Array<infer R> ? R : never : never;
+type Interaction =
+  NonNullable<
+    Awaited<ReturnType<typeof apiClient.getInteractions>>["data"]
+  > extends { data: infer D }
+    ? D extends Array<infer R>
+      ? R
+      : never
+    : never;
 
 function InteractionsLog() {
   const [data, setData] = useState<Interaction[]>([]);
@@ -43,7 +48,7 @@ function InteractionsLog() {
   }, []);
 
   return (
-    <Stack spacing={2} sx={{ mt: 2}}>
+    <Stack spacing={2} sx={{ mt: 2 }}>
       <Sheet variant="outlined" sx={{ borderRadius: 8 }}>
         <Table>
           <thead>
@@ -63,7 +68,9 @@ function InteractionsLog() {
             {loading ? (
               <tr>
                 <td colSpan={9}>
-                  <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", py: 4 }}
+                  >
                     <CircularProgress />
                   </Box>
                 </td>
@@ -76,14 +83,32 @@ function InteractionsLog() {
                   <td>{r.type}</td>
                   <td>{r.agentNumber}</td>
                   <td>{r.humanNumber}</td>
-                  <td title={r.message} style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <td
+                    title={r.message}
+                    style={{
+                      maxWidth: 320,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {r.message}
                   </td>
-                  <td title={r.response ?? ""} style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <td
+                    title={r.response ?? ""}
+                    style={{
+                      maxWidth: 320,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {r.response ?? ""}
                   </td>
                   <td>
-                    {r.responseTime ? displayDateTime(new Date(r.responseTime)) : ""}
+                    {r.responseTime
+                      ? displayDateTime(new Date(r.responseTime))
+                      : ""}
                   </td>
                   <td>{r.waitTime}</td>
                 </tr>

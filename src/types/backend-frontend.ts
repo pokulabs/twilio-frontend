@@ -1,7 +1,7 @@
 export type Medium =
-  | "sms"
-  | "sms_poku"
-  | "whatsapp_poku"
-  | "slack_poku"
-  | "slack"
-  | "call_poku";
+    | "sms"
+    | "sms_poku"
+    | "whatsapp_poku"
+    | "slack_poku"
+    | "slack"
+    | "call_poku";

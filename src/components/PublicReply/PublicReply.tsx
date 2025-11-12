@@ -8,7 +8,9 @@ import { apiClient } from "../../api-client";
 export default function PublicReply() {
   const { token } = useParams<{ token: string }>();
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<{
     message: string;
@@ -74,34 +76,75 @@ export default function PublicReply() {
 
   if (status === "success") {
     return (
-      <Sheet sx={{ display: "flex", alignItems: "center", justifyContent: "center", p: 2, mx: "auto", width: "100%" }}>
+      <Sheet
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 2,
+          mx: "auto",
+          width: "100%",
+        }}
+      >
         <Box>
-          <Typography level="h3" sx={{ mb: 1 }}>Thanks!</Typography>
-          <Typography level="body-lg">Your response has been recorded.</Typography>
+          <Typography level="h3" sx={{ mb: 1 }}>
+            Thanks!
+          </Typography>
+          <Typography level="body-lg">
+            Your response has been recorded.
+          </Typography>
         </Box>
       </Sheet>
     );
   }
 
   return (
-    <Sheet sx={{ display: "flex", alignItems: "center", justifyContent: "center", p: 2, mx: "auto", width: "100%" }}>
+    <Sheet
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        p: 2,
+        mx: "auto",
+        width: "100%",
+      }}
+    >
       <Box>
-        <Typography level="h3" sx={{ mb: 1 }}>Reply to the request</Typography>
+        <Typography level="h3" sx={{ mb: 1 }}>
+          Reply to the request
+        </Typography>
 
         {loading ? (
-          <Typography level="body-sm" sx={{ mb: 2, color: "neutral.500" }}>Loading…</Typography>
+          <Typography level="body-sm" sx={{ mb: 2, color: "neutral.500" }}>
+            Loading…
+          </Typography>
         ) : error ? (
-          <Typography level="body-sm" color="danger" sx={{ mb: 2 }}>{error}</Typography>
+          <Typography level="body-sm" color="danger" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
         ) : info ? (
           <>
-            <Box sx={{ mb: 2, p: 1.5, borderRadius: 8, border: "1px solid", borderColor: "neutral.outlinedBorder" }}>
-              <Typography level="body-sm" sx={{ color: "neutral.600" }}>Request</Typography>
-              <Typography level="body-md" sx={{ mt: 0.5 }}>{info.message}</Typography>
+            <Box
+              sx={{
+                mb: 2,
+                p: 1.5,
+                borderRadius: 8,
+                border: "1px solid",
+                borderColor: "neutral.outlinedBorder",
+              }}
+            >
+              <Typography level="body-sm" sx={{ color: "neutral.600" }}>
+                Request
+              </Typography>
+              <Typography level="body-md" sx={{ mt: 0.5 }}>
+                {info.message}
+              </Typography>
             </Box>
 
             {!info.alreadyResponded && !info.expired && (
               <Typography level="body-sm" sx={{ mb: 1, color: "neutral.600" }}>
-                Time remaining: {Math.floor(info.secondsRemaining / 60)}:{String(info.secondsRemaining % 60).padStart(2, "0")}
+                Time remaining: {Math.floor(info.secondsRemaining / 60)}:
+                {String(info.secondsRemaining % 60).padStart(2, "0")}
               </Typography>
             )}
 
@@ -115,15 +158,29 @@ export default function PublicReply() {
               </Typography>
             ) : (
               <>
-                <Typography level="body-sm" sx={{ mb: 2, color: "neutral.500" }}>
+                <Typography
+                  level="body-sm"
+                  sx={{ mb: 2, color: "neutral.500" }}
+                >
                   Enter your response below and submit.
                 </Typography>
-                <Textarea minRows={6} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type your response..." />
-                {(status === "error") && (
-                  <Typography level="body-sm" color="danger" sx={{ mt: 1 }}>{error}</Typography>
+                <Textarea
+                  minRows={6}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Type your response..."
+                />
+                {status === "error" && (
+                  <Typography level="body-sm" color="danger" sx={{ mt: 1 }}>
+                    {error}
+                  </Typography>
                 )}
                 <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                  <Button onClick={handleSubmit} loading={status === "submitting"} disabled={!message.trim()}>
+                  <Button
+                    onClick={handleSubmit}
+                    loading={status === "submitting"}
+                    disabled={!message.trim()}
+                  >
                     Submit response
                   </Button>
                 </Box>
@@ -135,5 +192,3 @@ export default function PublicReply() {
     </Sheet>
   );
 }
-
-

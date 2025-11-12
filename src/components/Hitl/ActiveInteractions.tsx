@@ -21,13 +21,14 @@ import { apiClient } from "../../api-client";
 import { displayDateTime } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
 
-type ActiveInteraction = NonNullable<
-  Awaited<ReturnType<typeof apiClient.getActiveInteractions>>["data"]
-> extends { data: infer D }
-  ? D extends Array<infer R>
-    ? R
-    : never
-  : never;
+type ActiveInteraction =
+  NonNullable<
+    Awaited<ReturnType<typeof apiClient.getActiveInteractions>>["data"]
+  > extends { data: infer D }
+    ? D extends Array<infer R>
+      ? R
+      : never
+    : never;
 
 function ActiveInteractions() {
   const [data, setData] = useState<ActiveInteraction[]>([]);
@@ -65,7 +66,9 @@ function ActiveInteractions() {
       } catch (err) {
         const errorMessage =
           (err as AxiosError<{ error?: string }>).response?.data?.error ??
-          (err instanceof Error ? err.message : "Failed to load active interactions");
+          (err instanceof Error
+            ? err.message
+            : "Failed to load active interactions");
         setError(errorMessage);
       } finally {
         if (showSpinner) {
@@ -124,7 +127,10 @@ function ActiveInteractions() {
         0,
         Math.floor((expiresAtMs - now) / 1000),
       );
-      const elapsedSeconds = Math.min(totalSeconds, totalSeconds - remainingSeconds);
+      const elapsedSeconds = Math.min(
+        totalSeconds,
+        totalSeconds - remainingSeconds,
+      );
       const progress = Math.round((elapsedSeconds / totalSeconds) * 100);
 
       return {
@@ -166,12 +172,20 @@ function ActiveInteractions() {
       ) : null}
 
       {loading ? (
-        <Sheet variant="outlined" sx={{ borderRadius: 8, p: 6, textAlign: "center" }}>
+        <Sheet
+          variant="outlined"
+          sx={{ borderRadius: 8, p: 6, textAlign: "center" }}
+        >
           <CircularProgress />
         </Sheet>
       ) : hasNoData ? (
-        <Sheet variant="outlined" sx={{ borderRadius: 8, p: 4, textAlign: "center" }}>
-          <Typography level="body-md">No active interactions right now.</Typography>
+        <Sheet
+          variant="outlined"
+          sx={{ borderRadius: 8, p: 4, textAlign: "center" }}
+        >
+          <Typography level="body-md">
+            No active interactions right now.
+          </Typography>
           <Typography level="body-sm" color="neutral">
             We refresh automatically every 15 seconds.
           </Typography>
@@ -181,19 +195,29 @@ function ActiveInteractions() {
           {rows.map((row) => {
             const createdAt = new Date(row.createdAt);
             const expiresAt = new Date(row.expiresAt);
-            const statusColor = row.remainingSeconds > 60
-              ? "success"
-              : row.remainingSeconds > 0
-              ? "warning"
-              : "neutral";
-            const statusLabel = row.remainingSeconds > 0 ? `${row.remainingSeconds}s left` : "Expired";
+            const statusColor =
+              row.remainingSeconds > 60
+                ? "success"
+                : row.remainingSeconds > 0
+                  ? "warning"
+                  : "neutral";
+            const statusLabel =
+              row.remainingSeconds > 0
+                ? `${row.remainingSeconds}s left`
+                : "Expired";
             const metadataEntries = Object.entries(row.metadata ?? {});
 
             return (
               <Sheet
                 key={row.id}
                 variant="outlined"
-                sx={{ borderRadius: 12, p: { xs: 2, sm: 3 }, gap: 2, display: "flex", flexDirection: "column" }}
+                sx={{
+                  borderRadius: 12,
+                  p: { xs: 2, sm: 3 },
+                  gap: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
               >
                 <Stack
                   direction={{ xs: "column", md: "row" }}
@@ -209,7 +233,12 @@ function ActiveInteractions() {
                       Created {displayDateTime(createdAt)}
                     </Typography>
                   </Stack>
-                  <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent={{ xs: "flex-start", md: "flex-end" }}>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    flexWrap="wrap"
+                    justifyContent={{ xs: "flex-start", md: "flex-end" }}
+                  >
                     <Chip color="primary" variant="soft" size="sm">
                       {mediumToUiChannelMap[row.medium]}
                     </Chip>
@@ -229,7 +258,11 @@ function ActiveInteractions() {
 
                 <Divider />
 
-                <Stack direction={{ xs: "column", lg: "row" }} spacing={2.5} alignItems="stretch">
+                <Stack
+                  direction={{ xs: "column", lg: "row" }}
+                  spacing={2.5}
+                  alignItems="stretch"
+                >
                   <Stack spacing={1.5} flex={1} minWidth={0}>
                     <Stack spacing={0.5}>
                       <Typography level="body-sm" color="neutral">
@@ -251,7 +284,12 @@ function ActiveInteractions() {
                         <Typography level="body-sm" color="neutral">
                           Metadata
                         </Typography>
-                        <Stack direction="row" spacing={1} flexWrap="wrap" rowGap={0.75}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          flexWrap="wrap"
+                          rowGap={0.75}
+                        >
                           {metadataEntries.map(([key, value]) => (
                             <Chip key={key} size="sm" variant="soft">
                               {key}: {String(value)}
@@ -283,7 +321,11 @@ function ActiveInteractions() {
                     </Stack>
                   </Stack>
 
-                  <Stack spacing={1} flex={{ xs: 1, lg: 0.9 }} minWidth={{ xs: "100%", lg: 280 }}>
+                  <Stack
+                    spacing={1}
+                    flex={{ xs: 1, lg: 0.9 }}
+                    minWidth={{ xs: "100%", lg: 280 }}
+                  >
                     <Typography level="body-sm" color="neutral">
                       Your response
                     </Typography>
@@ -329,4 +371,3 @@ function ActiveInteractions() {
 }
 
 export default withLoggedIn(ActiveInteractions);
-

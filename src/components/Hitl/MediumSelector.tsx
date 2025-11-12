@@ -59,7 +59,11 @@ export function MediumSelector({
                 call: "Call",
               }[item as ConfigureIcState["uiChannel"]]
             }
-            variant={uiChannel === (item as ConfigureIcState["uiChannel"]) ? "solid" : "plain"}
+            variant={
+              uiChannel === (item as ConfigureIcState["uiChannel"])
+                ? "solid"
+                : "plain"
+            }
             slotProps={{
               input: { "aria-label": item },
               action: {

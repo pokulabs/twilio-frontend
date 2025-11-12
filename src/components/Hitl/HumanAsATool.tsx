@@ -53,10 +53,7 @@ export type ConfigureIcState = {
 };
 
 function HumanAsATool() {
-  const {
-    sid,
-    authToken,
-  } = useTwilio();
+  const { sid, authToken } = useTwilio();
 
   const [form, setForm] = useState<ConfigureIcState>({
     uiChannel: "sms",
@@ -129,7 +126,9 @@ function HumanAsATool() {
             setUsingOwnTwilio={(val) =>
               setForm((prev) => ({ ...prev, usingOwnTwilio: val }))
             }
-            onChange={(val) => setForm((prev) => ({ ...prev, humanNumber: val }))}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, humanNumber: val }))
+            }
             agentNumber={form.agentNumber}
             setAgentNumber={(val) =>
               setForm((prev) => ({ ...prev, agentNumber: val }))
@@ -138,11 +137,17 @@ function HumanAsATool() {
         )}
         {form.uiChannel === "whatsapp" && (
           <WhatsappInput
-            onChange={(val) => setForm((prev) => ({ ...prev, humanNumber: val }))}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, humanNumber: val }))
+            }
           />
         )}
         {form.uiChannel === "call" && (
-          <WhatsappInput onChange={(val) => setForm((prev) => ({ ...prev, humanNumber: val }))} />
+          <WhatsappInput
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, humanNumber: val }))
+            }
+          />
         )}
 
         {form.uiChannel !== "call" && (
@@ -155,9 +160,7 @@ function HumanAsATool() {
         {(form.uiChannel === "sms" || form.uiChannel === "whatsapp") && (
           <AdvancedOptions
             webhook={form.webhook}
-            setWebhook={(val) =>
-              setForm((prev) => ({ ...prev, webhook: val }))
-            }
+            setWebhook={(val) => setForm((prev) => ({ ...prev, webhook: val }))}
             setValidTimeSeconds={(val) =>
               setForm((prev) => ({ ...prev, validTimeSeconds: val }))
             }
@@ -170,9 +173,7 @@ function HumanAsATool() {
         {form.uiChannel === "slack" && (
           <AdvancedOptions
             webhook={form.webhook}
-            setWebhook={(val) =>
-              setForm((prev) => ({ ...prev, webhook: val }))
-            }
+            setWebhook={(val) => setForm((prev) => ({ ...prev, webhook: val }))}
             setValidTimeSeconds={(val) =>
               setForm((prev) => ({ ...prev, validTimeSeconds: val }))
             }
@@ -190,9 +191,11 @@ function HumanAsATool() {
             onCreate={handleSave}
             disabled={
               !form.humanNumber ||
-              (form.uiChannel === "sms" && form.usingOwnTwilio &&
+              (form.uiChannel === "sms" &&
+                form.usingOwnTwilio &&
                 !form.agentNumber) ||
-              (form.uiChannel === "slack" && form.usingOwnSlack &&
+              (form.uiChannel === "slack" &&
+                form.usingOwnSlack &&
                 !form.agentNumber) ||
               (form.uiChannel === "sms" && form.usingOwnTwilio && !sid) ||
               (form.uiChannel === "sms" && form.usingOwnTwilio && !authToken)

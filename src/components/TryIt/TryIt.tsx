@@ -78,10 +78,10 @@ export default function TryIt() {
         const recentMessages = conversationHistory.slice(-10);
         const previousMessagesXml = recentMessages
           .map(
-            msg =>
-              `<Message role="${msg.isBot ? 'Assistant' : 'User'}">${msg.content}</Message>`
+            (msg) =>
+              `<Message role="${msg.isBot ? "Assistant" : "User"}">${msg.content}</Message>`,
           )
-          .join('');
+          .join("");
         conversationContext += `<PreviousConversation>${previousMessagesXml}</PreviousConversation>`;
       }
 
@@ -97,19 +97,19 @@ export default function TryIt() {
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
       console.error("Error sending message:", err);
       setError("Failed to send message. Please try again.");
-      
+
       const errorMessage: DemoMessage = {
         id: (Date.now() + 1).toString(),
         content: "Sorry, I encountered an error. Please try again.",
         isBot: true,
         timestamp: new Date(),
       };
-      
-      setMessages(prev => [...prev, errorMessage]);
+
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +130,6 @@ export default function TryIt() {
         flexDirection: "column",
       }}
     >
-
       <Box sx={{ pb: 3 }}>
         <FormControl>
           <FormLabel>Enter Phone Number</FormLabel>
@@ -144,107 +143,107 @@ export default function TryIt() {
         </FormControl>
       </Box>
 
-        <Card
+      <Card
+        sx={{
+          display: "flex",
+          minHeight: 300,
+          maxHeight: 700,
+          height: "60vh",
+          flexDirection: "column",
+          backgroundColor: "background.level1",
+        }}
+      >
+        <Box
           sx={{
+            flex: 1,
+            overflowY: "auto",
+            p: 2,
             display: "flex",
-            minHeight: 300,
-            maxHeight: 700,
-            height: "60vh",
             flexDirection: "column",
-            backgroundColor: "background.level1",
+            gap: 2,
           }}
         >
-          <Box
-            sx={{
-              flex: 1,
-              overflowY: "auto",
-              p: 2,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            {messages.map((msg) => {
-              const plainMessage: PlainMessage = {
-                id: msg.id,
-                content: msg.content,
-                timestamp: msg.timestamp.getTime(),
-                direction: msg.isBot ? "inbound" : "outbound",
-                from: msg.isBot ? "bot" : "user",
-                to: msg.isBot ? "user" : "bot",
-                status: "delivered",
-                errorCode: 0,
-              };
+          {messages.map((msg) => {
+            const plainMessage: PlainMessage = {
+              id: msg.id,
+              content: msg.content,
+              timestamp: msg.timestamp.getTime(),
+              direction: msg.isBot ? "inbound" : "outbound",
+              from: msg.isBot ? "bot" : "user",
+              to: msg.isBot ? "user" : "bot",
+              status: "delivered",
+              errorCode: 0,
+            };
 
-              return (
-                <Stack
-                  key={msg.id}
-                  direction="row"
-                  spacing={2}
-                  sx={{
-                    flexDirection: msg.isBot ? "row" : "row-reverse",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  {msg.isBot && <Avatar /> }
-                  <ChatBubble {...plainMessage} />
-                </Stack>
-              );
-            })}
-            {isLoading && (
+            return (
               <Stack
+                key={msg.id}
                 direction="row"
                 spacing={2}
-                sx={{ alignItems: "flex-start" }}
+                sx={{
+                  flexDirection: msg.isBot ? "row" : "row-reverse",
+                  alignItems: "flex-start",
+                }}
               >
-                <Avatar />
-                <ChatBubble
-                  id="loading"
-                  content="Bot is thinking..."
-                  timestamp={Date.now()}
-                  direction="inbound"
-                  from="bot"
-                  to="user"
-                  status="delivered"
-                  errorCode={0}
-                />
+                {msg.isBot && <Avatar />}
+                <ChatBubble {...plainMessage} />
               </Stack>
-            )}
-            <div ref={messagesEndRef} />
-          </Box>
-
-          <Divider />
-
-          <Box sx={{ p: 2 }}>
-            {error && (
-              <Alert color="danger" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
-            <Stack spacing={1} direction="row">
-              <Input
-                placeholder="Type your message here..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={handleKeyPress}
-                disabled={isLoading || !phoneNumber.trim()}
-                sx={{ flexGrow: 1 }}
+            );
+          })}
+          {isLoading && (
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ alignItems: "flex-start" }}
+            >
+              <Avatar />
+              <ChatBubble
+                id="loading"
+                content="Bot is thinking..."
+                timestamp={Date.now()}
+                direction="inbound"
+                from="bot"
+                to="user"
+                status="delivered"
+                errorCode={0}
               />
-              <Button
-                color="primary"
-                endDecorator={<SendRounded />}
-                onClick={sendMessage}
-                disabled={!message.trim() || isLoading || !phoneNumber.trim()}
-                loading={isLoading}
-              >
-                Send
-              </Button>
             </Stack>
-            <Typography level="body-xs" sx={{ mt: 1, opacity: 0.7 }}>
-              Press Cmd/Ctrl + Enter to send
-            </Typography>
-          </Box>
-        </Card>
+          )}
+          <div ref={messagesEndRef} />
+        </Box>
+
+        <Divider />
+
+        <Box sx={{ p: 2 }}>
+          {error && (
+            <Alert color="danger" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          <Stack spacing={1} direction="row">
+            <Input
+              placeholder="Type your message here..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyPress}
+              disabled={isLoading || !phoneNumber.trim()}
+              sx={{ flexGrow: 1 }}
+            />
+            <Button
+              color="primary"
+              endDecorator={<SendRounded />}
+              onClick={sendMessage}
+              disabled={!message.trim() || isLoading || !phoneNumber.trim()}
+              loading={isLoading}
+            >
+              Send
+            </Button>
+          </Stack>
+          <Typography level="body-xs" sx={{ mt: 1, opacity: 0.7 }}>
+            Press Cmd/Ctrl + Enter to send
+          </Typography>
+        </Box>
+      </Card>
     </Box>
   );
 }

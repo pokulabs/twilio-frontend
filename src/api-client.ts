@@ -136,7 +136,7 @@ class ApiClient {
                       medium: Medium;
                       webhook?: string;
                       validTime?: number;
-                    linkEnabled?: boolean;
+                      linkEnabled?: boolean;
                   }[];
               }
             | undefined
@@ -349,12 +349,15 @@ class ApiClient {
     }
 
     async getPublicReply(token: string) {
-        return this.api.get<{
-            message: string;
-            secondsRemaining: number;
-            expired: boolean;
-            alreadyResponded: boolean;
-        } | undefined>(`/public/reply/${token}`, { skipAuth: true });
+        return this.api.get<
+            | {
+                  message: string;
+                  secondsRemaining: number;
+                  expired: boolean;
+                  alreadyResponded: boolean;
+              }
+            | undefined
+        >(`/public/reply/${token}`, { skipAuth: true });
     }
 
     async submitPublicReply(token: string, message: string) {
@@ -365,61 +368,61 @@ class ApiClient {
         );
     }
 
-  async getActiveInteractions() {
-    return this.api.get<
-      | {
-          data: {
-            id: string;
-            createdAt: string;
-            type: string;
-            humanNumber: string;
-            agentNumber: string | null;
-            waitTime: number;
-            medium: Medium;
-            message: string;
-            metadata: Record<string, unknown> | null;
-            expiresAt: string;
-          }[];
-        }
-      | undefined
-    >("/interactions/active");
-  }
+    async getActiveInteractions() {
+        return this.api.get<
+            | {
+                  data: {
+                      id: string;
+                      createdAt: string;
+                      type: string;
+                      humanNumber: string;
+                      agentNumber: string | null;
+                      waitTime: number;
+                      medium: Medium;
+                      message: string;
+                      metadata: Record<string, unknown> | null;
+                      expiresAt: string;
+                  }[];
+              }
+            | undefined
+        >("/interactions/active");
+    }
 
-  async respondToInteraction(interactionId: string, response: string) {
-    return this.api.post(`/interactions/${interactionId}/respond`, {
-      response,
-    });
-  }
+    async respondToInteraction(interactionId: string, response: string) {
+        return this.api.post(`/interactions/${interactionId}/respond`, {
+            response,
+        });
+    }
 
-  async getInteractions(params: { page?: number; pageSize?: number } = {}) {
-    const search = new URLSearchParams();
-    if (params.page) search.set("page", String(params.page));
-    if (params.pageSize) search.set("pageSize", String(params.pageSize));
-    const qs = search.toString();
-    return this.api.get<
-      | {
-          data: {
-            id: string;
-            createdAt: string;
-            type: string;
-            humanNumber: string;
-            agentNumber: string;
-            waitTime: number;
-            medium: Medium;
-            message: string;
-            response: string | null;
-            responseTime: string | null;
-          }[];
-          pagination: {
-            page: number;
-            pageSize: number;
-            total: number;
-            totalPages: number;
-          };
-        }
-      | undefined
-    >(`/interactions${qs ? `?${qs}` : ""}`);
-  }
+    async getInteractions(params: { page?: number; pageSize?: number } = {}) {
+        const search = new URLSearchParams();
+        if (params.page) search.set("page", String(params.page));
+        if (params.pageSize) search.set("pageSize", String(params.pageSize));
+        const qs = search.toString();
+        return this.api.get<
+            | {
+                  data: {
+                      id: string;
+                      createdAt: string;
+                      type: string;
+                      humanNumber: string;
+                      agentNumber: string;
+                      waitTime: number;
+                      medium: Medium;
+                      message: string;
+                      response: string | null;
+                      responseTime: string | null;
+                  }[];
+                  pagination: {
+                      page: number;
+                      pageSize: number;
+                      total: number;
+                      totalPages: number;
+                  };
+              }
+            | undefined
+        >(`/interactions${qs ? `?${qs}` : ""}`);
+    }
 }
 
 export const apiClient = new ApiClient();

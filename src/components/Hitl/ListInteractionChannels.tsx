@@ -108,7 +108,7 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                 src={iconSrc}
                 sx={{ width: 32, height: 32, mb: 1 }}
               />
-              <CardContent >
+              <CardContent>
                 <Typography level="body-sm">
                   Contact: {e.humanNumber}
                 </Typography>
@@ -117,9 +117,11 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                     Agent number: {e.agentNumber}
                   </Typography>
                 )}
-                {e.waitTime && <Typography level="body-sm">
-                  Wait time: {e.waitTime} seconds
-                </Typography>}
+                {e.waitTime && (
+                  <Typography level="body-sm">
+                    Wait time: {e.waitTime} seconds
+                  </Typography>
+                )}
                 {e.webhook && (
                   <Typography level="body-sm" sx={{ overflow: "scroll" }}>
                     Webhook URL: {e.webhook}

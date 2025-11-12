@@ -83,75 +83,78 @@ export function AdvancedOptions({
             />
           </Box>
           {showFollowUp && (
-          <Box>
-            <Typography
-              level="body-sm"
-              sx={{ mb: 0.5 }}
-              endDecorator={
-                <InfoTooltip
-                  title={
-                    <Typography>
-                      After the tool call timeout expires, the AI agent will
-                      wait for a response from the human for this duration.
-                    </Typography>
-                  }
-                />
-              }
-            >
-              Follow-up time (optional)
-            </Typography>
-            <Input
-              type="number"
-              placeholder="30"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              endDecorator={
-                <>
-                  <Divider orientation="vertical" />
-                  <Select
-                    value={currentUnit}
-                    variant="plain"
-                    onChange={(_, next) => setCurrentUnit((next ?? "seconds") as TimeUnit)}
-                    slotProps={{
-                      listbox: {
-                        variant: "outlined",
-                      },
-                    }}
-                    sx={{ mr: -1.5, "&:hover": { bgcolor: "transparent" } }}
-                  >
-                    <Option value="seconds">seconds</Option>
-                    <Option value="minutes">minutes</Option>
-                    <Option value="hours">hours</Option>
-                    <Option value="days">days</Option>
-                  </Select>
-                </>
-              }
-            />
-          </Box>
+            <Box>
+              <Typography
+                level="body-sm"
+                sx={{ mb: 0.5 }}
+                endDecorator={
+                  <InfoTooltip
+                    title={
+                      <Typography>
+                        After the tool call timeout expires, the AI agent will
+                        wait for a response from the human for this duration.
+                      </Typography>
+                    }
+                  />
+                }
+              >
+                Follow-up time (optional)
+              </Typography>
+              <Input
+                type="number"
+                placeholder="30"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                endDecorator={
+                  <>
+                    <Divider orientation="vertical" />
+                    <Select
+                      value={currentUnit}
+                      variant="plain"
+                      onChange={(_, next) =>
+                        setCurrentUnit((next ?? "seconds") as TimeUnit)
+                      }
+                      slotProps={{
+                        listbox: {
+                          variant: "outlined",
+                        },
+                      }}
+                      sx={{ mr: -1.5, "&:hover": { bgcolor: "transparent" } }}
+                    >
+                      <Option value="seconds">seconds</Option>
+                      <Option value="minutes">minutes</Option>
+                      <Option value="hours">hours</Option>
+                      <Option value="days">days</Option>
+                    </Select>
+                  </>
+                }
+              />
+            </Box>
           )}
           {showWebhook && (
-          <Box>
-            <Typography
-              level="body-sm"
-              sx={{ mb: 0.5 }}
-              endDecorator={
-                <InfoTooltip
-                  title={
-                    <Typography>
-                      The human's response and any metadata will be sent to this webhook URL.
-                    </Typography>
-                  }
-                />
-              }
-            >
-              Webhook URL (optional)
-            </Typography>
-            <Input
-              placeholder="https://cloud.n8n.com/webhook/a0e934fe-5920-49f1-8821-1b7ffc312573"
-              value={webhook || ""}
-              onChange={(e) => setWebhook(e.target.value || undefined)}
-            />
-          </Box>
+            <Box>
+              <Typography
+                level="body-sm"
+                sx={{ mb: 0.5 }}
+                endDecorator={
+                  <InfoTooltip
+                    title={
+                      <Typography>
+                        The human's response and any metadata will be sent to
+                        this webhook URL.
+                      </Typography>
+                    }
+                  />
+                }
+              >
+                Webhook URL (optional)
+              </Typography>
+              <Input
+                placeholder="https://cloud.n8n.com/webhook/a0e934fe-5920-49f1-8821-1b7ffc312573"
+                value={webhook || ""}
+                onChange={(e) => setWebhook(e.target.value || undefined)}
+              />
+            </Box>
           )}
         </Stack>
       )}
