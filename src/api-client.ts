@@ -114,7 +114,7 @@ class ApiClient {
         validTime: number | undefined,
         linkEnabled: boolean | undefined,
     ) {
-        return this.api.post<{ id: string } | undefined>("/account", {
+        return this.api.post<{ id: string } | undefined>("/interaction-channels", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
@@ -140,7 +140,7 @@ class ApiClient {
                   }[];
               }
             | undefined
-        >("/account");
+        >("/interaction-channels");
     }
 
     async getAccountCredits() {
@@ -153,7 +153,7 @@ class ApiClient {
     }
 
     async deleteInteractionChannel(interactionChannelId: string) {
-        return this.api.delete(`/account/${interactionChannelId}`);
+        return this.api.delete(`/interaction-channels/${interactionChannelId}`);
     }
 
     async getAgents() {
@@ -234,7 +234,7 @@ class ApiClient {
     async listUserLabels() {
         return this.api.get<
             { data: { id: string; name: string; color: string }[] } | undefined
-        >("/user-settings/labels");
+        >("/account/labels");
     }
 
     async getChatLabels(chatId: string) {
@@ -246,7 +246,7 @@ class ApiClient {
     async createLabel(name: string, color: string) {
         return this.api.post<
             { id: string; name: string; color: string } | undefined
-        >("/user-settings/labels", { name, color });
+        >("/account/labels", { name, color });
     }
     async assignLabelToChat(chatId: string, labelId: string) {
         return this.api.post(`/chats/${chatId}/labels/${labelId}`);
@@ -268,11 +268,7 @@ class ApiClient {
     }
 
     async createApiKey() {
-        return this.api.post("/auth/key");
-    }
-
-    async refresh() {
-        return this.api.post("/auth/refresh");
+        return this.api.post("/account/key");
     }
 
     async createCampaign(
@@ -322,7 +318,7 @@ class ApiClient {
     }
 
     async sendTestMessage(interactionChannelId: string) {
-        return this.api.post("/account/test", {
+        return this.api.post("/interaction-channels/test", {
             interactionChannelId: interactionChannelId,
         });
     }
@@ -362,7 +358,7 @@ class ApiClient {
 
     async submitPublicReply(token: string, message: string) {
         return this.api.post(
-            `/public/reply/${token}`,
+            `/webhooks/public/reply/${token}`,
             { message },
             { skipAuth: true },
         );
@@ -389,7 +385,7 @@ class ApiClient {
     }
 
     async respondToInteraction(interactionId: string, response: string) {
-        return this.api.post(`/interactions/${interactionId}/respond`, {
+        return this.api.post(`/webhooks/${interactionId}/respond`, {
             response,
         });
     }
