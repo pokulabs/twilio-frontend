@@ -33,7 +33,7 @@ export function SlackInput({
             </Typography>
             <a
               target="_blank"
-              href="https://slack.com/oauth/v2/authorize?client_id=8696401389877.9342964367269&scope=chat:write,chat:write.public,im:history,im:write,users:read,mpim:write&user_scope="
+              href="https://slack.com/oauth/v2/authorize?client_id=8696401389877.9342964367269&scope=channels:history,channels:join,chat:write,chat:write.public,groups:history,im:history,im:write,mpim:write,users:read,mpim:history&user_scope="
             >
               <img
                 alt="Add to Slack"
