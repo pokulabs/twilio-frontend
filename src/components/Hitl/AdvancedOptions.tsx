@@ -93,7 +93,9 @@ export function AdvancedOptions({
         <Stack gap={1.5} sx={{ mt: 1 }}>
           <Box>
             <Checkbox
-              label={<Typography level="body-sm">Include reply link</Typography>}
+              label={
+                <Typography level="body-sm">Include reply link</Typography>
+              }
               checked={!!linkEnabled}
               onChange={(e) => setLinkEnabled?.(e.target.checked)}
             />

@@ -117,18 +117,21 @@ class ApiClient {
         responseTemplate: string | undefined,
         noResponseTemplate: string | undefined,
     ) {
-        return this.api.post<{ id: string } | undefined>("/interaction-channels", {
-            humanNumber: humanNumber,
-            agentNumber: agentNumber,
-            waitTime: waitTime,
-            medium: medium,
-            webhook: webhook,
-            validTime: validTime,
-            linkEnabled: linkEnabled,
-            messageTemplate: messageTemplate,
-            responseTemplate: responseTemplate,
-            noResponseTemplate: noResponseTemplate,
-        });
+        return this.api.post<{ id: string } | undefined>(
+            "/interaction-channels",
+            {
+                humanNumber: humanNumber,
+                agentNumber: agentNumber,
+                waitTime: waitTime,
+                medium: medium,
+                webhook: webhook,
+                validTime: validTime,
+                linkEnabled: linkEnabled,
+                messageTemplate: messageTemplate,
+                responseTemplate: responseTemplate,
+                noResponseTemplate: noResponseTemplate,
+            },
+        );
     }
 
     async getInteractionChannels() {
