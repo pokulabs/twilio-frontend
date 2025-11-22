@@ -189,6 +189,7 @@ function HumanAsATool() {
             setNoResponseTemplate={(val) =>
               setForm((prev) => ({ ...prev, noResponseTemplate: val }))
             }
+            uiChannel={form.uiChannel}
           />
         )}
         {form.uiChannel === "slack" && (
@@ -216,6 +217,7 @@ function HumanAsATool() {
             setNoResponseTemplate={(val) =>
               setForm((prev) => ({ ...prev, noResponseTemplate: val }))
             }
+            uiChannel={form.uiChannel}
           />
         )}
 

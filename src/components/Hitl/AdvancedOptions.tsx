@@ -12,6 +12,7 @@ import {
 import { KeyboardArrowDown, KeyboardArrowRight } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
 import { InfoTooltip } from "../shared/InfoTooltip";
+import type { ConfigureIcState } from "./HumanAsATool";
 
 type TimeUnit = "seconds" | "minutes" | "hours" | "days";
 
@@ -29,6 +30,7 @@ export type AdvancedOptionsProps = {
   setMessageTemplate: (val: string | undefined) => void;
   setResponseTemplate: (val: string | undefined) => void;
   setNoResponseTemplate: (val: string | undefined) => void;
+  uiChannel?: ConfigureIcState["uiChannel"];
 };
 
 export function AdvancedOptions({
@@ -45,6 +47,7 @@ export function AdvancedOptions({
   setMessageTemplate,
   setResponseTemplate,
   setNoResponseTemplate,
+  uiChannel,
 }: AdvancedOptionsProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [currentUnit, setCurrentUnit] = useState<TimeUnit>("minutes");
@@ -170,19 +173,21 @@ export function AdvancedOptions({
             </Box>
           )}
           <Divider />
-          <Box>
-            <Typography level="body-sm" sx={{ mb: 0.5 }}>
-              Outgoing message template
-            </Typography>
-            <Textarea
-              maxRows={5}
-              placeholder={`Request from AI agent. Expires in {{waitTime}} seconds:\n\n{{message}}`}
-              value={messageTemplate ?? ""}
-              onChange={(e) =>
-                setMessageTemplate?.(e.target.value || undefined)
-              }
-            />
-          </Box>
+          {uiChannel !== "whatsapp" && (
+            <Box>
+              <Typography level="body-sm" sx={{ mb: 0.5 }}>
+                Outgoing message template
+              </Typography>
+              <Textarea
+                maxRows={5}
+                placeholder={`Request from AI agent. Expires in {{waitTime}} seconds:\n\n{{message}}`}
+                value={messageTemplate ?? ""}
+                onChange={(e) =>
+                  setMessageTemplate?.(e.target.value || undefined)
+                }
+              />
+            </Box>
+          )}
           <Box>
             <Typography level="body-sm" sx={{ mb: 0.5 }}>
               Response template
