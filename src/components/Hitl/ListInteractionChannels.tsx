@@ -137,6 +137,13 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
                     Reply link: {e.linkEnabled ? "On" : "Off"}
                   </Typography>
                 )}
+                {(e.messageTemplate ||
+                  e.responseTemplate ||
+                  e.noResponseTemplate) && (
+                  <Typography level="body-xs" color="primary">
+                    Using custom templates
+                  </Typography>
+                )}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Typography level="body-sm">Copy MCP URL</Typography>
                   <IconButton

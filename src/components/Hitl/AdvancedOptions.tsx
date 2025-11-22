@@ -6,6 +6,7 @@ import {
   Option,
   Select,
   Stack,
+  Textarea,
   Typography,
 } from "@mui/joy";
 import { KeyboardArrowDown, KeyboardArrowRight } from "@mui/icons-material";
@@ -22,6 +23,12 @@ export type AdvancedOptionsProps = {
   setLinkEnabled?: (val: boolean) => void;
   showFollowUp?: boolean;
   showWebhook?: boolean;
+  messageTemplate?: string;
+  responseTemplate?: string;
+  noResponseTemplate?: string;
+  setMessageTemplate: (val: string | undefined) => void;
+  setResponseTemplate: (val: string | undefined) => void;
+  setNoResponseTemplate: (val: string | undefined) => void;
 };
 
 export function AdvancedOptions({
@@ -32,6 +39,12 @@ export function AdvancedOptions({
   setLinkEnabled,
   showFollowUp = true,
   showWebhook = true,
+  messageTemplate,
+  responseTemplate,
+  noResponseTemplate,
+  setMessageTemplate,
+  setResponseTemplate,
+  setNoResponseTemplate,
 }: AdvancedOptionsProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [currentUnit, setCurrentUnit] = useState<TimeUnit>("minutes");
@@ -77,7 +90,7 @@ export function AdvancedOptions({
         <Stack gap={1.5} sx={{ mt: 1 }}>
           <Box>
             <Checkbox
-              label="Include reply link"
+              label={<Typography level="body-sm">Include reply link</Typography>}
               checked={!!linkEnabled}
               onChange={(e) => setLinkEnabled?.(e.target.checked)}
             />
@@ -156,6 +169,46 @@ export function AdvancedOptions({
               />
             </Box>
           )}
+          <Divider />
+          <Box>
+            <Typography level="body-sm" sx={{ mb: 0.5 }}>
+              Outgoing message template
+            </Typography>
+            <Textarea
+              maxRows={5}
+              placeholder={`Request from AI agent. Expires in {{waitTime}} seconds:\n\n{{message}}`}
+              value={messageTemplate ?? ""}
+              onChange={(e) =>
+                setMessageTemplate?.(e.target.value || undefined)
+              }
+            />
+          </Box>
+          <Box>
+            <Typography level="body-sm" sx={{ mb: 0.5 }}>
+              Response template
+            </Typography>
+            <Textarea
+              maxRows={5}
+              placeholder="Human response: {{message}}"
+              value={responseTemplate ?? ""}
+              onChange={(e) =>
+                setResponseTemplate?.(e.target.value || undefined)
+              }
+            />
+          </Box>
+          <Box>
+            <Typography level="body-sm" sx={{ mb: 0.5 }}>
+              No-response template
+            </Typography>
+            <Textarea
+              maxRows={5}
+              placeholder="Human did not respond. Continue where you left off."
+              value={noResponseTemplate ?? ""}
+              onChange={(e) =>
+                setNoResponseTemplate?.(e.target.value || undefined)
+              }
+            />
+          </Box>
         </Stack>
       )}
     </Box>

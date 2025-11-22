@@ -50,6 +50,9 @@ export type ConfigureIcState = {
   webhook?: string;
   validTimeSeconds?: number;
   linkEnabled?: boolean;
+  messageTemplate?: string;
+  responseTemplate?: string;
+  noResponseTemplate?: string;
 };
 
 function HumanAsATool() {
@@ -65,6 +68,9 @@ function HumanAsATool() {
     webhook: undefined,
     validTimeSeconds: undefined,
     linkEnabled: false,
+    messageTemplate: undefined,
+    responseTemplate: undefined,
+    noResponseTemplate: undefined,
   });
 
   const listRef = useRef<{ reload: () => void }>(null);
@@ -85,6 +91,9 @@ function HumanAsATool() {
       form.webhook,
       form.validTimeSeconds,
       form.linkEnabled,
+      form.messageTemplate,
+      form.responseTemplate,
+      form.noResponseTemplate,
     );
     listRef.current?.reload();
   };
@@ -168,6 +177,18 @@ function HumanAsATool() {
             setLinkEnabled={(val) =>
               setForm((prev) => ({ ...prev, linkEnabled: val }))
             }
+            messageTemplate={form.messageTemplate}
+            responseTemplate={form.responseTemplate}
+            noResponseTemplate={form.noResponseTemplate}
+            setMessageTemplate={(val) =>
+              setForm((prev) => ({ ...prev, messageTemplate: val }))
+            }
+            setResponseTemplate={(val) =>
+              setForm((prev) => ({ ...prev, responseTemplate: val }))
+            }
+            setNoResponseTemplate={(val) =>
+              setForm((prev) => ({ ...prev, noResponseTemplate: val }))
+            }
           />
         )}
         {form.uiChannel === "slack" && (
@@ -183,6 +204,18 @@ function HumanAsATool() {
             }
             showFollowUp={false}
             showWebhook={false}
+            messageTemplate={form.messageTemplate}
+            responseTemplate={form.responseTemplate}
+            noResponseTemplate={form.noResponseTemplate}
+            setMessageTemplate={(val) =>
+              setForm((prev) => ({ ...prev, messageTemplate: val }))
+            }
+            setResponseTemplate={(val) =>
+              setForm((prev) => ({ ...prev, responseTemplate: val }))
+            }
+            setNoResponseTemplate={(val) =>
+              setForm((prev) => ({ ...prev, noResponseTemplate: val }))
+            }
           />
         )}
 
