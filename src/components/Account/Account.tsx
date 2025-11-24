@@ -2,6 +2,7 @@ import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
+import { CreditsRemaining } from "../shared/Usage";
 
 function Account() {
   const { isAuthenticated } = useAuth();
@@ -76,9 +77,17 @@ function Account() {
         </>
       )}
 
-      <Divider />
 
-      <Stack sx={{ maxWidth: 500 }}>{isAuthenticated && <ApiKey />}</Stack>
+      {isAuthenticated && (
+        <>
+          <Divider />
+          <CreditsRemaining />
+          <Card sx={{ maxWidth: 500 }}>
+            <ApiKey />
+          </Card>
+        </>
+      )}
+
     </Box>
   );
 }

@@ -35,7 +35,7 @@ export function CreditsRemaining() {
           <InfoTooltip
             title={
               <Typography level="body-sm" color="warning">
-                1 credit per message. 10 credits per voice call.
+                1 credit per message<br />10 credits per voice call
               </Typography>
             }
           />
