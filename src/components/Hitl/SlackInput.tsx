@@ -18,6 +18,10 @@ export function SlackInput({
   return (
     <>
       <Box>
+        <Typography level="body-sm" sx={{ mb: 2 }}>
+          Receive a Slack message from your agent and <b>reply in the thread.</b>
+        </Typography>
+
         <Checkbox
           label="Use my own Slack workspace"
           checked={value.usingOwnSlack}
@@ -25,11 +29,15 @@ export function SlackInput({
             onChange({ ...value, usingOwnSlack: e.target.checked })
           }
         />
+        {!value.usingOwnSlack && (
+          <Typography level="body-sm">
+            Join our <Link href={SLACK_LINK}>Slack workspace</Link> if you don't want to use your own.
+          </Typography>
+        )}
         {value.usingOwnSlack && (
           <>
             <Typography level="body-sm" sx={{ mb: 1 }}>
-              Make sure you've installed the Slack app in your workspace, then
-              enter your Team ID below.
+              First install the Slack app in your workspace.
             </Typography>
             <a
               target="_blank"
@@ -64,7 +72,7 @@ export function SlackInput({
                   />
                 }
               >
-                Slack Team ID
+                Slack Workspace/Team ID
               </Typography>
               <Input
                 value={value.agentNumber}
@@ -77,13 +85,6 @@ export function SlackInput({
           </>
         )}
       </Box>
-
-      {!value.usingOwnSlack && (
-        <Typography level="body-sm">
-          Join our <Link href={SLACK_LINK}>Slack channel</Link> and reply in a
-          thread to your agent.
-        </Typography>
-      )}
       <Box>
         <Typography
           level="title-md"
@@ -91,16 +92,19 @@ export function SlackInput({
             <InfoTooltip
               title={
                 <Typography>
-                  This is the human your AI will reach out to in case of an
-                  interaction. In Slack, go to your user profile. Then click the
-                  3 vertical dots button. Select "Copy Member ID" and paste it
-                  here.
+                  This is the Slack user or channel your AI will reach out to in case of an
+                  interaction.
+                  <br /><br />
+                  User: go to your user profile, click the
+                  3 vertical dots button, select "Copy Member ID" and paste it here.
+                  <br /><br />
+                  Channel: right click the channel, "View channel details" and copy the channel ID at the bottom of the page.
                 </Typography>
               }
             />
           }
         >
-          Slack User ID
+          Slack User/Member/Channel ID
         </Typography>
 
         <Input

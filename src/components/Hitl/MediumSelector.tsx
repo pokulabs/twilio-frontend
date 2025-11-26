@@ -1,5 +1,9 @@
 import { Box, Radio, RadioGroup, radioClasses } from "@mui/joy";
 import { ConfigureIcState } from "./HumanAsATool";
+import slack from "../../assets/slack-color.png";
+import whatsapp from "../../assets/whatsapp.png";
+import sms from "../../assets/sms.png";
+import call from "../../assets/call.png";
 
 export function MediumSelector({
   uiChannel,
@@ -8,6 +12,13 @@ export function MediumSelector({
   uiChannel: ConfigureIcState["uiChannel"];
   setUiChannel: (m: ConfigureIcState["uiChannel"]) => void;
 }) {
+  const icons: Record<string, string> = {
+    sms,
+    whatsapp,
+    slack,
+    call,
+  };
+
   return (
     <RadioGroup
       orientation="horizontal"
@@ -52,12 +63,23 @@ export function MediumSelector({
             disableIcon
             overlay
             label={
-              {
-                slack: "Slack",
-                whatsapp: "WhatsApp",
-                sms: "SMS",
-                call: "Call",
-              }[item as ConfigureIcState["uiChannel"]]
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  component="img"
+                  src={icons[item]}
+                  sx={{ width: 18, height: 18 }}
+                />
+                <span>
+                  {
+                    {
+                      slack: "Slack",
+                      whatsapp: "WhatsApp",
+                      sms: "SMS",
+                      call: "Call",
+                    }[item as ConfigureIcState["uiChannel"]]
+                  }
+                </span>
+              </Box>
             }
             variant={
               uiChannel === (item as ConfigureIcState["uiChannel"])

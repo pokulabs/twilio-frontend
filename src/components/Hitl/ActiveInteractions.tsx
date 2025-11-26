@@ -186,9 +186,6 @@ function ActiveInteractions() {
           <Typography level="body-md">
             No active interactions right now.
           </Typography>
-          <Typography level="body-sm" color="neutral">
-            We refresh automatically every 15 seconds.
-          </Typography>
         </Sheet>
       ) : (
         <Stack spacing={2}>

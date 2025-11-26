@@ -101,7 +101,7 @@ function HumanAsATool() {
   return (
     <Box
       sx={{
-        maxWidth: 782,
+        maxWidth: 948,
       }}
     >
       <Stack spacing={3} sx={{ mt: 2 }}>
