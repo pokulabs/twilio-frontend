@@ -4,6 +4,16 @@ import { Recipient } from "./components/Campaigns/CsvUploader";
 import { checkIsAuthenticated } from "./services/auth";
 import { Medium } from "./types/backend-frontend";
 
+declare module "axios" {
+    interface AxiosRequestConfig {
+        skipAuth?: boolean;
+    }
+
+    interface InternalAxiosRequestConfig {
+        skipAuth?: boolean;
+    }
+}
+
 class ApiClient {
     private api: AxiosInstance;
 
@@ -15,6 +25,10 @@ class ApiClient {
         });
 
         this.api.interceptors.request.use(async (config) => {
+            if (config.skipAuth) {
+                return config;
+            }
+
             const controller = new AbortController();
 
             const isAuthenticated = await checkIsAuthenticated();
@@ -94,18 +108,20 @@ class ApiClient {
     async createInteractionChannel(
         humanNumber: string,
         agentNumber: string,
-        waitTime: number,
+        waitTime: number | undefined,
         medium: Medium,
-        webhook?: string,
-        validTime?: number,
+        webhook: string | undefined,
+        validTime: number | undefined,
+        linkEnabled: boolean | undefined,
     ) {
-        return this.api.post<{ id: string } | undefined>("/account", {
+        return this.api.post<{ id: string } | undefined>("/interaction-channels", {
             humanNumber: humanNumber,
             agentNumber: agentNumber,
             waitTime: waitTime,
             medium: medium,
             webhook: webhook,
             validTime: validTime,
+            linkEnabled: linkEnabled,
         });
     }
 
@@ -120,25 +136,24 @@ class ApiClient {
                       medium: Medium;
                       webhook?: string;
                       validTime?: number;
+                      linkEnabled?: boolean;
                   }[];
               }
             | undefined
-        >("/account");
+        >("/interaction-channels");
     }
 
-    async getAccountLimits() {
+    async getAccountCredits() {
         return this.api.get<
             | {
-                  haatMessageCount: number;
-                  lastReset: Date | undefined;
-                  haatMessageLimit: number;
+                  creditsRemaining: number;
               }
             | undefined
-        >("/account/limits");
+        >("/account/credits");
     }
 
     async deleteInteractionChannel(interactionChannelId: string) {
-        return this.api.delete(`/account/${interactionChannelId}`);
+        return this.api.delete(`/interaction-channels/${interactionChannelId}`);
     }
 
     async getAgents() {
@@ -219,7 +234,7 @@ class ApiClient {
     async listUserLabels() {
         return this.api.get<
             { data: { id: string; name: string; color: string }[] } | undefined
-        >("/user-settings/labels");
+        >("/account/labels");
     }
 
     async getChatLabels(chatId: string) {
@@ -231,7 +246,7 @@ class ApiClient {
     async createLabel(name: string, color: string) {
         return this.api.post<
             { id: string; name: string; color: string } | undefined
-        >("/user-settings/labels", { name, color });
+        >("/account/labels", { name, color });
     }
     async assignLabelToChat(chatId: string, labelId: string) {
         return this.api.post(`/chats/${chatId}/labels/${labelId}`);
@@ -253,11 +268,7 @@ class ApiClient {
     }
 
     async createApiKey() {
-        return this.api.post("/auth/key");
-    }
-
-    async refresh() {
-        return this.api.post("/auth/refresh");
+        return this.api.post("/account/key");
     }
 
     async createCampaign(
@@ -307,7 +318,7 @@ class ApiClient {
     }
 
     async sendTestMessage(interactionChannelId: string) {
-        return this.api.post("/account/test", {
+        return this.api.post("/interaction-channels/test", {
             interactionChannelId: interactionChannelId,
         });
     }
@@ -323,41 +334,91 @@ class ApiClient {
     }
 
     async sendDemoMessage(message: string, phoneNumber: string) {
-        return this.api.post("/playground/chat", {
-            message,
-            phoneNumber,
+        return this.api.post(
+            "/playground/chat",
+            {
+                message,
+                phoneNumber,
+            },
+            { skipAuth: true },
+        );
+    }
+
+    async getPublicReply(token: string) {
+        return this.api.get<
+            | {
+                  message: string;
+                  secondsRemaining: number;
+                  expired: boolean;
+                  alreadyResponded: boolean;
+              }
+            | undefined
+        >(`/public/reply/${token}`, { skipAuth: true });
+    }
+
+    async submitPublicReply(token: string, message: string) {
+        return this.api.post(
+            `/webhooks/public/reply/${token}`,
+            { message },
+            { skipAuth: true },
+        );
+    }
+
+    async getActiveInteractions() {
+        return this.api.get<
+            | {
+                  data: {
+                      id: string;
+                      createdAt: string;
+                      type: string;
+                      humanNumber: string;
+                      agentNumber: string | null;
+                      waitTime: number;
+                      medium: Medium;
+                      message: string;
+                      metadata: Record<string, unknown> | null;
+                      expiresAt: string;
+                  }[];
+              }
+            | undefined
+        >("/interactions/active");
+    }
+
+    async respondToInteraction(interactionId: string, response: string) {
+        return this.api.post(`/webhooks/${interactionId}/respond`, {
+            response,
         });
     }
 
-  async getInteractions(params: { page?: number; pageSize?: number } = {}) {
-    const search = new URLSearchParams();
-    if (params.page) search.set("page", String(params.page));
-    if (params.pageSize) search.set("pageSize", String(params.pageSize));
-    const qs = search.toString();
-    return this.api.get<
-      | {
-          data: {
-            id: string;
-            createdAt: string;
-            type: string;
-            humanNumber: string;
-            agentNumber: string;
-            waitTime: number;
-            medium: Medium;
-            message: string;
-            response: string | null;
-            responseTime: string | null;
-          }[];
-          pagination: {
-            page: number;
-            pageSize: number;
-            total: number;
-            totalPages: number;
-          };
-        }
-      | undefined
-    >(`/interactions${qs ? `?${qs}` : ""}`);
-  }
+    async getInteractions(params: { page?: number; pageSize?: number } = {}) {
+        const search = new URLSearchParams();
+        if (params.page) search.set("page", String(params.page));
+        if (params.pageSize) search.set("pageSize", String(params.pageSize));
+        const qs = search.toString();
+        return this.api.get<
+            | {
+                  data: {
+                      id: string;
+                      createdAt: string;
+                      type: string;
+                      humanNumber: string;
+                      agentNumber: string;
+                      waitTime: number;
+                      medium: Medium;
+                      message: string;
+                      response: string | null;
+                      responseTime: string | null;
+                  }[];
+                  pagination: {
+                      page: number;
+                      pageSize: number;
+                      total: number;
+                      totalPages: number;
+                  };
+              }
+            | undefined
+        >(`/interactions${qs ? `?${qs}` : ""}`);
+    }
 }
 
 export const apiClient = new ApiClient();
