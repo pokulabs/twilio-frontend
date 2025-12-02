@@ -4,14 +4,16 @@ import {
   Box,
   Button,
   CircularProgress,
-  Sheet,
+  Divider,
+  Paper,
   Stack,
   Table,
   Typography,
-} from "@mui/joy";
+} from "@mui/material";
 import { displayDateTime } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
 import withLoggedIn from "../../context/withLoggedIn";
+
 
 type Interaction = NonNullable<
   Awaited<ReturnType<typeof apiClient.getInteractions>>["data"]
@@ -44,21 +46,38 @@ function InteractionsLog() {
 
   return (
     <Stack spacing={2} sx={{ mt: 2}}>
-      <Sheet variant="outlined" sx={{ borderRadius: 8 }}>
-        <Table>
+      <Paper variant="outlined" sx={{ borderRadius: 2, bgcolor: "grey.50", fontSize: "small", overflow: "hidden"}}>
+        <Table 
+          sx={{
+            tableLayout: "fixed", 
+            width: "100%", 
+            "& th": {
+              textAlign: "left", 
+              p: 1, 
+              fontWeight: 600,
+              borderBottom: "2px solid",
+              borderColor: "grey.300",
+               whiteSpace: "nowrap",
+               overflow: "hidden",
+               textOverflow: "ellipsis"
+            }, 
+            "& td": { p: 1 },
+          }}
+        >
           <thead>
             <tr>
-              <th>Created</th>
-              <th>Medium</th>
-              <th>Type</th>
-              <th>Agent</th>
-              <th>Human</th>
-              <th>Message</th>
-              <th>Response</th>
-              <th>Response Time</th>
-              <th>Wait (s)</th>
+              <th title="Created">Created</th>
+              <th title="Medium">Medium</th>
+              <th title="Type">Type</th>
+              <th title="Agent">Agent</th>
+              <th title="Human">Human</th>
+              <th title="Message">Message</th>
+              <th title="Response">Response</th>
+              <th title="Response Time">Response Time</th>
+              <th title="Wait (s)">Wait (s)</th>
             </tr>
           </thead>
+
           <tbody>
             {loading ? (
               <tr>
@@ -70,23 +89,30 @@ function InteractionsLog() {
               </tr>
             ) : data.length ? (
               data.map((r) => (
-                <tr key={r.id}>
-                  <td>{displayDateTime(new Date(r.createdAt))}</td>
-                  <td>{mediumToUiChannelMap[r.medium]}</td>
-                  <td>{r.type}</td>
-                  <td>{r.agentNumber}</td>
-                  <td>{r.humanNumber}</td>
-                  <td title={r.message} style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {r.message}
-                  </td>
-                  <td title={r.response ?? ""} style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {r.response ?? ""}
-                  </td>
-                  <td>
-                    {r.responseTime ? displayDateTime(new Date(r.responseTime)) : ""}
-                  </td>
-                  <td>{r.waitTime}</td>
-                </tr>
+                <>
+                  <tr key={r.id}>
+                    <td>{displayDateTime(new Date(r.createdAt))}</td>
+                    <td>{mediumToUiChannelMap[r.medium]}</td>
+                    <td>{r.type}</td>
+                    <td>{r.agentNumber}</td>
+                    <td>{r.humanNumber}</td>
+                    <td title={r.message} style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {r.message}
+                    </td>
+                    <td title={r.response ?? ""} style={{ maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {r.response ?? ""}
+                    </td>
+                    <td>
+                      {r.responseTime ? displayDateTime(new Date(r.responseTime)) : ""}
+                    </td>
+                    <td>{r.waitTime}</td>
+                  </tr>
+                  <tr key={`${r.id}-divider`}>
+                    <td colSpan={9} style={{ padding: 0, height: 0 }}>
+                      <Divider />
+                    </td>
+                  </tr>
+                </>
               ))
             ) : (
               <tr>
@@ -97,25 +123,27 @@ function InteractionsLog() {
             )}
           </tbody>
         </Table>
-      </Sheet>
+      </Paper>
 
       <Stack direction="row" spacing={1} alignItems="center">
         <Button
           variant="outlined"
-          color="neutral"
-          size="sm"
+          color="primary"
+          size="small"
+          sx={{textTransform: "none", fontWeight: 700}}
           disabled={loading || page <= 1}
           onClick={() => void load(page - 1)}
         >
           Prev
         </Button>
-        <Typography level="body-sm">
+        <Typography variant="body2">
           Page {page} of {totalPages}
         </Typography>
         <Button
           variant="outlined"
-          color="neutral"
-          size="sm"
+          color="primary"
+          size="small"
+          sx={{textTransform: "none", fontWeight: 700}}
           disabled={loading || page >= totalPages}
           onClick={() => void load(page + 1)}
         >

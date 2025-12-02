@@ -1,5 +1,9 @@
-import { Box, Radio, RadioGroup, radioClasses } from "@mui/joy";
+import { ToggleButton, ToggleButtonGroup, Box} from "@mui/material";
 import { ConfigureIcState } from "./HumanAsATool";
+import slack from "../../assets/slack-color.png";
+import whatsapp from "../../assets/whatsapp.png";
+import sms from "../../assets/sms.png";
+import call from "../../assets/call.png";
 
 export function MediumSelector({
   uiChannel,
@@ -8,25 +12,42 @@ export function MediumSelector({
   uiChannel: ConfigureIcState["uiChannel"];
   setUiChannel: (m: ConfigureIcState["uiChannel"]) => void;
 }) {
+  const uiChannelLabels: Record<ConfigureIcState["uiChannel"], string> = {
+    sms: "SMS",
+    whatsapp: "WhatsApp",
+    slack: "Slack",
+    call: "Call",
+  }
+
+  const uiChannelImages: Record<ConfigureIcState["uiChannel"], string> = {
+    sms,
+    whatsapp,
+    slack,
+    call,
+  };
+
+  const channels: ConfigureIcState["uiChannel"][] = ["sms", "whatsapp", "slack", "call"]
+
   return (
-    <RadioGroup
+    <ToggleButtonGroup
+      exclusive
       orientation="horizontal"
       aria-label="Alignment"
-      name="alignment"
-      variant="outlined"
       value={uiChannel}
-      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-        setUiChannel(event.target.value as ConfigureIcState["uiChannel"])
-      }
+      onChange={(_event, value: ConfigureIcState["uiChannel"] | null) => {
+        if(value !== null) setUiChannel(value)
+      }}
       sx={{
         display: "flex",
         width: "100%",
       }}
     >
-      {["sms", "whatsapp", "slack", "call"].map((item) => (
+      {channels.map((channel, index) => (
         <Box
-          key={item}
-          sx={(theme) => ({
+          key={channel}
+          data-first-child={index === 0 ? "" : undefined}
+          data-last-child={index === channels.length - 1 ? "" : undefined}
+          sx={{
             position: "relative",
             display: "flex",
             justifyContent: "center",
@@ -34,42 +55,44 @@ export function MediumSelector({
             flex: 1,
             height: 35,
             "&:not([data-first-child])": {
-              borderLeft: "1px solid",
+
               borderColor: "divider",
             },
-            [`&[data-first-child] .${radioClasses.action}`]: {
-              borderTopLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-              borderBottomLeftRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-            },
-            [`&[data-last-child] .${radioClasses.action}`]: {
-              borderTopRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-              borderBottomRightRadius: `calc(${theme.vars.radius.sm} - 1px)`,
-            },
-          })}
+          }}
         >
-          <Radio
-            value={item}
-            disableIcon
-            overlay
-            label={
-              {
-                slack: "Slack",
-                whatsapp: "WhatsApp",
-                sms: "SMS",
-                call: "Call",
-              }[item as ConfigureIcState["uiChannel"]]
-            }
-            variant={uiChannel === (item as ConfigureIcState["uiChannel"]) ? "solid" : "plain"}
-            slotProps={{
-              input: { "aria-label": item },
-              action: {
-                sx: { borderRadius: 0, transition: "none" },
+          <ToggleButton
+            value={channel}
+            aria-label={uiChannelLabels[channel]}
+            sx={{
+              width: "100%",
+              height: "100%",
+              p: 2,
+              borderRadius: 2,
+              fontSize: 15,
+              textTransform: "none",
+              color: "text.primary",
+
+              "&.Mui-selected": {
+                bgcolor: "primary.main",
+                color: "common.white",
+                "&:hover": {
+                  bgcolor: "primary.dark"
+                }
               },
-              label: { sx: { lineHeight: 0 } },
             }}
-          />
+          >
+            <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+              <Box
+                component="img"
+                src={uiChannelImages[channel]}
+                alt={uiChannelLabels[channel]}
+                sx={{ width: 18, height: 18 }}
+              />
+              {uiChannelLabels[channel]}
+            </Box>
+          </ToggleButton>
         </Box>
       ))}
-    </RadioGroup>
+    </ToggleButtonGroup>
   );
 }

@@ -2,17 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
-  Button,
   Chip,
   CircularProgress,
   Divider,
   IconButton,
   LinearProgress,
-  Sheet,
+  Paper,
   Stack,
-  Textarea,
   Typography,
-} from "@mui/joy";
+} from "@mui/material";
 import { RefreshRounded, SendRounded } from "@mui/icons-material";
 import type { AxiosError } from "axios";
 
@@ -20,6 +18,9 @@ import withLoggedIn from "../../context/withLoggedIn";
 import { apiClient } from "../../api-client";
 import { displayDateTime } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
+import { Medium } from "../../types/backend-frontend";
+import { CreateTextField } from "../shared/CreateTextField";
+import CreateButton from "../shared/CreateButton";
 
 type ActiveInteraction =
   NonNullable<
@@ -147,49 +148,45 @@ function ActiveInteractions() {
   return (
     <Stack spacing={2} sx={{ mt: 2 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography level="title-lg">Active Interactions</Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Typography variant="subtitle1" sx={{fontWeight: 600}}>Active Interactions</Typography>
+        <Box sx={{ display: "flex", gap: 1, bgcolor: "paper", border: 1, borderRadius: 2, borderColor: "divider"}}>
           <IconButton
-            variant="outlined"
-            color="neutral"
-            size="sm"
+            size="small"
+            sx={{color: "text.primary"}}
             onClick={() => void load({ showSpinner: true })}
             disabled={loading || refreshing}
           >
             {loading || refreshing ? (
-              <CircularProgress size="sm" variant="plain" />
+              <CircularProgress size="sm" />
             ) : (
-              <RefreshRounded />
+              <RefreshRounded/>
             )}
           </IconButton>
         </Box>
       </Stack>
 
       {error ? (
-        <Alert color="danger" variant="soft">
+        <Alert severity="error" >
           {error}
         </Alert>
       ) : null}
 
       {loading ? (
-        <Sheet
+        <Paper
           variant="outlined"
-          sx={{ borderRadius: 8, p: 6, textAlign: "center" }}
+          sx={{ borderRadius: 2, p: 6, textAlign: "center" }}
         >
           <CircularProgress />
-        </Sheet>
+        </Paper>
       ) : hasNoData ? (
-        <Sheet
+        <Paper
           variant="outlined"
-          sx={{ borderRadius: 8, p: 4, textAlign: "center" }}
+          sx={{ borderRadius: 2, p: 4, textAlign: "center" }}
         >
-          <Typography level="body-md">
+          <Typography variant="body1">
             No active interactions right now.
           </Typography>
-          <Typography level="body-sm" color="neutral">
-            We refresh automatically every 15 seconds.
-          </Typography>
-        </Sheet>
+        </Paper>
       ) : (
         <Stack spacing={2}>
           {rows.map((row) => {
@@ -199,8 +196,8 @@ function ActiveInteractions() {
               row.remainingSeconds > 60
                 ? "success"
                 : row.remainingSeconds > 0
-                  ? "warning"
-                  : "neutral";
+                  ? "error"
+                  : "info";
             const statusLabel =
               row.remainingSeconds > 0
                 ? `${row.remainingSeconds}s left`
@@ -208,11 +205,11 @@ function ActiveInteractions() {
             const metadataEntries = Object.entries(row.metadata ?? {});
 
             return (
-              <Sheet
+              <Paper
                 key={row.id}
                 variant="outlined"
                 sx={{
-                  borderRadius: 12,
+                  borderRadius: 4,
                   p: { xs: 2, sm: 3 },
                   gap: 2,
                   display: "flex",
@@ -228,8 +225,8 @@ function ActiveInteractions() {
                   rowGap={1.5}
                 >
                   <Stack spacing={0.5}>
-                    <Typography level="title-md">{row.humanNumber}</Typography>
-                    <Typography level="body-sm" color="neutral">
+                    <Typography variant="h6">{row.humanNumber}</Typography>
+                    <Typography variant="body2" color="text.secondary">
                       Created {displayDateTime(createdAt)}
                     </Typography>
                   </Stack>
@@ -239,20 +236,12 @@ function ActiveInteractions() {
                     flexWrap="wrap"
                     justifyContent={{ xs: "flex-start", md: "flex-end" }}
                   >
-                    <Chip color="primary" variant="soft" size="sm">
-                      {mediumToUiChannelMap[row.medium]}
-                    </Chip>
-                    <Chip variant="outlined" size="sm">
-                      {row.type}
-                    </Chip>
+                    <Chip color="primary" size="small" label={mediumToUiChannelMap[row.medium as Medium]}/> 
+                    <Chip variant="outlined" size="small" label={row.type} />
                     {row.agentNumber ? (
-                      <Chip variant="soft" size="sm">
-                        Agent {row.agentNumber}
-                      </Chip>
+                      <Chip size="small" label={`Agent-${row.agentNumber}`} />
                     ) : null}
-                    <Chip color={statusColor} size="sm" variant="solid">
-                      {statusLabel}
-                    </Chip>
+                    <Chip color={statusColor} size="small" label={statusLabel} />
                   </Stack>
                 </Stack>
 
@@ -265,11 +254,11 @@ function ActiveInteractions() {
                 >
                   <Stack spacing={1.5} flex={1} minWidth={0}>
                     <Stack spacing={0.5}>
-                      <Typography level="body-sm" color="neutral">
+                      <Typography variant="body2" color="text.secondary">
                         Message
                       </Typography>
                       <Typography
-                        level="body-md"
+                        variant="body2"
                         sx={{
                           whiteSpace: "pre-wrap",
                           wordBreak: "break-word",
@@ -281,7 +270,7 @@ function ActiveInteractions() {
 
                     {metadataEntries.length ? (
                       <Stack spacing={0.75}>
-                        <Typography level="body-sm" color="neutral">
+                        <Typography variant="body2" color="text.secondary">
                           Metadata
                         </Typography>
                         <Stack
@@ -291,9 +280,7 @@ function ActiveInteractions() {
                           rowGap={0.75}
                         >
                           {metadataEntries.map(([key, value]) => (
-                            <Chip key={key} size="sm" variant="soft">
-                              {key}: {String(value)}
-                            </Chip>
+                            <Chip key={key} size="small" label={`${key}: ${String(value)}`} />
                           ))}
                         </Stack>
                       </Stack>
@@ -301,20 +288,21 @@ function ActiveInteractions() {
 
                     <Stack spacing={0.5}>
                       <LinearProgress
-                        determinate
+                        variant="determinate"
                         value={row.progress}
                         sx={{
-                          bgcolor: "background.level2",
+                          p: 0.5,
+                          borderRadius: 1,
                           "& .MuiLinearProgress-bar": {
                             transition: "none",
                           },
                         }}
                       />
                       <Stack direction="row" justifyContent="space-between">
-                        <Typography level="body-xs" color="neutral">
+                        <Typography variant="body2" color="text.secondary">
                           Expires {displayDateTime(expiresAt)}
                         </Typography>
-                        <Typography level="body-xs" color="neutral">
+                        <Typography variant="body2" color="text.secondary">
                           {row.totalSeconds - row.remainingSeconds}s elapsed
                         </Typography>
                       </Stack>
@@ -326,10 +314,11 @@ function ActiveInteractions() {
                     flex={{ xs: 1, lg: 0.9 }}
                     minWidth={{ xs: "100%", lg: 280 }}
                   >
-                    <Typography level="body-sm" color="neutral">
+                    <Typography variant="body2" color="text.secondary">
                       Your response
                     </Typography>
-                    <Textarea
+                    <CreateTextField
+                      multiline
                       minRows={3}
                       value={responses[row.id] ?? ""}
                       onChange={(event) =>
@@ -339,29 +328,29 @@ function ActiveInteractions() {
                         }))
                       }
                       placeholder="Type your response..."
-                      sx={{
-                        "& textarea": {
-                          fontSize: "0.95rem",
-                        },
-                      }}
                     />
                     <Stack direction="row" justifyContent="flex-end">
-                      <Button
-                        size="sm"
-                        startDecorator={<SendRounded />}
-                        onClick={() => void handleSubmit(row.id)}
-                        loading={submittingId === row.id}
-                        disabled={
-                          (submittingId !== null && submittingId !== row.id) ||
-                          row.remainingSeconds === 0
-                        }
-                      >
-                        Send response
-                      </Button>
+                      <Box>
+                        <CreateButton
+                          showLabels={false}
+                          showColors={false}
+                          size="small"
+                          variant="contained"
+                          startIcon={<SendRounded />}
+                          onCreate={() => handleSubmit(row.id)}
+                          loading={submittingId === row.id}
+                          disabled={
+                            (submittingId !== null && submittingId !== row.id) ||
+                            row.remainingSeconds === 0
+                          }
+                          >
+                          Send response
+                        </CreateButton>
+                      </Box>
                     </Stack>
                   </Stack>
                 </Stack>
-              </Sheet>
+              </Paper>
             );
           })}
         </Stack>

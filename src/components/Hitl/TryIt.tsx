@@ -5,18 +5,20 @@ import {
   Stack,
   Avatar,
   Typography,
-  Input,
   Button,
   FormControl,
   FormLabel,
   Card,
   Divider,
   Alert,
-} from "@mui/joy";
+  InputAdornment
+} from "@mui/material";
+import { CreateTextField } from "../shared/CreateTextField";
 import { SendRounded, PhoneRounded } from "@mui/icons-material";
 import { apiClient } from "../../api-client";
 import ChatBubble from "../Messages/ChatBubble";
 import type { PlainMessage } from "../../types/types";
+import CreateButton from "../shared/CreateButton";
 
 interface DemoMessage {
   id: string;
@@ -32,10 +34,10 @@ export default function TryIt() {
     {
       id: "1",
       content: `Howdy!
-1. Enter your phone number above
-2. Start chatting. E.g. "What are the best destinations for a vacation home?"
-3. Ask to speak to a human. E.g. "Is a human available to chat about this?"
-4. Check your texts and reply!`,
+        1. Enter your phone number above
+        2. Start chatting. E.g. "What are the best destinations for a vacation home?"
+        3. Ask to speak to a human. E.g. "Is a human available to chat about this?"
+        4. Check your texts and reply!`,
       isBot: true,
       timestamp: new Date(),
     },
@@ -143,13 +145,21 @@ export default function TryIt() {
     >
       <Box sx={{ pb: 3 }}>
         <FormControl>
-          <FormLabel>Enter Your Phone Number</FormLabel>
-          <Input
+          <FormLabel sx={{color: "text.primary", fontSize: "small"}}>Enter Your Phone Number</FormLabel>
+          <CreateTextField
             placeholder="+12223334444"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
-            startDecorator={<PhoneRounded />}
-            sx={{ maxWidth: 300 }}
+            sx={{ width: 300, maxWidth: 300 }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PhoneRounded color="action" />
+                  </InputAdornment>
+                )
+              }
+            }}
           />
         </FormControl>
       </Box>
@@ -161,7 +171,8 @@ export default function TryIt() {
           maxHeight: 700,
           height: "60vh",
           flexDirection: "column",
-          backgroundColor: "background.level1",
+          backgroundColor: "grey.100",
+          borderRadius: 2,
         }}
       >
         <Box
@@ -227,12 +238,12 @@ export default function TryIt() {
 
         <Box sx={{ p: 2 }}>
           {error && (
-            <Alert color="danger" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
           <Stack spacing={1} direction="row">
-            <Input
+            <CreateTextField
               placeholder="Type your message here..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -240,17 +251,18 @@ export default function TryIt() {
               disabled={isLoading || !phoneNumber.trim()}
               sx={{ flexGrow: 1 }}
             />
-            <Button
+            <CreateButton
               color="primary"
-              endDecorator={<SendRounded />}
-              onClick={sendMessage}
+              variant="contained"
+              onCreate={sendMessage}
               disabled={!message.trim() || isLoading || !phoneNumber.trim()}
               loading={isLoading}
+              sx={{textTransform: "none"}}
             >
-              Send
-            </Button>
+              <Typography variant="body2" sx={{mr: 1, fontWeight: 600}}>Send</Typography> <SendRounded />
+            </CreateButton>
           </Stack>
-          <Typography level="body-xs" sx={{ mt: 1, opacity: 0.7 }}>
+          <Typography variant="caption" sx={{ mt: 1, opacity: 0.7 }}>
             Press Cmd/Ctrl + Enter to send
           </Typography>
         </Box>
