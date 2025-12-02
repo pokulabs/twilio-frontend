@@ -1,5 +1,5 @@
-import { Autocomplete, Box, Input as JoyInput } from "@mui/joy";
-import type { InputProps as JoyInputProps } from "@mui/joy/Input";
+import { TextField, TextFieldProps, Autocomplete, Box } from "@mui/material";
+import { CreateTextField } from "./CreateTextField";
 import {
   getCountries,
   getCountryCallingCode,
@@ -29,7 +29,21 @@ export function HumanNumberInput({
         labels={en}
         value={country}
         onChange={setCountry}
-        sx={{ minWidth: { xs: "100%", sm: 260 } }}
+        size="small"
+        sx={{
+          width: 1/3,
+          "& .MuiOutlinedInput-root": {
+            bgcolor: "background.paper",
+            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+            borderRadius: 2,
+            "&:hover fieldset": {
+              borderColor: "primary.light"
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "primary.main"
+            }
+          },
+        }}
       />
 
       <Box sx={{ flex: 1 }}>
@@ -39,7 +53,7 @@ export function HumanNumberInput({
           }}
           country={country}
           placeholder="Enter phone number"
-          inputComponent={JoyPhoneInput}
+          inputComponent={MuiPhoneInput}
           smartCaret={false}
         />
       </Box>
@@ -47,10 +61,10 @@ export function HumanNumberInput({
   );
 }
 
-const JoyPhoneInput = forwardRef<HTMLInputElement, JoyInputProps>(
-  function JoyPhoneInput(props, ref) {
+const MuiPhoneInput = forwardRef<HTMLInputElement, TextFieldProps>(
+  function MuiPhoneInput(props, ref) {
     return (
-      <JoyInput
+      <CreateTextField
         {...props}
         ref={ref}
         type="tel"
@@ -84,5 +98,6 @@ const CountrySelect = ({
       `${labels[country] || country} +${getCountryCallingCode(country)}`
     }
     disableClearable={true}
+    renderInput={(params) => <TextField {...params}/>}
   />
 );

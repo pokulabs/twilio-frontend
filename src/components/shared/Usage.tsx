@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, LinearProgress } from "@mui/joy";
+import { Box, Typography } from "@mui/material";
 import { apiClient } from "../../api-client";
 import { InfoTooltip } from "./InfoTooltip";
+import CreateButton from "./CreateButton";
 
-export function Usage() {
-  const [messageCount, setMessageCount] = useState(0);
-  const [messageLimit, setMessageLimit] = useState(0);
+export function CreditsRemaining() {
+  const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchLimits = async () => {
       try {
-        const limits = await apiClient.getAccountLimits();
-        if (limits.data) {
-          setMessageCount(limits.data.haatMessageCount || 0);
-          setMessageLimit(limits.data.haatMessageLimit || 0);
+        const credits = await apiClient.getAccountCredits();
+        if (credits.data) {
+          setCreditsRemaining(credits.data.creditsRemaining ?? 0);
         }
       } catch (err) {
         console.error(err);
@@ -23,40 +22,42 @@ export function Usage() {
     fetchLimits();
   }, []);
 
-  const progressValue = messageLimit
-    ? Math.min(100, messageCount * (100 / messageLimit))
-    : 0;
-
   return (
-    <Box>
-      <Typography
-        level="body-sm"
-        sx={{ mb: 1 }}
-        endDecorator={
-          <InfoTooltip
-            title={
-              <Box>
-                <Typography level="body-sm" sx={{ mt: 1 }} color="warning">
-                  {messageLimit} free interactions/month
-                </Typography>
-                <br />
-                <Typography level="body-sm" color="warning" sx={{ mb: 1 }}>
-                  To increase please fund your account{" "}
-                  <a
-                    href="https://buy.stripe.com/28E5kF3XMfPh8Cv6PKeEo01"
-                    target="_blank"
-                  >
-                    here
-                  </a>
-                </Typography>
-              </Box>
-            }
-          />
-        }
+    <Box
+      sx={{
+        display: "flex",
+        gap: 1,
+      }}
+    >
+      <Box sx={{display: "flex", alignItems: "center"}}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 0 }}
+        >
+          Credits remaining: {creditsRemaining ?? "--"}
+        </Typography>
+        <InfoTooltip
+        title={
+          <Typography variant="body2" color="warning">
+              1 credit per message. 
+              <br />
+              10 credits per voice call.
+            </Typography>
+          }
+        />
+      </Box>
+      <CreateButton
+        color="primary"
+        variant="outlined"
+        sx={{bgcolor: "red"}}
+        component="a"
+        href="https://buy.stripe.com/8x2dRb9i66eH3ib6PKeEo02"
+        target="_blank"
+        rel="noopener noreferrer"
       >
-        Usage: {messageCount} / {messageLimit}
-      </Typography>
-      <LinearProgress determinate value={progressValue} />
+        Add credits
+      </CreateButton>
     </Box>
   );
 }

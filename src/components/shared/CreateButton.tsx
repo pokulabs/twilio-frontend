@@ -1,13 +1,25 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Button } from "@mui/joy";
-import type { ButtonProps } from "@mui/joy";
+import {Button} from "@mui/material"
+import type { ButtonProps } from "@mui/material";
 
 type SaveStatus = "idle" | "saving" | "success" | "error";
 
-type CreateButtonProps = Omit<ButtonProps, "onClick"> & {
-  onCreate: () => Promise<void>;
-  texts?: Partial<Record<SaveStatus, string>>;
-};
+type CreateButtonProps =
+  | (Omit<ButtonProps, "onClick"> & {
+    onCreate: () => Promise<unknown>;
+    texts?: Partial<Record<SaveStatus, string>>;
+    showLabels?: boolean;
+    showColors?: boolean;
+  })
+  | (Omit<ButtonProps, "onClick"> & {
+    href: string;
+    target?: string;
+    rel?: string;
+    onCreate?: never;
+    texts?: never;        
+    showLabels?: boolean;
+    showColors?: boolean;
+  })
 
 export function CreateButton({
   onCreate,
@@ -15,6 +27,8 @@ export function CreateButton({
   children,
   texts,
   color,
+  showLabels = true,
+  showColors = true,
   ...rest
 }: CreateButtonProps) {
   const [status, setStatus] = useState<SaveStatus>("idle");
@@ -31,7 +45,7 @@ export function CreateButton({
     clearExistingTimeout();
     setStatus("saving");
     try {
-      await onCreate();
+      if(onCreate) await onCreate()
       setStatus("success");
       timeoutRef.current = window.setTimeout(() => {
         setStatus("idle");
@@ -48,7 +62,7 @@ export function CreateButton({
 
   const computedColor = useMemo(() => {
     if (status === "success") return "success";
-    if (status === "error") return "danger";
+    if (status === "error") return "error";
     return color;
   }, [status, color]);
 
@@ -62,12 +76,20 @@ export function CreateButton({
   return (
     <Button
       {...rest}
-      color={computedColor}
+      color={showColors ? computedColor : undefined}
       loading={status === "saving"}
       disabled={disabled || status === "saving"}
       onClick={handleClick}
-    >
-      {label}
+      sx={{
+        textTransform: "none",
+        fontWeight: 600,
+        borderRadius: 1.5,
+        "&.Mui-disabled": {
+          backgroundColor: "grey.100",
+        }
+      }}
+      >
+      {showLabels ? label : children}
     </Button>
   );
 }

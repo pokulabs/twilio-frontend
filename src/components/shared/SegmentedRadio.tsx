@@ -1,4 +1,4 @@
-import { Radio, RadioGroup } from "@mui/joy";
+import {FormControlLabel, Radio, RadioGroup} from "@mui/material"
 
 export type SegmentedRadioOption<ValueT extends string | number> = {
   value: ValueT;
@@ -16,7 +16,7 @@ export function SegmentedRadio<ValueT extends string | number>({
 }) {
   return (
     <RadioGroup
-      orientation="horizontal"
+      row
       value={value as any}
       onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
         const raw = event.target.value;
@@ -28,44 +28,43 @@ export function SegmentedRadio<ValueT extends string | number>({
       sx={{
         width: "100%",
         minHeight: 35,
-        padding: "4px",
-        borderRadius: "12px",
-        bgcolor: "neutral.softBg",
-        "--RadioGroup-gap": "4px",
-        "--Radio-actionRadius": "8px",
+        borderRadius: 3,
+        padding: "3px",
+        bgcolor: "grey.100",
+        gap: "4px",
       }}
     >
-      {options.map((item) => (
-        <Radio
-          key={item.value.toString()}
-          color="neutral"
-          value={item.value}
-          disableIcon
-          label={item.label}
-          variant="plain"
-          sx={{
-            px: 2,
-            alignItems: "center",
-            flex: 1,
-            justifyContent: "center",
-            textAlign: "center",
-          }}
-          slotProps={{
-            action: ({ checked }) => ({
-              sx: {
-                ...(checked && {
-                  bgcolor: "background.surface",
-                  boxShadow: "sm",
-                  "&:hover": {
-                    bgcolor: "background.surface",
-                  },
-                }),
-              },
-            }),
-          }}
-        />
-      ))}
-    </RadioGroup>
+  {options.map((item) => {
+    const isChecked = value === item.value;
+    return (
+      <FormControlLabel
+        key={item.value.toString()}
+        value={item.value}
+        control={<Radio sx={{ display: 'none' }} />}
+        label={item.label}
+        sx={{
+          px: 2,
+          py: 0.5,
+          m: 0,
+          flex: 1,
+          justifyContent: "center",
+          textAlign: "center",
+          borderRadius: 3,
+          transition: "all 0.2s",
+          cursor: "pointer",
+          bgcolor: isChecked ? "background.paper" : "transparent",
+          boxShadow: isChecked ? 1 : 0,
+          "&:hover": {
+            bgcolor: isChecked ? "background.paper" : "grey.300",
+          },
+          "& .MuiFormControlLabel-label": {
+            width: "100%",
+          },
+        }}
+      />
+    );
+  })}
+</RadioGroup>
   );
 }
 
