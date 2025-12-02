@@ -5,6 +5,7 @@ import { InfoTooltip } from "./InfoTooltip";
 
 export function CreditsRemaining() {
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
   useEffect(() => {
     const fetchLimits = async () => {
@@ -20,6 +21,20 @@ export function CreditsRemaining() {
 
     fetchLimits();
   }, []);
+
+  const handleAddCredits = async () => {
+    setIsCheckoutLoading(true);
+    try {
+      const response = await apiClient.createCheckoutSession();
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (err) {
+      console.error("Failed to create checkout session", err);
+    } finally {
+      setIsCheckoutLoading(false);
+    }
+  };
 
   return (
     <Box
@@ -46,9 +61,8 @@ export function CreditsRemaining() {
       <Button
         size="sm"
         variant="soft"
-        component="a"
-        href="https://buy.stripe.com/8x2dRb9i66eH3ib6PKeEo02"
-        target="_blank"
+        loading={isCheckoutLoading}
+        onClick={handleAddCredits}
       >
         Add credits
       </Button>

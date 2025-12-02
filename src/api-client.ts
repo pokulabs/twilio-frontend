@@ -164,6 +164,10 @@ class ApiClient {
         >("/account/credits");
     }
 
+    async createCheckoutSession() {
+        return this.api.post<{ url: string }>("/account/create-checkout-session");
+    }
+
     async deleteInteractionChannel(interactionChannelId: string) {
         return this.api.delete(`/interaction-channels/${interactionChannelId}`);
     }
