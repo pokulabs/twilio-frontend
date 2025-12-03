@@ -159,9 +159,20 @@ class ApiClient {
         return this.api.get<
             | {
                   creditsRemaining: number;
+                  autoRechargeEnabled: boolean;
+                  autoRechargeAmount: number;
+                  autoRechargeThreshold: number;
               }
             | undefined
         >("/account/credits");
+    }
+
+    async updateAutoRecharge(settings: {
+        enabled: boolean;
+        amount: number;
+        threshold: number;
+    }) {
+        return this.api.post("/account/auto-recharge", settings);
     }
 
     async createCheckoutSession() {
