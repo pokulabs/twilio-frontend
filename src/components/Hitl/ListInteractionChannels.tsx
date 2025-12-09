@@ -10,6 +10,8 @@ import {
   Box,
   Chip,
   Tooltip,
+  Select,
+  Option,
 } from "@mui/joy";
 import {
   ContentCopy,
@@ -60,6 +62,210 @@ function getMediumLabel(medium: Medium): string {
   }
 }
 
+const InteractionChannelCard = ({
+  channel: e,
+  onReload,
+}: {
+  channel: any;
+  onReload: () => void;
+}) => {
+  const [urlType, setUrlType] = useState<"mcp" | "api">("mcp");
+
+  const mediumIconMap: Record<Medium, string> = {
+    slack: slack,
+    slack_poku: slack,
+    whatsapp_poku: whatsapp,
+    call_poku: call,
+    sms: sms,
+    sms_poku: sms,
+  };
+  const iconSrc = mediumIconMap[e.medium as Medium];
+
+  const handleCopy = () => {
+    const url =
+      urlType === "mcp"
+        ? `https://mcp.pokulabs.com/${e.id}`
+        : `https://api.pokulabs.com/hitl/contact-human/${e.id}`;
+    navigator.clipboard.writeText(url);
+  };
+
+  return (
+    <Card
+      key={e.id}
+      variant="outlined"
+      sx={{
+        borderRadius: "lg",
+        p: 2,
+        width: 300,
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "sm",
+        transition: "box-shadow 0.2s",
+        "&:hover": {
+          boxShadow: "md",
+        },
+      }}
+    >
+      {/* Header */}
+      <Stack direction="row" spacing={2} alignItems="center">
+        <Box
+          component="img"
+          src={iconSrc}
+          sx={{ width: 40, height: 40, borderRadius: "sm" }}
+        />
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Typography level="title-md" noWrap>
+            {e.humanNumber}
+          </Typography>
+          <Typography level="body-xs" color="neutral">
+            {getMediumLabel(e.medium)}
+          </Typography>
+        </Box>
+      </Stack>
+
+      <Divider />
+
+      <CardContent sx={{ flex: 1, gap: 1.5 }}>
+        {/* Details Grid */}
+        <Stack spacing={1}>
+          {e.agentNumber && (
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <SupportAgent fontSize="small" titleAccess="Agent" />
+              <Typography level="body-sm">{e.agentNumber}</Typography>
+            </Stack>
+          )}
+
+          {e.waitTime && (
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Timer fontSize="small" titleAccess="Wait Time" />
+              <Typography level="body-sm">{e.waitTime} seconds</Typography>
+            </Stack>
+          )}
+
+          {e.validTime && (
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <AccessTime fontSize="small" titleAccess="Follow-up" />
+              <Typography level="body-sm">
+                {formatDuration(e.validTime)}
+              </Typography>
+            </Stack>
+          )}
+
+          {e.linkEnabled && (
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <LinkIcon fontSize="small" titleAccess="Reply Link" />
+              <Chip size="sm" variant="soft" color="success">
+                Reply Link Active
+              </Chip>
+            </Stack>
+          )}
+
+          {e.webhook && (
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Http fontSize="small" titleAccess="Webhook" />
+              <Typography level="body-sm" title={e.webhook} noWrap>
+                {e.webhook}
+              </Typography>
+            </Stack>
+          )}
+
+          {(e.messageTemplate ||
+            e.responseTemplate ||
+            e.noResponseTemplate) && (
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Description fontSize="small" titleAccess="Custom Templates" />
+              <Chip size="sm" variant="soft" color="success">
+                Custom Templates Active
+              </Chip>
+            </Stack>
+          )}
+        </Stack>
+      </CardContent>
+
+      {/* URL Section */}
+      <Box
+        sx={{
+          mt: 2,
+          p: 1,
+          bgcolor: "background.level1",
+          borderRadius: "sm",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 1,
+        }}
+      >
+        <Box sx={{ minWidth: 0, flex: 1, mr: 1 }}>
+          <Select
+            size="sm"
+            variant="plain"
+            value={urlType}
+            onChange={(_, val) => val && setUrlType(val)}
+            sx={{
+              mb: 0.5,
+              p: 0,
+              minHeight: "unset",
+              fontWeight: "bold",
+              "&:hover": { bgcolor: "transparent" },
+              width: "fit-content",
+            }}
+          >
+            <Option value="mcp">MCP Url</Option>
+            <Option value="api">API Url</Option>
+          </Select>
+          <Typography level="body-xs" noWrap color="neutral">
+            {urlType === "mcp"
+              ? `https://mcp.pokulabs.com/${e.id}`
+              : `https://api.pokulabs.com/hitl/contact-human/${e.id}`}
+          </Typography>
+        </Box>
+        <Tooltip title="Copy URL" variant="solid">
+          <IconButton
+            size="sm"
+            variant="plain"
+            color="neutral"
+            onClick={handleCopy}
+          >
+            <ContentCopy fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      {/* Actions */}
+      <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+        <Button
+          fullWidth
+          size="sm"
+          variant="outlined"
+          color="primary"
+          startDecorator={<Send />}
+          onClick={() => apiClient.sendTestMessage(e.id)}
+        >
+          Send Test
+        </Button>
+
+        <Tooltip title="Delete Channel" color="danger" variant="solid">
+          <IconButton
+            size="sm"
+            variant="outlined"
+            color="danger"
+            onClick={async () => {
+              if (
+                window.confirm("Are you sure you want to delete this channel?")
+              ) {
+                await apiClient.deleteInteractionChannel(e.id);
+                onReload();
+              }
+            }}
+          >
+            <DeleteOutline />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Card>
+  );
+};
+
 export const ListInteractionChannels = forwardRef((_props, ref) => {
   const [ics, setIcs] = useState<
     NonNullable<
@@ -81,10 +287,6 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
   useImperativeHandle(ref, () => ({
     reload: getIcs,
   }));
-
-  const handleCopy = (id: string) => {
-    navigator.clipboard.writeText(`https://mcp.pokulabs.com/${id}`);
-  };
 
   if (ics.length === 0) {
     return (
@@ -108,189 +310,9 @@ export const ListInteractionChannels = forwardRef((_props, ref) => {
         <CreditsRemaining />
       </Box>
       <Stack direction="row" gap={3} sx={{ flexWrap: "wrap" }}>
-        {ics.map((e) => {
-          const mediumIconMap: Record<Medium, string> = {
-            slack: slack,
-            slack_poku: slack,
-            whatsapp_poku: whatsapp,
-            call_poku: call,
-            sms: sms,
-            sms_poku: sms,
-          };
-          const iconSrc = mediumIconMap[e.medium];
-
-          return (
-            <Card
-              key={e.id}
-              variant="outlined"
-              sx={{
-                borderRadius: "lg",
-                p: 2,
-                width: 300,
-                display: "flex",
-                flexDirection: "column",
-                boxShadow: "sm",
-                transition: "box-shadow 0.2s",
-                "&:hover": {
-                  boxShadow: "md",
-                },
-              }}
-            >
-              {/* Header */}
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Box
-                  component="img"
-                  src={iconSrc}
-                  sx={{ width: 40, height: 40, borderRadius: "sm" }}
-                />
-                <Box sx={{ minWidth: 0, flex: 1 }}>
-                  <Typography level="title-md" noWrap>
-                    {e.humanNumber}
-                  </Typography>
-                  <Typography level="body-xs" color="neutral">
-                    {getMediumLabel(e.medium)}
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <Divider />
-
-              <CardContent sx={{ flex: 1, gap: 1.5 }}>
-                {/* Details Grid */}
-                <Stack spacing={1}>
-                  {e.agentNumber && (
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <SupportAgent fontSize="small" titleAccess="Agent" />
-                      <Typography level="body-sm">{e.agentNumber}</Typography>
-                    </Stack>
-                  )}
-
-                  {e.waitTime && (
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Timer fontSize="small" titleAccess="Wait Time" />
-                        <Typography level="body-sm">
-                          {e.waitTime} seconds
-                        </Typography>
-                    </Stack>
-                  )}
-
-                  {e.validTime && (
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <AccessTime fontSize="small" titleAccess="Follow-up" />
-                      <Typography level="body-sm">
-                        {formatDuration(e.validTime)}
-                      </Typography>
-                    </Stack>
-                  )}
-
-                  {e.linkEnabled && (
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <LinkIcon fontSize="small" titleAccess="Reply Link" />
-                      <Chip
-                        size="sm"
-                        variant="soft"
-                        color="success"
-                      >
-                        Reply Link Active
-                      </Chip>
-                    </Stack>
-                  )}
-
-                  {e.webhook && (
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Http fontSize="small" titleAccess="Webhook" />
-                      <Typography level="body-sm" title={e.webhook} noWrap>
-                        {e.webhook}
-                      </Typography>
-                    </Stack>
-                  )}
-
-                  {(e.messageTemplate ||
-                    e.responseTemplate ||
-                    e.noResponseTemplate) && (
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Description fontSize="small" titleAccess="Custom Templates" />
-                      <Chip
-                        size="sm"
-                        variant="soft"
-                        color="success"
-                      >
-                        Custom Templates Active
-                      </Chip>
-                    </Stack>
-                  )}
-                </Stack>
-              </CardContent>
-
-              {/* MCP URL Section */}
-              <Box
-                sx={{
-                  mt: 2,
-                  p: 1,
-                  bgcolor: "background.level1",
-                  borderRadius: "sm",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 1,
-                }}
-              >
-                <Box sx={{ minWidth: 0 }}>
-                  <Typography level="body-xs" fontWeight="bold">
-                    MCP URL
-                  </Typography>
-                  <Typography level="body-xs" noWrap color="neutral">
-                    {`https://mcp.pokulabs.com/${e.id}`}
-                  </Typography>
-                </Box>
-                <Tooltip title="Copy URL" variant="solid">
-                  <IconButton
-                    size="sm"
-                    variant="plain"
-                    color="neutral"
-                    onClick={() => handleCopy(e.id)}
-                  >
-                    <ContentCopy fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-
-              {/* Actions */}
-              <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                <Button
-                  fullWidth
-                  size="sm"
-                  variant="outlined"
-                  color="primary"
-                  startDecorator={<Send />}
-                  onClick={() => apiClient.sendTestMessage(e.id)}
-                >
-                  Send Test
-                </Button>
-
-                <Tooltip title="Delete Channel" color="danger" variant="solid">
-                  <IconButton
-                    size="sm"
-                    variant="outlined"
-                    color="danger"
-                    onClick={async () => {
-                      if (
-                        window.confirm(
-                          "Are you sure you want to delete this channel?"
-                        )
-                      ) {
-                        await apiClient.deleteInteractionChannel(e.id);
-                        await getIcs();
-                      }
-                    }}
-                  >
-                    <DeleteOutline />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Card>
-          );
-        })}
+        {ics.map((e) => (
+          <InteractionChannelCard key={e.id} channel={e} onReload={getIcs} />
+        ))}
       </Stack>
     </Box>
   );
