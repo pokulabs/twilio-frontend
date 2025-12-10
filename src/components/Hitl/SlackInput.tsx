@@ -37,7 +37,7 @@ export function SlackInput({
         {value.usingOwnSlack && (
           <>
             <Typography level="body-sm" sx={{ mb: 1 }}>
-              First install the Slack app in your workspace.
+              If you haven't yet, install the Slack app in your workspace.
             </Typography>
             <a
               target="_blank"

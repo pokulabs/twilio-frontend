@@ -69,7 +69,7 @@ const InteractionChannelCard = ({
   channel: any;
   onReload: () => void;
 }) => {
-  const [urlType, setUrlType] = useState<"mcp" | "api">("mcp");
+  const [urlType, setUrlType] = useState<"mcp" | "api" | "channel_id">("mcp");
 
   const mediumIconMap: Record<Medium, string> = {
     slack: slack,
@@ -81,12 +81,14 @@ const InteractionChannelCard = ({
   };
   const iconSrc = mediumIconMap[e.medium as Medium];
 
+  const urlOptions = {
+    mcp: `https://mcp.pokulabs.com/${e.id}`,
+    api: `https://api.pokulabs.com/hitl/contact-human/${e.id}`,
+    channel_id: e.id,
+  };
+
   const handleCopy = () => {
-    const url =
-      urlType === "mcp"
-        ? `https://mcp.pokulabs.com/${e.id}`
-        : `https://api.pokulabs.com/hitl/contact-human/${e.id}`;
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(urlOptions[urlType]);
   };
 
   return (
@@ -212,11 +214,10 @@ const InteractionChannelCard = ({
           >
             <Option value="mcp">MCP Url</Option>
             <Option value="api">API Url</Option>
+            <Option value="channel_id">Channel ID</Option>
           </Select>
           <Typography level="body-xs" noWrap color="neutral">
-            {urlType === "mcp"
-              ? `https://mcp.pokulabs.com/${e.id}`
-              : `https://api.pokulabs.com/hitl/contact-human/${e.id}`}
+            {urlOptions[urlType]}
           </Typography>
         </Box>
         <Tooltip title="Copy URL" variant="solid">

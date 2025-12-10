@@ -17,7 +17,7 @@ import {
 } from "@mui/joy";
 import {
   QuestionAnswerRounded,
-  GitHub,
+  YouTube,
   ShareRounded,
   AccountCircle,
   LogoutRounded,
@@ -31,7 +31,7 @@ import {
 import logo from "../assets/logo.png";
 import slack from "../assets/slack.png";
 import ColorSchemeToggle from "./Messages/ColorSchemeToggle";
-import { closeSidebar, GITHUB_LINK, SLACK_LINK } from "../utils";
+import { closeSidebar, YOUTUBE_LINK, SLACK_LINK } from "../utils";
 import { useAuth } from "../hooks/use-auth";
 
 function Toggler(props: {
@@ -285,12 +285,12 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               component="a"
-              href={GITHUB_LINK}
+              href={YOUTUBE_LINK}
               target="_blank"
               rel="noopener noreferrer"
-              title="GitHub"
+              title="YouTube"
             >
-              <GitHub />
+              <YouTube />
             </ListItemButton>
           </ListItem>
           <ListItem>
