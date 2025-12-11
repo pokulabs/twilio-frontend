@@ -1,8 +1,9 @@
-import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
+import { Box, Typography, Card, Button, Stack, Link as JoyLink, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
 import { CreditsRemaining } from "../shared/Usage";
+import { YOUTUBE_LINK } from "../../utils";
 
 function Account() {
   const { isAuthenticated } = useAuth();
@@ -11,84 +12,164 @@ function Account() {
     <Box
       sx={{
         display: "flex",
-        marginTop: 5,
         flexDirection: "column",
         p: 4,
         width: "100%",
-        maxWidth: 900,
-        gap: 3,
+        maxWidth: 1200, // Increased max width for the side-by-side cards
+        margin: "0 auto", // Center the container
+        gap: 4,
       }}
     >
-      <Typography level="h4" sx={{ mt: 4, mb: 2, textAlign: "center" }}>
-        Welcome to Poku!
+      <Typography level="h2" sx={{ mt: 2 }}>
+        Welcome!
       </Typography>
 
-      <Stack direction="row" spacing={3}>
-        <Card sx={{ flex: 1 }}>
-          <Typography level="title-md" sx={{ mb: 1 }}>
-            Human-in-the-Loop Tools
-          </Typography>
-          <Typography level="body-sm" sx={{ mb: 1 }}>
-            Enable your AI agent to text a human for help in real-time during
-            any conversation or workflow.
-          </Typography>
-          <Typography level="body-sm" sx={{ mb: 2 }}>
-            Add a human approval step before your agent uses a custom tool or
-            function.
-          </Typography>
-
-          <Stack sx={{ mt: "auto" }}>
-            <Button variant="outlined" component={Link} to="/hitl">
-              Human-in-the-Loop
-            </Button>
-          </Stack>
-        </Card>
-
-        <Card sx={{ flex: 1 }}>
-          <Typography level="title-md" sx={{ mb: 1 }}>
-            Twilio SMS Inbox
-          </Typography>
-          <Typography level="body-sm">
-            A free, consolidated inbox for your Twilio (SMS & WhatsApp)
-            messages. Send and receive messages, and track conversations in a
-            clean chat interface.
-          </Typography>
-          <Typography level="body-sm" sx={{ mb: 2 }}>
-            No Poku account required!
-          </Typography>
-
-          <Button
+      <Box>
+        <Typography level="h4" sx={{ mb: 2 }}>
+          What would you like to do?
+        </Typography>
+        <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
+          <Card
             variant="outlined"
+            sx={{
+              flex: 1,
+              minHeight: 160,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              p: 4,
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                boxShadow: "md",
+                borderColor: "primary.outlinedBorder",
+                transform: "translateY(-2px)",
+              },
+            }}
+            component={Link}
+            to="/hitl"
+            style={{ textDecoration: "none" }}
+          >
+            <Typography level="h4" fontWeight="lg">
+              Human-in-the-Loop for my AI agent
+            </Typography>
+          </Card>
+
+          <Card
+            variant="outlined"
+            sx={{
+              flex: 1,
+              minHeight: 160,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              p: 4,
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s",
+              "&:hover": {
+                boxShadow: "md",
+                borderColor: "primary.outlinedBorder",
+                transform: "translateY(-2px)",
+              },
+            }}
             component={Link}
             to="/messages"
-            sx={{ mt: "auto" }}
+            style={{ textDecoration: "none" }}
           >
-            Messages
-          </Button>
-        </Card>
-      </Stack>
+            <Typography level="h4" fontWeight="lg">
+              Manage my Twilio SMS in a consolidated inbox
+            </Typography>
+          </Card>
+        </Stack>
+      </Box>
 
-      {!isAuthenticated && (
-        <>
-          <Typography sx={{ textAlign: "center" }}>Or</Typography>
-          <Button component={Link} to="/login">
-            Login
-          </Button>
-        </>
-      )}
-
+      <Box>
+        <Typography level="h4" sx={{ mb: 2 }}>
+          Need Help?
+        </Typography>
+        <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
+          <HelpCard
+            title="Schedule a Call"
+            description="Book a one-on-one session"
+            href="https://calendly.com/getpoku/30min"
+          />
+          <HelpCard
+            title="Contact Support"
+            description="Email hello@pokulabs.com with questions or feedback"
+            href="mailto:hello@pokulabs.com"
+          />
+          <HelpCard
+            title="Tutorial Videos"
+            description="Watch our Youtube Videos for demos & walkthroughs"
+            href={YOUTUBE_LINK}
+          />
+        </Stack>
+      </Box>
 
       {isAuthenticated && (
-        <>
-          <Divider />
-          <CreditsRemaining />
-          <Card sx={{ maxWidth: 500 }}>
-            <ApiKey />
+        <Box>
+           {/* My Keys & Credits Section */}
+          <Card variant="outlined" sx={{ p: 3 }}>
+            <Typography level="h4" sx={{ mb: 3 }}>
+              My Credits & API Key
+            </Typography>
+            
+            <Stack spacing={3}>
+              <CreditsRemaining />
+              <Divider />
+              <ApiKey />
+            </Stack>
           </Card>
-        </>
+        </Box>
       )}
 
+      {!isAuthenticated && (
+         <Box sx={{ mt: 4 }}>
+            <Button 
+              component={Link} 
+              to="/login" 
+              size="lg" 
+              fullWidth
+            >
+              Login
+            </Button>
+         </Box>
+      )}
     </Box>
+  );
+}
+
+function HelpCard({ title, description, href }: { title: string; description: string; href: string }) {
+  return (
+    <Card
+      variant="outlined"
+      sx={{
+        flex: 1,
+        p: 3,
+        transition: "transform 0.2s, box-shadow 0.2s",
+        "&:hover": {
+            boxShadow: "sm",
+            borderColor: "neutral.outlinedHoverBorder",
+        }
+      }}
+    >
+      <JoyLink 
+        overlay 
+        href={href} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        sx={{ color: 'text.primary', textDecoration: 'none', "&:hover": { textDecoration: 'none' } }}
+      >
+        <Typography level="title-lg" sx={{ mb: 1 }}>
+          {title}
+        </Typography>
+      </JoyLink>
+      <Typography level="body-md">
+        {description}
+      </Typography>
+    </Card>
   );
 }
 

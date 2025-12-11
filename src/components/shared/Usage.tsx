@@ -188,12 +188,12 @@ export function CreditsRemaining() {
         <Box
             sx={{
                 display: "flex",
-                gap: 1,
+                gap: 2,
                 alignItems: "center",
             }}
         >
             <Typography
-                level="body-sm"
+                level="body-md"
                 sx={{ mb: 0 }}
                 endDecorator={
                     <InfoTooltip

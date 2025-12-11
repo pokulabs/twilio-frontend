@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Typography, Input, Stack, Alert, Tooltip } from "@mui/joy";
+import { Button, Typography, Input, Stack, Alert, Tooltip, Box } from "@mui/joy";
 import { apiClient } from "../../api-client";
 
 export default function ApiKey() {
@@ -21,11 +21,7 @@ export default function ApiKey() {
   };
 
   return (
-    <>
-      <Typography level="h4" gutterBottom>
-        API Key
-      </Typography>
-
+    <Box>
       <Typography level="body-md" sx={{ mb: 2 }}>
         Generating an API key will invalidate any previous one.
       </Typography>
@@ -48,10 +44,10 @@ export default function ApiKey() {
           />
         </Stack>
       ) : (
-        <Button color="primary" onClick={handleGenerate}>
+        <Button color="primary" onClick={handleGenerate} sx={{ width: "300px" }}>
           Generate API Key
         </Button>
       )}
-    </>
+    </Box>
   );
 }
