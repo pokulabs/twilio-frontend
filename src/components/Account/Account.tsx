@@ -46,6 +46,7 @@ function Account() {
                 borderColor: "primary.outlinedBorder",
                 transform: "translateY(-2px)",
               },
+              backgroundColor: "white",
             }}
             component={Link}
             to="/hitl"
@@ -73,6 +74,7 @@ function Account() {
                 borderColor: "primary.outlinedBorder",
                 transform: "translateY(-2px)",
               },
+              backgroundColor: "white",
             }}
             component={Link}
             to="/messages"
@@ -111,7 +113,7 @@ function Account() {
       {isAuthenticated && (
         <Box>
            {/* My Keys & Credits Section */}
-          <Card variant="outlined" sx={{ p: 3 }}>
+          <Card variant="outlined" sx={{ p: 3, backgroundColor: "white" }}>
             <Typography level="h4" sx={{ mb: 3 }}>
               My Credits & API Key
             </Typography>
@@ -152,7 +154,8 @@ function HelpCard({ title, description, href }: { title: string; description: st
         "&:hover": {
             boxShadow: "sm",
             borderColor: "neutral.outlinedHoverBorder",
-        }
+        },
+        backgroundColor: "white",
       }}
     >
       <JoyLink 
