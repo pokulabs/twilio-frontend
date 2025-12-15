@@ -433,8 +433,7 @@ class ApiClient {
                       waitTime: number;
                       medium: Medium;
                       message: string;
-                      response: string | null;
-                      responseTime: string | null;
+                      from: "human" | "agent";
                   }[];
                   pagination: {
                       page: number;

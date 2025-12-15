@@ -56,18 +56,15 @@ function InteractionsLog() {
               <th>Created</th>
               <th>Medium</th>
               <th>Type</th>
-              <th>Agent</th>
-              <th>Human</th>
+              <th>From</th>
               <th>Message</th>
-              <th>Response</th>
-              <th>Response Time</th>
               <th>Wait (s)</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9}>
+                <td colSpan={6}>
                   <Box
                     sx={{ display: "flex", justifyContent: "center", py: 4 }}
                   >
@@ -81,12 +78,13 @@ function InteractionsLog() {
                   <td>{displayDateTime(new Date(r.createdAt))}</td>
                   <td>{mediumToUiChannelMap[r.medium]}</td>
                   <td>{r.type}</td>
-                  <td>{r.agentNumber}</td>
-                  <td>{r.humanNumber}</td>
+                  <td>
+                    {r.from}
+                  </td>
                   <td
                     title={r.message}
                     style={{
-                      maxWidth: 320,
+                      maxWidth: 400,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
@@ -94,28 +92,12 @@ function InteractionsLog() {
                   >
                     {r.message}
                   </td>
-                  <td
-                    title={r.response ?? ""}
-                    style={{
-                      maxWidth: 320,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {r.response ?? ""}
-                  </td>
-                  <td>
-                    {r.responseTime
-                      ? displayDateTime(new Date(r.responseTime))
-                      : ""}
-                  </td>
                   <td>{r.waitTime}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={9}>
+                <td colSpan={6}>
                   <Box sx={{ p: 2 }}>No interactions yet.</Box>
                 </td>
               </tr>
