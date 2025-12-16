@@ -1,4 +1,4 @@
-import { Box, Typography, Card, Button, Stack, Link as JoyLink, Divider } from "@mui/joy";
+import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
 import ApiKey from "./ApiKey";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
@@ -20,93 +20,84 @@ function Account() {
         gap: 4,
       }}
     >
-      <Typography level="h2" sx={{ mt: 2 }}>
-        Welcome!
-      </Typography>
-
       <Box>
-        <Typography level="h4" sx={{ mb: 2 }}>
+        <Typography level="title-lg" sx={{ mt: 10, mb: 2 }}>
           What would you like to do?
         </Typography>
         <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
-          <Card
-            variant="outlined"
+          <ActionCard 
+            to="/hitl" 
             sx={{
-              flex: 1,
               minHeight: 160,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
               p: 4,
-              cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
-              "&:hover": {
-                boxShadow: "md",
-                borderColor: "primary.outlinedBorder",
-                transform: "translateY(-2px)",
-              },
-              backgroundColor: "white",
             }}
-            component={Link}
-            to="/hitl"
-            style={{ textDecoration: "none" }}
           >
-            <Typography level="h4" fontWeight="lg">
+            <Typography level="title-md">
               Human-in-the-Loop for my AI agent
             </Typography>
-          </Card>
-
-          <Card
-            variant="outlined"
+          </ActionCard>
+          <ActionCard 
+            to="/messages" 
             sx={{
-              flex: 1,
               minHeight: 160,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
               p: 4,
-              cursor: "pointer",
-              transition: "transform 0.2s, box-shadow 0.2s",
-              "&:hover": {
-                boxShadow: "md",
-                borderColor: "primary.outlinedBorder",
-                transform: "translateY(-2px)",
-              },
-              backgroundColor: "white",
             }}
-            component={Link}
-            to="/messages"
-            style={{ textDecoration: "none" }}
           >
-            <Typography level="h4" fontWeight="lg">
+            <Typography level="title-md">
               Manage my Twilio SMS in a consolidated inbox
             </Typography>
-          </Card>
+          </ActionCard>
         </Stack>
       </Box>
 
       <Box>
-        <Typography level="h4" sx={{ mb: 2 }}>
+        <Typography level="title-lg" sx={{ mb: 2 }}>
           Need Help?
         </Typography>
         <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
-          <HelpCard
-            title="Schedule a Call"
-            description="Book a one-on-one session"
+          <ActionCard
             href="https://calendly.com/getpoku/30min"
-          />
-          <HelpCard
-            title="Contact Support"
-            description="Email hello@pokulabs.com with questions or feedback"
+            sx={{ p: 3 }}
+          >
+            <Typography level="title-md" sx={{ mb: 1 }}>
+              Schedule a Call
+            </Typography>
+            <Typography level="body-sm">
+              Book a one-on-one session
+            </Typography>
+          </ActionCard>
+          
+          <ActionCard
             href="mailto:hello@pokulabs.com"
-          />
-          <HelpCard
-            title="Tutorial Videos"
-            description="Watch our Youtube Videos for demos & walkthroughs"
+            sx={{ p: 3 }}
+          >
+            <Typography level="title-md" sx={{ mb: 1 }}>
+              Contact Support
+            </Typography>
+            <Typography level="body-sm">
+              Email hello@pokulabs.com with questions or feedback
+            </Typography>
+          </ActionCard>
+
+          <ActionCard
             href={YOUTUBE_LINK}
-          />
+            sx={{ p: 3 }}
+          >
+            <Typography level="title-md" sx={{ mb: 1 }}>
+              Tutorial Videos
+            </Typography>
+            <Typography level="body-sm">
+              Watch our Youtube Videos for demos & walkthroughs
+            </Typography>
+          </ActionCard>
         </Stack>
       </Box>
 
@@ -114,7 +105,7 @@ function Account() {
         <Box>
            {/* My Keys & Credits Section */}
           <Card variant="outlined" sx={{ p: 3, backgroundColor: "white" }}>
-            <Typography level="h4" sx={{ mb: 3 }}>
+            <Typography level="title-lg" sx={{ mb: 3 }}>
               My Credits & API Key
             </Typography>
             
@@ -143,35 +134,40 @@ function Account() {
   );
 }
 
-function HelpCard({ title, description, href }: { title: string; description: string; href: string }) {
+function ActionCard({ 
+  children,
+  href, 
+  to,
+  sx
+}: { 
+  children: React.ReactNode; 
+  href?: string; 
+  to?: string;
+  sx?: any;
+}) {
+  const isExternal = !!href;
+  
   return (
     <Card
       variant="outlined"
       sx={{
         flex: 1,
-        p: 3,
-        transition: "transform 0.2s, box-shadow 0.2s",
+        transition: "transform 0.2s, box-shadow 0.2s, background-color 0.2s",
         "&:hover": {
-            boxShadow: "sm",
-            borderColor: "neutral.outlinedHoverBorder",
+          boxShadow: "sm",
+          borderColor: "neutral.outlinedHoverBorder",
+          backgroundColor: "#fafafa",
         },
         backgroundColor: "white",
+        cursor: "pointer",
+        textDecoration: "none",
+        ...sx,
       }}
+      component={to ? Link : (isExternal ? 'a' : 'div')}
+      {...(to ? { to } : {})}
+      {...(isExternal ? { href, target: "_blank", rel: "noopener noreferrer" } : {})}
     >
-      <JoyLink 
-        overlay 
-        href={href} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        sx={{ color: 'text.primary', textDecoration: 'none', "&:hover": { textDecoration: 'none' } }}
-      >
-        <Typography level="title-lg" sx={{ mb: 1 }}>
-          {title}
-        </Typography>
-      </JoyLink>
-      <Typography level="body-md">
-        {description}
-      </Typography>
+      {children}
     </Card>
   );
 }
