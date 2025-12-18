@@ -26,7 +26,6 @@ import {
   Email,
   LocalPoliceRounded,
   KeyboardArrowDown,
-  Api,
 } from "@mui/icons-material";
 
 import logo from "../assets/logo.png";

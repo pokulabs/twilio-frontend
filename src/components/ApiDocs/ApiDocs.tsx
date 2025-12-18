@@ -1,7 +1,7 @@
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 import { Box } from "@mui/joy";
-import spec from "../../../public/openapi.json";
+import spec from "../../assets/openapi.json";
 
 export default function ApiDocs() {
   return (

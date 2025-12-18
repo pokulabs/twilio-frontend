@@ -1,4 +1,6 @@
 import { Box, Typography, Card, Button, Stack, Divider } from "@mui/joy";
+import SportsMartialArtsRounded from "@mui/icons-material/SportsMartialArtsRounded";
+import QuestionAnswerRounded from "@mui/icons-material/QuestionAnswerRounded";
 import ApiKey from "./ApiKey";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
@@ -36,9 +38,12 @@ function Account() {
               p: 4,
             }}
           >
-            <Typography level="title-md">
-              Human-in-the-Loop for my AI agent
-            </Typography>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <SportsMartialArtsRounded sx={{ fontSize: 28 }} />
+              <Typography level="title-md">
+                Human-in-the-Loop for my AI agent
+              </Typography>
+            </Stack>
           </ActionCard>
           <ActionCard 
             to="/messages" 
@@ -51,9 +56,12 @@ function Account() {
               p: 4,
             }}
           >
-            <Typography level="title-md">
-              Manage my Twilio SMS in a consolidated inbox
-            </Typography>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <QuestionAnswerRounded sx={{ fontSize: 28 }} />
+              <Typography level="title-md">
+                Manage my Twilio SMS in a consolidated inbox
+              </Typography>
+            </Stack>
           </ActionCard>
         </Stack>
       </Box>
