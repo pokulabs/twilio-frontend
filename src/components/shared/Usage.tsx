@@ -8,7 +8,6 @@ import {
     FormControl,
     FormLabel,
     Input,
-    Switch,
     Stack,
     ModalClose,
     Link,
@@ -36,14 +35,14 @@ function AutoRechargeModal({
     currentSettings,
     onSave,
 }: AutoRechargeModalProps) {
-    const [enabled, setEnabled] = useState(currentSettings.enabled);
     const [amount, setAmount] = useState(currentSettings.amount);
     const [threshold, setThreshold] = useState(currentSettings.threshold);
+
+    const isCurrentlyEnabled = currentSettings.enabled;
 
     // Reset local state to match prop when modal opens
     useEffect(() => {
         if (open) {
-            setEnabled(currentSettings.enabled);
             setAmount(currentSettings.amount);
             setThreshold(currentSettings.threshold);
         }
@@ -51,13 +50,10 @@ function AutoRechargeModal({
 
     const isAmountValid = amount >= 200;
     const isThresholdValid = threshold >= 50;
-    const canSave = !enabled || (isAmountValid && isThresholdValid);
+    const canSave = isAmountValid && isThresholdValid;
 
-    const handleSave = async () => {
-        if (!canSave) {
-            // Should not happen as button should be disabled, but for safety
-            throw new Error("Invalid auto recharge settings");
-        }
+    const handleUpdate = async (enabled: boolean) => {
+        if (!canSave) return;
         await apiClient.updateAutoRecharge({
             enabled,
             amount,
@@ -71,23 +67,14 @@ function AutoRechargeModal({
         <Modal open={open} onClose={onClose}>
             <ModalDialog>
                 <ModalClose />
-                <Typography level="h4">Auto Recharge Settings</Typography>
+                <Typography level="h4">
+                    {isCurrentlyEnabled ? "Auto-Recharge Settings" : "Enable Auto-Recharge"}
+                </Typography>
                 <Stack spacing={2}>
-                    <FormControl
-                        orientation="horizontal"
-                        sx={{ alignItems: "center", justifyContent: "space-between" }}
-                    >
-                        <FormLabel>Enable Auto Recharge</FormLabel>
-                        <Switch
-                            checked={enabled}
-                            onChange={(e) => setEnabled(e.target.checked)}
-                        />
-                    </FormControl>
-                    <FormControl error={enabled && !isThresholdValid}>
+                    <FormControl error={!isThresholdValid}>
                         <FormLabel>When credits fall below</FormLabel>
                         <Input
                             type="number"
-                            disabled={!enabled}
                             value={threshold}
                             onChange={(e) => setThreshold(Number(e.target.value))}
                             endDecorator="credits"
@@ -101,11 +88,10 @@ function AutoRechargeModal({
                             Minimum 50 credits
                         </Typography>
                     </FormControl>
-                    <FormControl error={enabled && !isAmountValid}>
-                        <FormLabel>Automatically add (credits)</FormLabel>
+                    <FormControl error={!isAmountValid}>
+                        <FormLabel>Automatically add</FormLabel>
                         <Input
                             type="number"
-                            disabled={!enabled}
                             value={amount}
                             onChange={(e) => setAmount(Number(e.target.value))}
                             endDecorator="credits"
@@ -132,13 +118,29 @@ function AutoRechargeModal({
                             Manage Billing Settings
                         </Link>
                     </Typography>
-                    <CreateButton 
-                        onCreate={handleSave} 
-                        disabled={!canSave}
-                        texts={{ idle: "Save" }}
-                    >
-                        Save
-                    </CreateButton>
+                    {isCurrentlyEnabled ? (
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                            <CreateButton
+                                onCreate={() => handleUpdate(true)}
+                                disabled={!canSave}
+                                texts={{ idle: "Update Settings" }}
+                                sx={{ flex: 1 }}
+                            />
+                            <Button
+                                variant="soft"
+                                color="danger"
+                                onClick={() => handleUpdate(false)}
+                            >
+                                Disable
+                            </Button>
+                        </Box>
+                    ) : (
+                        <CreateButton
+                            onCreate={() => handleUpdate(true)}
+                            disabled={!canSave}
+                            texts={{ idle: "Enable Auto-Recharge" }}
+                        />
+                    )}
                 </Stack>
             </ModalDialog>
         </Modal>
