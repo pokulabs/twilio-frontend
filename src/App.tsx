@@ -16,6 +16,7 @@ import Admin from "./components/Admin/Admin";
 import Flagging from "./components/Flagging/Flagging";
 import PublicReply from "./components/PublicReply/PublicReply";
 import CheckoutPage from "./components/Checkout/CheckoutPage";
+import ApiDocs from "./components/ApiDocs/ApiDocs";
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/reply/:token" element={<PublicReply />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/docs" element={<ApiDocs />} />
               </Routes>
             </Box>
           </Router>

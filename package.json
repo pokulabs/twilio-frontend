@@ -29,7 +29,8 @@
     "react-oidc-context": "^3.3.0",
     "react-phone-number-input": "^3.4.13",
     "react-router-dom": "^7.5.2",
-    "react-use-websocket": "^4.13.0"
+    "react-use-websocket": "^4.13.0",
+    "swagger-ui-react": "^5.31.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
@@ -37,6 +38,7 @@
     "@types/papaparse": "^5.3.16",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@types/swagger-ui-react": "^5.18.0",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.31.0",
     "eslint-plugin-react-hooks": "^5.2.0",

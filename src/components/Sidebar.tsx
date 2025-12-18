@@ -26,6 +26,7 @@ import {
   Email,
   LocalPoliceRounded,
   KeyboardArrowDown,
+  Api,
 } from "@mui/icons-material";
 
 import logo from "../assets/logo.png";
@@ -262,11 +263,9 @@ export default function Sidebar() {
         >
           <ListItem>
             <ListItemButton
-              component="a"
-              href="https://www.pokulabs.com/guides"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Documentation"
+              component={Link}
+              to="/docs"
+              title="API Docs"
             >
               <DescriptionRounded />
             </ListItemButton>
