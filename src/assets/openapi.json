@@ -36,7 +36,7 @@
                   "value": {
                     "medium": "sms_poku",
                     "humanNumber": "+15551234567",
-                    "waitTime": 300
+                    "waitTime": 120
                   }
                 },
                 "slack": {
@@ -46,7 +46,24 @@
                     "medium": "slack",
                     "humanNumber": "U0123456789",
                     "agentNumber": "T0123456789",
-                    "waitTime": 300
+                    "waitTime": 120
+                  }
+                },
+                "whatsapp_poku": {
+                  "summary": "Create WhatsApp (using a Poku number) interaction channel",
+                  "description": "Create an interaction channel that sends WhatsApp messages via Poku's managed phone numbers",
+                  "value": {
+                    "medium": "whatsapp_poku",
+                    "humanNumber": "+15551234567",
+                    "waitTime": 120
+                  }
+                },
+                "call_poku": {
+                  "summary": "Create a voice call (using a Poku number) interaction channel",
+                  "description": "Create an interaction channel that calls a human via Poku's managed phone numbers",
+                  "value": {
+                    "medium": "call_poku",
+                    "humanNumber": "+15551234567"
                   }
                 }
               }
@@ -276,7 +293,7 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "POKU_API_KEY",
-        "description": "Type in 'Bearer <POKU_API_KEY>'"
+        "description": "Enter your POKU_API_KEY below"
       }
     },
     "schemas": {
