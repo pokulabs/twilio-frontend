@@ -1,7 +1,7 @@
 {
   "name": "Poku",
   "short_name": "Poku",
-  "description": "The missing Twilio SMS frontend",
+  "description": "Keep your humans in the loop",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
