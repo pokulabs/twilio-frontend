@@ -10,12 +10,12 @@ type InfoTooltipProps = {
 export function InfoTooltip({ title, size = "sm" }: InfoTooltipProps) {
   return (
     <Tooltip
-      sx={{ maxWidth: 400, zIndex: 10000 }}
+      sx={{ maxWidth: 400, zIndex: 999 }}
       enterTouchDelay={0}
       leaveDelay={100}
       leaveTouchDelay={10000}
       variant="outlined"
-      placement="bottom"
+      placement="right-start"
       arrow
       title={
         typeof title === "string" ? <Typography>{title}</Typography> : title
