@@ -7,8 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://api.pokulabs.com",
-      "description": "Production server"
+      "url": "https://api.pokulabs.com"
     }
   ],
   "security": [
@@ -29,6 +28,27 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/InteractionChannelRequest"
+              },
+              "examples": {
+                "sms_poku": {
+                  "summary": "Create SMS (using a Poku number) interaction channel",
+                  "description": "Create an interaction channel that sends SMS messages via Poku's managed phone numbers",
+                  "value": {
+                    "medium": "sms_poku",
+                    "humanNumber": "+15551234567",
+                    "waitTime": 300
+                  }
+                },
+                "slack": {
+                  "summary": "Create Slack interaction channel for your own Slack Workspace",
+                  "description": "Create an interaction channel that sends messages via your own Slack Workspace",
+                  "value": {
+                    "medium": "slack",
+                    "humanNumber": "U0123456789",
+                    "agentNumber": "T0123456789",
+                    "waitTime": 300
+                  }
+                }
               }
             }
           }
@@ -150,8 +170,8 @@
     },
     "/hitl/contact-human/{interactionChannelId}": {
       "post": {
-        "summary": "Contact a human supervisor",
-        "description": "Sends a message to a human supervisor and waits for their response.",
+        "summary": "Contact a human",
+        "description": "Sends a message to a human and waits for their response.",
         "operationId": "contactHuman",
         "tags": ["HITL"],
         "parameters": [
@@ -181,7 +201,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContactHumanResponse"
+                  "type": "string"
+                },
+                "examples": {
+                  "approval_response": {
+                    "summary": "Human approves the request",
+                    "value": "Yes, approve the full refund. Please also offer them a 10% discount on their next order as an apology."
+                  },
+                  "denial_response": {
+                    "summary": "Human denies the request",
+                    "value": "No, we cannot combine promotional codes. Offer the customer a choice of which code they'd prefer to use."
+                  },
+                  "timeout_response": {
+                    "summary": "No response received within wait time",
+                    "value": "No response received from the human within the specified wait time."
+                  }
                 }
               }
             }
@@ -239,277 +273,60 @@
   "components": {
     "securitySchemes": {
       "ApiKeyAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "poku-authorization",
-        "description": "API key for authentication"
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "POKU_API_KEY",
+        "description": "Type in 'Bearer <POKU_API_KEY>'"
       }
     },
     "schemas": {
-      "TemplateFields": {
-        "type": "object",
-        "properties": {
-          "messageTemplate": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 1000,
-            "description": "Template for the message sent to the human"
-          },
-          "responseTemplate": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 1000,
-            "description": "Template for formatting the human's response"
-          },
-          "noResponseTemplate": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 1000,
-            "description": "Template for when no response is received"
-          }
-        }
-      },
       "InteractionChannelRequest": {
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/SmsInteractionChannel"
-          },
-          {
-            "$ref": "#/components/schemas/SlackInteractionChannel"
-          },
-          {
-            "$ref": "#/components/schemas/SmsPokuInteractionChannel"
-          },
-          {
-            "$ref": "#/components/schemas/SlackPokuInteractionChannel"
-          },
-          {
-            "$ref": "#/components/schemas/WhatsappPokuInteractionChannel"
-          },
-          {
-            "$ref": "#/components/schemas/CallPokuInteractionChannel"
-          }
-        ],
-        "discriminator": {
-          "propertyName": "medium",
-          "mapping": {
-            "sms": "#/components/schemas/SmsInteractionChannel",
-            "slack": "#/components/schemas/SlackInteractionChannel",
-            "sms_poku": "#/components/schemas/SmsPokuInteractionChannel",
-            "slack_poku": "#/components/schemas/SlackPokuInteractionChannel",
-            "whatsapp_poku": "#/components/schemas/WhatsappPokuInteractionChannel",
-            "call_poku": "#/components/schemas/CallPokuInteractionChannel"
-          }
-        }
-      },
-      "SmsInteractionChannel": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TemplateFields"
-          },
-          {
-            "type": "object",
-            "required": ["medium", "humanNumber", "agentNumber", "waitTime"],
-            "properties": {
-              "medium": {
-                "type": "string",
-                "enum": ["sms"]
-              },
-              "humanNumber": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 20,
-                "description": "The phone number of the human supervisor"
-              },
-              "agentNumber": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 20,
-                "description": "The phone number used to send SMS"
-              },
-              "waitTime": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Time in seconds to wait for a response"
-              },
-              "linkEnabled": {
-                "type": "boolean",
-                "description": "Whether to include a link in the message"
-              }
-            }
-          }
-        ]
-      },
-      "SlackInteractionChannel": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TemplateFields"
-          },
-          {
-            "type": "object",
-            "required": ["medium", "humanNumber", "agentNumber", "waitTime"],
-            "properties": {
-              "medium": {
-                "type": "string",
-                "enum": ["slack"]
-              },
-              "humanNumber": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 20,
-                "description": "The Slack user ID of the human supervisor"
-              },
-              "agentNumber": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 20,
-                "description": "The Slack Team ID"
-              },
-              "waitTime": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Time in seconds to wait for a response"
-              },
-              "linkEnabled": {
-                "type": "boolean",
-                "description": "Whether to include a link in the message"
-              }
-            }
-          }
-        ]
-      },
-      "SmsPokuInteractionChannel": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TemplateFields"
-          },
-          {
-            "type": "object",
-            "required": ["medium", "humanNumber", "waitTime"],
-            "properties": {
-              "medium": {
-                "type": "string",
-                "enum": ["sms_poku"]
-              },
-              "humanNumber": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 20,
-                "description": "The phone number of the human supervisor"
-              },
-              "waitTime": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Time in seconds to wait for a response"
-              },
-              "webhook": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 1000,
-                "description": "Webhook URL for notifications"
-              },
-              "validTime": {
-                "type": "integer",
-                "description": "Time in seconds the interaction is valid"
-              },
-              "linkEnabled": {
-                "type": "boolean",
-                "description": "Whether to include a link in the message"
-              }
-            }
-          }
-        ]
-      },
-      "SlackPokuInteractionChannel": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TemplateFields"
-          },
-          {
-            "type": "object",
-            "required": ["medium", "humanNumber", "waitTime"],
-            "properties": {
-              "medium": {
-                "type": "string",
-                "enum": ["slack_poku"]
-              },
-              "humanNumber": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 20,
-                "description": "The Slack user ID of the human supervisor"
-              },
-              "waitTime": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Time in seconds to wait for a response"
-              },
-              "webhook": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 1000,
-                "description": "Webhook URL for notifications"
-              },
-              "validTime": {
-                "type": "integer",
-                "description": "Time in seconds the interaction is valid"
-              },
-              "linkEnabled": {
-                "type": "boolean",
-                "description": "Whether to include a link in the message"
-              }
-            }
-          }
-        ]
-      },
-      "WhatsappPokuInteractionChannel": {
         "type": "object",
         "required": ["medium", "humanNumber", "waitTime"],
         "properties": {
           "medium": {
             "type": "string",
-            "enum": ["whatsapp_poku"]
+            "enum": ["sms", "sms_poku", "whatsapp_poku", "slack", "slack_poku", "call_poku"],
+            "description": "'sms_poku' will use Poku's Twilio number to send the SMS. Use 'sms' if you've already integrated your Twilio account to Poku. Similarly, 'slack' will use your own Slack workspace if you've already installed the Poku bot. Be sure to provide 'agentNumber' as your owned Twilio number (sms) or your workspace ID (slack)."
           },
           "humanNumber": {
             "type": "string",
             "minLength": 1,
             "maxLength": 20,
-            "description": "The WhatsApp phone number of the human supervisor"
+            "description": "The phone number (or Slack member ID) of the human"
           },
           "waitTime": {
             "type": "integer",
             "minimum": 1,
             "description": "Time in seconds to wait for a response"
           },
-          "webhook": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 1000,
-            "description": "Webhook URL for notifications"
-          },
-          "validTime": {
-            "type": "integer",
-            "description": "Time in seconds the interaction is valid"
-          },
-          "linkEnabled": {
-            "type": "boolean",
-            "description": "Whether to include a link in the message"
-          }
-        }
-      },
-      "CallPokuInteractionChannel": {
-        "type": "object",
-        "required": ["medium", "humanNumber"],
-        "properties": {
-          "medium": {
-            "type": "string",
-            "enum": ["call_poku"]
-          },
-          "humanNumber": {
+          "agentNumber": {
             "type": "string",
             "minLength": 1,
             "maxLength": 20,
-            "description": "The phone number of the human supervisor to call"
+            "description": "The phone number (or Slack workspace ID) used to send the message"
+          },
+          "linkEnabled": {
+            "type": "boolean",
+            "description": "Whether to include a reply link in the message"
+          },
+          "messageTemplate": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Template for the message sent to the human. Use {{message}} and {{waitTime}} as variables."
+          },
+          "responseTemplate": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Template for formatting the human's response. Use {{message}} as a variable."
+          },
+          "noResponseTemplate": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Template for when no response is received."
           }
         }
       },
@@ -561,7 +378,7 @@
           }
         }
       },
-      "ContactHumanArgs": {
+      "ContactHumanRequest": {
         "type": "object",
         "required": ["message"],
         "properties": {
@@ -569,78 +386,50 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 10000,
-            "description": "The question you'd like to ask the human supervisor"
+            "description": "The question you'd like to ask the human"
           },
           "human_number": {
             "type": "string",
             "minLength": 1,
             "maxLength": 20,
-            "description": "Override the default human number (only use if explicitly told to)"
+            "description": "Override the default human number"
+          },
+          "interaction_channel_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Override the interaction channel ID"
           },
           "metadata": {
             "type": "object",
             "additionalProperties": true,
-            "description": "Additional metadata (only use if explicitly told to)"
-          },
-          "interaction_channel_id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "description": "Override the interaction channel ID (only use if explicitly told to)"
-          }
-        }
-      },
-      "NotifyHumanArgs": {
-        "type": "object",
-        "required": ["message"],
-        "properties": {
-          "message": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 10000,
-            "description": "The information you'd like to share with the human supervisor"
-          },
-          "human_number": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 20,
-            "description": "Override the default human number (only use if explicitly told to)"
-          },
-          "interaction_channel_id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "description": "Override the interaction channel ID (only use if explicitly told to)"
-          },
-          "interaction_id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "description": "Existing interaction ID for follow-up messages (only use if explicitly told to)"
-          }
-        }
-      },
-      "ContactHumanRequest": {
-        "type": "object",
-        "required": ["args"],
-        "properties": {
-          "args": {
-            "$ref": "#/components/schemas/ContactHumanArgs"
+            "description": "Additional metadata"
           }
         }
       },
       "NotifyHumanRequest": {
         "type": "object",
-        "required": ["args"],
+        "required": ["message"],
         "properties": {
-          "args": {
-            "$ref": "#/components/schemas/NotifyHumanArgs"
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000,
+            "description": "The information you'd like to share with the human"
+          },
+          "human_number": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "description": "Override the default human number"
+          },
+          "interaction_channel_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Override the interaction channel ID"
           }
         }
-      },
-      "ContactHumanResponse": {
-        "type": "string",
-        "description": "The human's response to the message"
       }
     }
   },
@@ -651,7 +440,7 @@
     },
     {
       "name": "HITL",
-      "description": "Human-in-the-loop endpoints for contacting and notifying human supervisors"
+      "description": "Human-in-the-loop endpoints for contacting and notifying humans"
     }
   ]
 }

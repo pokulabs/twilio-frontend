@@ -20,7 +20,7 @@ export default function ApiDocs() {
         },
       }}
     >
-      <SwaggerUI spec={spec} />
+      <SwaggerUI defaultModelExpandDepth={4} spec={spec} />
     </Box>
   );
 }
