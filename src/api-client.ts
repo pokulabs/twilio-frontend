@@ -175,6 +175,12 @@ class ApiClient {
         return this.api.post("/account/auto-recharge", settings);
     }
 
+    async checkPaymentMethodStatus() {
+        return this.api.get<{ hasValidPaymentMethod: boolean } | undefined>(
+            "/account/payment-method-status",
+        );
+    }
+
     async createCheckoutSession() {
         return this.api.post<{ url: string }>("/account/create-checkout-session");
     }

@@ -11,8 +11,10 @@ import {
     Stack,
     ModalClose,
     Link,
+    Alert,
+    CircularProgress,
 } from "@mui/joy";
-import { CheckCircleRounded, BlockRounded } from "@mui/icons-material";
+import { CheckCircleRounded, BlockRounded, WarningRounded } from "@mui/icons-material";
 import { apiClient } from "../../api-client";
 import { InfoTooltip } from "./InfoTooltip";
 import { convertCreditsToCents } from "../../types/backend-frontend";
@@ -37,19 +39,41 @@ function AutoRechargeModal({
 }: AutoRechargeModalProps) {
     const [amount, setAmount] = useState(currentSettings.amount);
     const [threshold, setThreshold] = useState(currentSettings.threshold);
+    const [hasValidPaymentMethod, setHasValidPaymentMethod] = useState<boolean | null>(null);
+    const [isCheckingPaymentMethod, setIsCheckingPaymentMethod] = useState(false);
 
     const isCurrentlyEnabled = currentSettings.enabled;
 
-    // Reset local state to match prop when modal opens
+    // Reset local state and check payment method when modal opens
     useEffect(() => {
         if (open) {
             setAmount(currentSettings.amount);
             setThreshold(currentSettings.threshold);
+            
+            // Check payment method status when modal opens
+            const checkPaymentMethod = async () => {
+                setIsCheckingPaymentMethod(true);
+                try {
+                    const res = await apiClient.checkPaymentMethodStatus();
+                    setHasValidPaymentMethod(res.data?.hasValidPaymentMethod ?? false);
+                } catch {
+                    setHasValidPaymentMethod(false);
+                } finally {
+                    setIsCheckingPaymentMethod(false);
+                }
+            };
+            checkPaymentMethod();
+        } else {
+            // Reset payment method state when modal closes
+            setHasValidPaymentMethod(null);
         }
     }, [open, currentSettings]);
 
     const isAmountValid = amount >= 200;
     const isThresholdValid = threshold >= 50;
+    // Can only enable if there's a valid payment method
+    const canEnable = isAmountValid && isThresholdValid && hasValidPaymentMethod === true;
+    // Can update settings if already enabled (just saving new values)
     const canSave = isAmountValid && isThresholdValid;
 
     const handleUpdate = async (enabled: boolean) => {
@@ -108,16 +132,33 @@ function AutoRechargeModal({
                             Minimum 200 credits
                         </Typography>
                     </FormControl>
-                    <Typography level="body-sm">
-                        <b>Note:</b> Auto-recharge requires a valid payment method on file.{" "}
-                        <Link
-                            href="https://billing.stripe.com/p/login/dRm9AV51Q1YrbOHb60eEo00"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                    {isCheckingPaymentMethod ? (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <CircularProgress size="sm" />
+                            <Typography level="body-sm">Checking payment method...</Typography>
+                        </Box>
+                    ) : hasValidPaymentMethod === false ? (
+                        <Alert
+                            color="warning"
+                            startDecorator={<WarningRounded />}
+                            sx={{ mt: 1 }}
                         >
-                            Manage Billing Settings
-                        </Link>
-                    </Typography>
+                            <Typography level="body-sm">
+                                No valid payment method found. Auto-recharge requires a payment method on file.{" "}
+                                <Link
+                                    href="https://billing.stripe.com/p/login/dRm9AV51Q1YrbOHb60eEo00"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Add payment method
+                                </Link>
+                            </Typography>
+                        </Alert>
+                    ) : (
+                        <Typography level="body-sm" color="success">
+                            ✓ Valid payment method on file
+                        </Typography>
+                    )}
                     {isCurrentlyEnabled ? (
                         <Box sx={{ display: "flex", gap: 1 }}>
                             <CreateButton
@@ -137,7 +178,7 @@ function AutoRechargeModal({
                     ) : (
                         <CreateButton
                             onCreate={() => handleUpdate(true)}
-                            disabled={!canSave}
+                            disabled={!canEnable}
                             texts={{ idle: "Enable Auto-Recharge" }}
                         />
                     )}
