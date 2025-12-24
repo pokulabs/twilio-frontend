@@ -380,7 +380,17 @@ class ApiClient {
     async getPublicReply(token: string) {
         return this.api.get<
             | {
+                  // Full interaction data for InteractionCard
+                  id: string;
+                  createdAt: string;
+                  expiresAt: string;
+                  type: string;
+                  humanNumber: string;
+                  agentNumber: string | null;
+                  medium: Medium;
                   message: string;
+                  metadata: Record<string, unknown> | null;
+                  // Additional status info
                   secondsRemaining: number;
                   expired: boolean;
                   alreadyResponded: boolean;
@@ -391,7 +401,7 @@ class ApiClient {
 
     async submitPublicReply(token: string, message: string) {
         return this.api.post(
-            `/webhooks/public/reply/${token}`,
+            `/webhooks/reply/${token}`,
             { message },
             { skipAuth: true },
         );

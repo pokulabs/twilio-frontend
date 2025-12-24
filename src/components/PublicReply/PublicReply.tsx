@@ -1,27 +1,36 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Button, Sheet, Textarea, Typography } from "@mui/joy";
+import { Box, CircularProgress, Sheet, Typography } from "@mui/joy";
 import { apiClient } from "../../api-client";
+import { useAuth } from "../../hooks/use-auth";
+import { ActiveInteractions } from "../Hitl/ActiveInteractions";
+import { InteractionCard, type InteractionCardData } from "../Hitl/InteractionCard";
 
-// TODO: use apiClient (need to be signed in to use it?)
-// remove secondsRemaining from api response and share code with "active interactions" page
+type PublicReplyInfo = InteractionCardData & {
+  secondsRemaining: number;
+  expired: boolean;
+  alreadyResponded: boolean;
+};
+
 export default function PublicReply() {
   const { token } = useParams<{ token: string }>();
-  const [message, setMessage] = useState("");
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<{
-    message: string;
-    secondsRemaining: number;
-    expired: boolean;
-    alreadyResponded: boolean;
-  } | null>(null);
+  const [info, setInfo] = useState<PublicReplyInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [now, setNow] = useState(() => Date.now());
 
+  // Update "now" every second for timer display
   useEffect(() => {
-    let timer: number | undefined;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Fetch interaction info on mount
+  useEffect(() => {
     if (!token) return;
     setLoading(true);
     setError(null);
@@ -35,42 +44,25 @@ export default function PublicReply() {
           return;
         }
         setInfo(data);
-        // Start countdown locally
-        if (!data.expired && !data.alreadyResponded) {
-          timer = window.setInterval(() => {
-            setInfo((prev) => {
-              if (!prev) return prev;
-              const next = Math.max(0, prev.secondsRemaining - 1);
-              return {
-                ...prev,
-                secondsRemaining: next,
-                expired: next === 0 ? true : prev.expired,
-              };
-            });
-          }, 1000);
-        }
       } catch (e: any) {
         setError(e?.response?.data?.error || "Invalid or expired link");
       } finally {
         setLoading(false);
       }
     })();
+  }, [token]);
 
-    return () => {
-      if (timer) window.clearInterval(timer);
-    };
-  }, []);
-
-  const handleSubmit = async () => {
-    if (!token || !message.trim()) return;
+  const handleSubmit = async (response: string) => {
+    if (!token) return;
     setStatus("submitting");
     setError(null);
     try {
-      await apiClient.submitPublicReply(token, message);
+      await apiClient.submitPublicReply(token, response);
       setStatus("success");
     } catch (e: any) {
       setStatus("error");
       setError(e?.response?.data?.error || "Failed to submit response");
+      throw e; // Re-throw so InteractionCard knows it failed
     }
   };
 
@@ -98,97 +90,76 @@ export default function PublicReply() {
     );
   }
 
+  // If still determining auth status or loading token info, show spinner
+  if (authLoading || loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          pt: 10,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // If logged in, show the full Active Interactions dashboard with this interaction focused
+  if (isAuthenticated && info?.id) {
+    return (
+      <Box sx={{ flex: 1, width: "100%", p: { xs: 2, md: 4 }, pt: { xs: 10, md: 12 } }}>
+        <ActiveInteractions focusedInteractionId={info.id} />
+      </Box>
+    );
+  }
+
+  // If logged out, show the public single-interaction reply UI
   return (
-    <Sheet
+    <Box
       sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        p: 2,
-        mx: "auto",
+        flex: 1,
         width: "100%",
+        maxWidth: 800,
+        mx: "auto",
+        p: { xs: 2, md: 4 },
+        pt: { xs: 10, md: 12 },
       }}
     >
-      <Box>
-        <Typography level="h3" sx={{ mb: 1 }}>
-          Reply to the request
-        </Typography>
+      <Typography level="title-lg" sx={{ mb: 2 }}>
+        Reply to Request
+      </Typography>
 
-        {loading ? (
-          <Typography level="body-sm" sx={{ mb: 2, color: "neutral.500" }}>
-            Loading…
-          </Typography>
-        ) : error ? (
-          <Typography level="body-sm" color="danger" sx={{ mb: 2 }}>
+      {error ? (
+        <Sheet
+          variant="outlined"
+          sx={{ borderRadius: 8, p: 4, textAlign: "center" }}
+        >
+          <Typography level="body-md" color="danger">
             {error}
           </Typography>
-        ) : info ? (
-          <>
-            <Box
-              sx={{
-                mb: 2,
-                p: 1.5,
-                borderRadius: 8,
-                border: "1px solid",
-                borderColor: "neutral.outlinedBorder",
-              }}
-            >
-              <Typography level="body-sm" sx={{ color: "neutral.600" }}>
-                Request
-              </Typography>
-              <Typography level="body-md" sx={{ mt: 0.5 }}>
-                {info.message}
-              </Typography>
-            </Box>
-
-            {!info.alreadyResponded && !info.expired && (
-              <Typography level="body-sm" sx={{ mb: 1, color: "neutral.600" }}>
-                Time remaining: {Math.floor(info.secondsRemaining / 60)}:
-                {String(info.secondsRemaining % 60).padStart(2, "0")}
-              </Typography>
-            )}
-
-            {info.alreadyResponded ? (
-              <Typography level="body-md" sx={{ color: "neutral.700" }}>
-                A response has already been recorded for this request.
-              </Typography>
-            ) : info.expired ? (
-              <Typography level="body-md" sx={{ color: "neutral.700" }}>
-                This request has expired and can no longer accept responses.
-              </Typography>
-            ) : (
-              <>
-                <Typography
-                  level="body-sm"
-                  sx={{ mb: 2, color: "neutral.500" }}
-                >
-                  Enter your response below and submit.
-                </Typography>
-                <Textarea
-                  minRows={6}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Type your response..."
-                />
-                {status === "error" && (
-                  <Typography level="body-sm" color="danger" sx={{ mt: 1 }}>
-                    {error}
-                  </Typography>
-                )}
-                <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                  <Button
-                    onClick={handleSubmit}
-                    loading={status === "submitting"}
-                    disabled={!message.trim()}
-                  >
-                    Submit response
-                  </Button>
-                </Box>
-              </>
-            )}
-          </>
-        ) : null}
-      </Box>
-    </Sheet>
+        </Sheet>
+      ) : info ? (
+        info.alreadyResponded ? (
+          <Sheet
+            variant="outlined"
+            sx={{ borderRadius: 8, p: 4, textAlign: "center" }}
+          >
+            <Typography level="body-md" sx={{ color: "neutral.700" }}>
+              A response has already been recorded for this request.
+            </Typography>
+          </Sheet>
+        ) : (
+          <InteractionCard
+            interaction={info}
+            now={now}
+            onSubmit={handleSubmit}
+            isSubmitting={status === "submitting"}
+          />
+        )
+      ) : null}
+    </Box>
   );
 }
