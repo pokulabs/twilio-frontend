@@ -11,7 +11,7 @@ import {
 } from "@mui/joy";
 import { SendRounded } from "@mui/icons-material";
 
-import { displayDateTime } from "../../utils";
+import { displayDateTime, formatDurationHumanReadable } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
 import type { Medium } from "../../types/backend-frontend";
 
@@ -89,7 +89,10 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
         : remainingSeconds > 0
           ? "warning"
           : "neutral";
-    const statusLabel = remainingSeconds > 0 ? `${remainingSeconds}s left` : "Expired";
+    const statusLabel =
+      remainingSeconds > 0
+        ? `${formatDurationHumanReadable(remainingSeconds)} left`
+        : "Expired";
     const metadataEntries = Object.entries(interaction.metadata ?? {});
     const isExpired = remainingSeconds === 0;
 
@@ -207,27 +210,6 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
                 </Stack>
               </Stack>
             ) : null}
-
-            <Stack spacing={0.5}>
-              <LinearProgress
-                determinate
-                value={progress}
-                sx={{
-                  bgcolor: "background.level2",
-                  "& .MuiLinearProgress-bar": {
-                    transition: "none",
-                  },
-                }}
-              />
-              <Stack direction="row" justifyContent="space-between">
-                <Typography level="body-xs" color="neutral">
-                  Expires {displayDateTime(expiresAt)}
-                </Typography>
-                <Typography level="body-xs" color="neutral">
-                  {elapsedSeconds}s elapsed
-                </Typography>
-              </Stack>
-            </Stack>
           </Stack>
 
           <Stack
@@ -235,9 +217,6 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
             flex={{ xs: 1, lg: 0.9 }}
             minWidth={{ xs: "100%", lg: 280 }}
           >
-            <Typography level="body-sm" color="neutral">
-              Your response
-            </Typography>
             <Textarea
               minRows={3}
               value={response}

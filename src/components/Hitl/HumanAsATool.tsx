@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Stack, Box, Divider } from "@mui/joy";
+import { Stack, Box, Divider, Typography, Input } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import withLoggedIn from "../../context/withLoggedIn";
@@ -10,6 +10,7 @@ import { SlackInput } from "./SlackInput";
 import { WhatsappInput } from "./WhatsappInput";
 import { WaitTimeInput } from "./WaitTimeInput";
 import { AdvancedOptions } from "./AdvancedOptions";
+import { InfoTooltip } from "../shared/InfoTooltip";
 import CreateButton from "../shared/CreateButton";
 import { Medium } from "../../types/backend-frontend";
 
@@ -162,6 +163,36 @@ function HumanAsATool() {
           />
         )}
 
+        {form.uiChannel === "dashboard" && (
+          <Box>
+            <Typography
+              level="title-md"
+              endDecorator={
+                <InfoTooltip
+                  title={
+                    <Typography>
+                      The human's response and any metadata will be sent to this
+                      webhook URL. Required for the Dashboard medium.
+                    </Typography>
+                  }
+                />
+              }
+            >
+              Webhook URL
+            </Typography>
+            <Input
+              placeholder="https://cloud.n8n.com/webhook/a0e934fe-5920-49f1-8821-1b7ffc312573"
+              value={form.webhook || ""}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  webhook: e.target.value || undefined,
+                }))
+              }
+            />
+          </Box>
+        )}
+
         {form.uiChannel !== "call" && (
           <WaitTimeInput
             value={form.waitTime}
@@ -170,14 +201,14 @@ function HumanAsATool() {
         )}
 
         {(form.uiChannel === "sms" ||
-          form.uiChannel === "whatsapp" ||
-          form.uiChannel === "dashboard") && (
+          form.uiChannel === "whatsapp") && (
           <AdvancedOptions
             webhook={form.webhook}
             setWebhook={(val) => setForm((prev) => ({ ...prev, webhook: val }))}
             setValidTimeSeconds={(val) =>
               setForm((prev) => ({ ...prev, validTimeSeconds: val }))
             }
+            validTimeSeconds={form.validTimeSeconds}
             linkEnabled={form.linkEnabled}
             setLinkEnabled={(val) =>
               setForm((prev) => ({ ...prev, linkEnabled: val }))
@@ -204,6 +235,7 @@ function HumanAsATool() {
             setValidTimeSeconds={(val) =>
               setForm((prev) => ({ ...prev, validTimeSeconds: val }))
             }
+            validTimeSeconds={form.validTimeSeconds}
             linkEnabled={form.linkEnabled}
             setLinkEnabled={(val) =>
               setForm((prev) => ({ ...prev, linkEnabled: val }))
@@ -231,6 +263,7 @@ function HumanAsATool() {
             onCreate={handleSave}
             disabled={
               (form.uiChannel !== "dashboard" && !form.humanNumber) ||
+              (form.uiChannel === "dashboard" && !form.webhook) ||
               (form.uiChannel === "sms" &&
                 form.usingOwnTwilio &&
                 !form.agentNumber) ||

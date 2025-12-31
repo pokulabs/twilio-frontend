@@ -107,6 +107,30 @@ export function displayDateTime(d: Date) {
     return displayDate(d) + " " + displayTime(d);
 }
 
+export function formatDurationHumanReadable(totalSeconds: number): string {
+    if (!Number.isFinite(totalSeconds) || totalSeconds < 0) return "—";
+    if (totalSeconds === 0) return "0 seconds";
+
+    const secondsInMinute = 60;
+    const secondsInHour = 3600;
+    const secondsInDay = 86400;
+
+    const days = Math.floor(totalSeconds / secondsInDay);
+    const hours = Math.floor((totalSeconds % secondsInDay) / secondsInHour);
+    const minutes = Math.floor((totalSeconds % secondsInHour) / secondsInMinute);
+    const seconds = Math.floor(totalSeconds % secondsInMinute);
+
+    const parts = [];
+    if (days > 0) parts.push(`${days} day${days === 1 ? "" : "s"}`);
+    if (hours > 0) parts.push(`${hours} hour${hours === 1 ? "" : "s"}`);
+    if (minutes > 0) parts.push(`${minutes} minute${minutes === 1 ? "" : "s"}`);
+    if (seconds > 0 || (parts.length === 0 && totalSeconds >= 0)) {
+        parts.push(`${seconds} second${seconds === 1 ? "" : "s"}`);
+    }
+
+    return parts.join(" ");
+}
+
 export const POLL_INTERVAL = 1000; // every 1 second
 export const SLACK_LINK =
     "https://join.slack.com/t/pokulabs/shared_invite/zt-334pmqhy9-oZN8cMAXLFUdmDCgNZX9rA";

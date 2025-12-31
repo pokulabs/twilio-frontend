@@ -32,18 +32,10 @@ import call from "../../assets/call.png";
 import logo from "../../assets/logo.png";
 import { CreditsRemaining } from "../shared/Usage";
 import { Medium } from "../../types/backend-frontend";
+import { formatDurationHumanReadable } from "../../utils";
 
 function formatDuration(totalSeconds: number): string {
-  if (!Number.isFinite(totalSeconds)) return "—";
-  if (totalSeconds < 60) return `${totalSeconds}s`;
-  const minutes = totalSeconds / 60;
-  if (minutes < 60)
-    return `${Number.isInteger(minutes) ? minutes : minutes.toFixed(1)}m`;
-  const hours = minutes / 60;
-  if (hours < 24)
-    return `${Number.isInteger(hours) ? hours : hours.toFixed(1)}h`;
-  const days = hours / 24;
-  return `${Number.isInteger(days) ? days : days.toFixed(1)}d`;
+  return formatDurationHumanReadable(totalSeconds);
 }
 
 function getMediumLabel(medium: Medium): string {
@@ -144,7 +136,7 @@ const InteractionChannelCard = ({
           {e.waitTime && (
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Timer fontSize="small" titleAccess="Wait Time" />
-              <Typography level="body-sm">{e.waitTime} seconds</Typography>
+              <Typography level="body-sm">{formatDuration(e.waitTime)}</Typography>
             </Stack>
           )}
 
