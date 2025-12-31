@@ -29,6 +29,7 @@ import slack from "../../assets/slack-color.png";
 import whatsapp from "../../assets/whatsapp.png";
 import sms from "../../assets/sms.png";
 import call from "../../assets/call.png";
+import logo from "../../assets/logo.png";
 import { CreditsRemaining } from "../shared/Usage";
 import { Medium } from "../../types/backend-frontend";
 
@@ -57,6 +58,8 @@ function getMediumLabel(medium: Medium): string {
     case "sms":
     case "sms_poku":
       return "SMS";
+    case "dashboard_poku":
+      return "Dashboard";
     default:
       return medium;
   }
@@ -78,6 +81,7 @@ const InteractionChannelCard = ({
     call_poku: call,
     sms: sms,
     sms_poku: sms,
+    dashboard_poku: logo,
   };
   const iconSrc = mediumIconMap[e.medium as Medium];
 

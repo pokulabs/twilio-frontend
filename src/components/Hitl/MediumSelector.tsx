@@ -4,6 +4,7 @@ import slack from "../../assets/slack-color.png";
 import whatsapp from "../../assets/whatsapp.png";
 import sms from "../../assets/sms.png";
 import call from "../../assets/call.png";
+import dashboard from "../../assets/logo.png";
 
 export function MediumSelector({
   uiChannel,
@@ -17,6 +18,7 @@ export function MediumSelector({
     whatsapp,
     slack,
     call,
+    dashboard,
   };
 
   return (
@@ -34,7 +36,7 @@ export function MediumSelector({
         width: "100%",
       }}
     >
-      {["sms", "whatsapp", "slack", "call"].map((item) => (
+      {["sms", "whatsapp", "slack", "call", "dashboard"].map((item) => (
         <Box
           key={item}
           sx={(theme) => ({
@@ -76,6 +78,7 @@ export function MediumSelector({
                       whatsapp: "WhatsApp",
                       sms: "SMS",
                       call: "Call",
+                      dashboard: "Dashboard",
                     }[item as ConfigureIcState["uiChannel"]]
                   }
                 </span>

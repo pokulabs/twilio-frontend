@@ -384,7 +384,8 @@ class ApiClient {
                   id: string;
                   createdAt: string;
                   expiresAt: string;
-                  type: string;
+                  async: boolean;
+                  titForTat: boolean;
                   humanNumber: string;
                   agentNumber: string | null;
                   medium: Medium;
@@ -413,7 +414,8 @@ class ApiClient {
                   data: {
                       id: string;
                       createdAt: string;
-                      type: string;
+                      async: boolean;
+                      titForTat: boolean;
                       humanNumber: string;
                       agentNumber: string | null;
                       waitTime: number;
@@ -443,7 +445,8 @@ class ApiClient {
                   data: {
                       id: string;
                       createdAt: string;
-                      type: string;
+                      async: boolean;
+                      titForTat: boolean;
                       humanNumber: string;
                       agentNumber: string;
                       waitTime: number;

@@ -55,7 +55,7 @@ function InteractionsLog() {
             <tr>
               <th>Created</th>
               <th>Medium</th>
-              <th>Type</th>
+              <th>Mode</th>
               <th>From</th>
               <th>Message</th>
               <th>Wait (s)</th>
@@ -77,7 +77,10 @@ function InteractionsLog() {
                 <tr key={r.id}>
                   <td>{displayDateTime(new Date(r.createdAt))}</td>
                   <td>{mediumToUiChannelMap[r.medium]}</td>
-                  <td>{r.type}</td>
+                  <td>
+                    {r.async && <Box component="span" sx={{ mr: 1, color: "info.main" }}>Async</Box>}
+                    {r.titForTat && <Box component="span" sx={{ color: "info.main" }}>Reply</Box>}
+                  </td>
                   <td>
                     {r.from}
                   </td>

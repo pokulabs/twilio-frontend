@@ -26,6 +26,8 @@ export function mapUiChannelToMedium(
     return ownTwilio ? "sms" : "sms_poku";
   } else if (uc === "call") {
     return "call_poku";
+  } else if (uc === "dashboard") {
+    return "dashboard_poku";
   } else {
     throw new Error("Couldn't find uiChannel");
   }
@@ -38,10 +40,11 @@ export const mediumToUiChannelMap: Record<Medium, string> = {
   call_poku: "Call",
   sms: "SMS",
   sms_poku: "SMS",
+  dashboard_poku: "Dashboard",
 };
 
 export type ConfigureIcState = {
-  uiChannel: "slack" | "whatsapp" | "sms" | "call";
+  uiChannel: "slack" | "whatsapp" | "sms" | "call" | "dashboard";
   usingOwnTwilio: boolean;
   usingOwnSlack: boolean;
   humanNumber: string;
@@ -80,7 +83,7 @@ function HumanAsATool() {
       (form.uiChannel === "slack" && form.usingOwnSlack) ||
       (form.uiChannel === "sms" && form.usingOwnTwilio);
     await apiClient.createInteractionChannel(
-      form.humanNumber,
+      form.uiChannel === "dashboard" ? "Dashboard" : form.humanNumber,
       shouldSendAgentNumber ? form.agentNumber : "",
       form.uiChannel !== "call" ? form.waitTime : undefined,
       mapUiChannelToMedium(
@@ -166,7 +169,9 @@ function HumanAsATool() {
           />
         )}
 
-        {(form.uiChannel === "sms" || form.uiChannel === "whatsapp") && (
+        {(form.uiChannel === "sms" ||
+          form.uiChannel === "whatsapp" ||
+          form.uiChannel === "dashboard") && (
           <AdvancedOptions
             webhook={form.webhook}
             setWebhook={(val) => setForm((prev) => ({ ...prev, webhook: val }))}
@@ -225,7 +230,7 @@ function HumanAsATool() {
           <CreateButton
             onCreate={handleSave}
             disabled={
-              !form.humanNumber ||
+              (form.uiChannel !== "dashboard" && !form.humanNumber) ||
               (form.uiChannel === "sms" &&
                 form.usingOwnTwilio &&
                 !form.agentNumber) ||

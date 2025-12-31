@@ -4,7 +4,8 @@ export type Medium =
     | "whatsapp_poku"
     | "slack_poku"
     | "slack"
-    | "call_poku";
+    | "call_poku"
+    | "dashboard_poku";
 
 export function convertCreditsToCents(credits: number) {
     return Math.round(credits * 2.5);

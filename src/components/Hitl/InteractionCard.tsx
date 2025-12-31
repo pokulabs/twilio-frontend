@@ -19,7 +19,8 @@ export interface InteractionCardData {
   id: string;
   createdAt: string;
   expiresAt: string;
-  type: string;
+  async: boolean;
+  titForTat: boolean;
   humanNumber: string;
   agentNumber: string | null;
   medium: Medium;
@@ -143,9 +144,16 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
             <Chip color="primary" variant="soft" size="sm">
               {mediumToUiChannelMap[interaction.medium]}
             </Chip>
-            <Chip variant="outlined" size="sm">
-              {interaction.type}
-            </Chip>
+            {interaction.async && (
+              <Chip variant="outlined" size="sm" color="success">
+                Async
+              </Chip>
+            )}
+            {interaction.titForTat && (
+              <Chip variant="outlined" size="sm" color="warning">
+                Tit-for-Tat
+              </Chip>
+            )}
             {interaction.agentNumber ? (
               <Chip variant="soft" size="sm">
                 Agent {interaction.agentNumber}
