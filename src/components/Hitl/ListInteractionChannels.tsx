@@ -43,6 +43,7 @@ function getMediumLabel(medium: Medium): string {
     case "slack":
     case "slack_poku":
       return "Slack";
+    case "whatsapp":
     case "whatsapp_poku":
       return "WhatsApp";
     case "call_poku":
@@ -69,6 +70,7 @@ const InteractionChannelCard = ({
   const mediumIconMap: Record<Medium, string> = {
     slack: slack,
     slack_poku: slack,
+    whatsapp: whatsapp,
     whatsapp_poku: whatsapp,
     call_poku: call,
     sms: sms,

@@ -13,6 +13,7 @@ import { AdvancedOptions } from "./AdvancedOptions";
 import { InfoTooltip } from "../shared/InfoTooltip";
 import CreateButton from "../shared/CreateButton";
 import { Medium } from "../../types/backend-frontend";
+import { CallInput } from "./CallInput";
 
 export function mapUiChannelToMedium(
   uc: ConfigureIcState["uiChannel"],
@@ -22,7 +23,7 @@ export function mapUiChannelToMedium(
   if (uc === "slack") {
     return ownSlack ? "slack" : "slack_poku";
   } else if (uc === "whatsapp") {
-    return "whatsapp_poku";
+    return ownTwilio ? "whatsapp" : "whatsapp_poku";
   } else if (uc === "sms") {
     return ownTwilio ? "sms" : "sms_poku";
   } else if (uc === "call") {
@@ -38,6 +39,7 @@ export const mediumToUiChannelMap: Record<Medium, string> = {
   slack_poku: "Slack",
   slack: "Slack",
   whatsapp_poku: "WhatsApp",
+  whatsapp: "WhatsApp",
   call_poku: "Call",
   sms: "SMS",
   sms_poku: "SMS",
@@ -82,10 +84,11 @@ function HumanAsATool() {
   const handleSave = async () => {
     const shouldSendAgentNumber =
       (form.uiChannel === "slack" && form.usingOwnSlack) ||
-      (form.uiChannel === "sms" && form.usingOwnTwilio);
+      (form.uiChannel === "sms" && form.usingOwnTwilio) ||
+      (form.uiChannel === "whatsapp" && form.usingOwnTwilio);
     await apiClient.createInteractionChannel(
       form.uiChannel === "dashboard" ? "Dashboard" : form.humanNumber,
-      shouldSendAgentNumber ? form.agentNumber : "",
+      shouldSendAgentNumber ? form.agentNumber.replace("whatsapp:", "") : "",
       form.uiChannel !== "call" ? form.waitTime : undefined,
       mapUiChannelToMedium(
         form.uiChannel,
@@ -150,13 +153,21 @@ function HumanAsATool() {
         )}
         {form.uiChannel === "whatsapp" && (
           <WhatsappInput
+            usingOwnTwilio={form.usingOwnTwilio}
+            setUsingOwnTwilio={(val) =>
+              setForm((prev) => ({ ...prev, usingOwnTwilio: val }))
+            }
             onChange={(val) =>
               setForm((prev) => ({ ...prev, humanNumber: val }))
+            }
+            agentNumber={form.agentNumber}
+            setAgentNumber={(val) =>
+              setForm((prev) => ({ ...prev, agentNumber: val }))
             }
           />
         )}
         {form.uiChannel === "call" && (
-          <WhatsappInput
+          <CallInput
             onChange={(val) =>
               setForm((prev) => ({ ...prev, humanNumber: val }))
             }
@@ -267,11 +278,18 @@ function HumanAsATool() {
               (form.uiChannel === "sms" &&
                 form.usingOwnTwilio &&
                 !form.agentNumber) ||
+              (form.uiChannel === "whatsapp" &&
+                form.usingOwnTwilio &&
+                !form.agentNumber) ||
               (form.uiChannel === "slack" &&
                 form.usingOwnSlack &&
                 !form.agentNumber) ||
               (form.uiChannel === "sms" && form.usingOwnTwilio && !sid) ||
-              (form.uiChannel === "sms" && form.usingOwnTwilio && !authToken)
+              (form.uiChannel === "sms" && form.usingOwnTwilio && !authToken) ||
+              (form.uiChannel === "whatsapp" && form.usingOwnTwilio && !sid) ||
+              (form.uiChannel === "whatsapp" &&
+                form.usingOwnTwilio &&
+                !authToken)
             }
           >
             Create
