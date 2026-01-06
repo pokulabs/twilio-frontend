@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Stack, Box, Divider, Typography, Input } from "@mui/joy";
+import { Stack, Box, Divider } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useTwilio } from "../../context/TwilioProvider";
 import withLoggedIn from "../../context/withLoggedIn";
@@ -10,10 +10,10 @@ import { SlackInput } from "./SlackInput";
 import { WhatsappInput } from "./WhatsappInput";
 import { WaitTimeInput } from "./WaitTimeInput";
 import { AdvancedOptions } from "./AdvancedOptions";
-import { InfoTooltip } from "../shared/InfoTooltip";
 import CreateButton from "../shared/CreateButton";
 import { Medium } from "../../types/backend-frontend";
 import { CallInput } from "./CallInput";
+import { DashboardInput } from "./DashboardInput";
 
 export function mapUiChannelToMedium(
   uc: ConfigureIcState["uiChannel"],
@@ -175,33 +175,10 @@ function HumanAsATool() {
         )}
 
         {form.uiChannel === "dashboard" && (
-          <Box>
-            <Typography
-              level="title-md"
-              endDecorator={
-                <InfoTooltip
-                  title={
-                    <Typography>
-                      The human's response and any metadata will be sent to this
-                      webhook URL. Required for the Dashboard medium.
-                    </Typography>
-                  }
-                />
-              }
-            >
-              Webhook URL
-            </Typography>
-            <Input
-              placeholder="https://cloud.n8n.com/webhook/a0e934fe-5920-49f1-8821-1b7ffc312573"
-              value={form.webhook || ""}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  webhook: e.target.value || undefined,
-                }))
-              }
-            />
-          </Box>
+          <DashboardInput
+            webhook={form.webhook}
+            setWebhook={(val) => setForm((prev) => ({ ...prev, webhook: val }))}
+          />
         )}
 
         {form.uiChannel !== "call" && (
