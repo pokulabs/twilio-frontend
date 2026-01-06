@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/joy";
-import { InfoTooltip } from "../shared/InfoTooltip";
-import { DurationInput } from "../shared/DurationInput";
+import { InfoTooltip } from "../../shared/InfoTooltip";
+import { DurationInput } from "../../shared/DurationInput";
 
 export function WaitTimeInput(props: {
   value: number;

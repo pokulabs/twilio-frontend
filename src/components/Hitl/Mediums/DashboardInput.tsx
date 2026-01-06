@@ -1,5 +1,5 @@
 import { Box, Input, Typography } from "@mui/joy";
-import { InfoTooltip } from "../shared/InfoTooltip";
+import { InfoTooltip } from "../../shared/InfoTooltip";
 
 export function DashboardInput({
   webhook,

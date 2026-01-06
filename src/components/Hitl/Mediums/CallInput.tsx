@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/joy";
-import { InfoTooltip } from "../shared/InfoTooltip";
-import { HumanNumberInput } from "../shared/HumanNumberInput";
+import { InfoTooltip } from "../../shared/InfoTooltip";
+import { HumanNumberInput } from "./HumanNumberInput";
 
 export function CallInput({
   onChange,

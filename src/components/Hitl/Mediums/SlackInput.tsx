@@ -1,6 +1,6 @@
 import { Box, Checkbox, Input, Link, Typography } from "@mui/joy";
-import { InfoTooltip } from "../shared/InfoTooltip";
-import { SLACK_LINK } from "../../utils";
+import { InfoTooltip } from "../../shared/InfoTooltip";
+import { SLACK_LINK } from "../../../utils";
 
 type SlackValues = {
   usingOwnSlack: boolean;

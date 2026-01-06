@@ -5,15 +5,15 @@ import { useTwilio } from "../../context/TwilioProvider";
 import withLoggedIn from "../../context/withLoggedIn";
 import { ListInteractionChannels } from "./ListInteractionChannels";
 import { MediumSelector } from "./MediumSelector";
-import { SmsInput } from "./SmsInput";
-import { SlackInput } from "./SlackInput";
-import { WhatsappInput } from "./WhatsappInput";
-import { WaitTimeInput } from "./WaitTimeInput";
+import { SmsInput } from "./Mediums/SmsInput";
+import { SlackInput } from "./Mediums/SlackInput";
+import { WhatsappInput } from "./Mediums/WhatsappInput";
+import { WaitTimeInput } from "./Mediums/WaitTimeInput";
 import { AdvancedOptions } from "./AdvancedOptions";
 import CreateButton from "../shared/CreateButton";
 import { Medium } from "../../types/backend-frontend";
-import { CallInput } from "./CallInput";
-import { DashboardInput } from "./DashboardInput";
+import { CallInput } from "./Mediums/CallInput";
+import { DashboardInput } from "./Mediums/DashboardInput";
 
 export function mapUiChannelToMedium(
   uc: ConfigureIcState["uiChannel"],
