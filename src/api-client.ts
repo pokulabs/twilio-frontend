@@ -189,6 +189,18 @@ class ApiClient {
         return this.api.delete(`/interaction-channels/${interactionChannelId}`);
     }
 
+    async updateInteractionChannel(
+        interactionChannelId: string,
+        updates: {
+            waitTime?: number;
+        },
+    ) {
+        return this.api.post(
+            `/interaction-channels/${interactionChannelId}`,
+            updates,
+        );
+    }
+
     async getAgents() {
         return this.api.get<
             | {

@@ -12,6 +12,9 @@ import {
   Tooltip,
   Select,
   Option,
+  Modal,
+  ModalDialog,
+  ModalClose,
 } from "@mui/joy";
 import {
   ContentCopy,
@@ -23,6 +26,7 @@ import {
   Link as LinkIcon,
   Description,
   Http,
+  Edit,
 } from "@mui/icons-material";
 import { apiClient } from "../../api-client";
 import slack from "../../assets/slack-color.png";
@@ -33,6 +37,7 @@ import logo from "../../assets/logo.png";
 import { CreditsRemaining } from "../shared/Usage";
 import { Medium } from "../../types/backend-frontend";
 import { formatDurationHumanReadable } from "../../utils";
+import { WaitTimeInput } from "./Mediums/WaitTimeInput";
 
 function formatDuration(totalSeconds: number): string {
   return formatDurationHumanReadable(totalSeconds);
@@ -58,6 +63,56 @@ function getMediumLabel(medium: Medium): string {
   }
 }
 
+const EditChannelModal = ({
+  open,
+  onClose,
+  initialWaitTime,
+  onSave,
+}: {
+  open: boolean;
+  onClose: () => void;
+  initialWaitTime: number;
+  onSave: (newWaitTime: number) => Promise<void>;
+}) => {
+  const [editWaitTime, setEditWaitTime] = useState(initialWaitTime);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setEditWaitTime(initialWaitTime);
+  }, [initialWaitTime, open]);
+
+  const handleUpdate = async () => {
+    setSaving(true);
+    try {
+      await onSave(editWaitTime);
+      onClose();
+    } catch (err) {
+      console.error("Failed to update channel", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <ModalDialog>
+        <ModalClose />
+        <Typography level="h4">Edit Channel</Typography>
+        <Divider sx={{ my: 2 }} />
+        <Stack spacing={2}>
+          <WaitTimeInput
+            value={editWaitTime}
+            onChange={(val) => setEditWaitTime(val)}
+          />
+          <Button loading={saving} onClick={handleUpdate} sx={{ mt: 2 }}>
+            Save Changes
+          </Button>
+        </Stack>
+      </ModalDialog>
+    </Modal>
+  );
+};
+
 const InteractionChannelCard = ({
   channel: e,
   onReload,
@@ -66,6 +121,7 @@ const InteractionChannelCard = ({
   onReload: () => void;
 }) => {
   const [urlType, setUrlType] = useState<"mcp" | "api" | "channel_id">("mcp");
+  const [showEdit, setShowEdit] = useState(false);
 
   const mediumIconMap: Record<Medium, string> = {
     slack: slack,
@@ -243,6 +299,17 @@ const InteractionChannelCard = ({
           Send Test
         </Button>
 
+        <Tooltip title="Edit Channel" variant="solid">
+          <IconButton
+            size="sm"
+            variant="outlined"
+            color="neutral"
+            onClick={() => setShowEdit(true)}
+          >
+            <Edit />
+          </IconButton>
+        </Tooltip>
+
         <Tooltip title="Delete Channel" color="danger" variant="solid">
           <IconButton
             size="sm"
@@ -261,6 +328,18 @@ const InteractionChannelCard = ({
           </IconButton>
         </Tooltip>
       </Box>
+
+      <EditChannelModal
+        open={showEdit}
+        onClose={() => setShowEdit(false)}
+        initialWaitTime={e.waitTime}
+        onSave={async (newWaitTime) => {
+          await apiClient.updateInteractionChannel(e.id, {
+            waitTime: newWaitTime,
+          });
+          onReload();
+        }}
+      />
     </Card>
   );
 };
