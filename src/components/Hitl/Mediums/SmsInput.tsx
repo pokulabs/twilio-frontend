@@ -19,7 +19,6 @@ export function SmsInput({
 }) {
   const {
     phoneNumbers,
-    whatsappNumbers,
     isAuthenticated: hasTwilioCreds,
   } = useTwilio();
 
@@ -47,7 +46,7 @@ export function SmsInput({
               setAgentNumber(newPhoneNumber || "")
             }
           >
-            {phoneNumbers.concat(whatsappNumbers).map((e) => (
+            {phoneNumbers.map((e) => (
               <Option key={e} value={e}>
                 {e}
               </Option>
