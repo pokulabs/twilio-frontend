@@ -3,13 +3,14 @@ import { apiClient } from "../../api-client";
 import {
   Box,
   Button,
+  Card,
   CircularProgress,
   Sheet,
   Stack,
   Table,
   Typography,
 } from "@mui/joy";
-import { displayDateTime } from "../../utils";
+import { displayDateTime, formatDurationHumanReadable } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
 import withLoggedIn from "../../context/withLoggedIn";
 
@@ -22,8 +23,13 @@ type Interaction =
       : never
     : never;
 
+type Stats = NonNullable<
+  Awaited<ReturnType<typeof apiClient.getInteractionStats>>["data"]
+>;
+
 function InteractionsLog() {
   const [data, setData] = useState<Interaction[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
@@ -42,13 +48,48 @@ function InteractionsLog() {
     }
   };
 
+  const loadStats = async () => {
+    const res = await apiClient.getInteractionStats();
+    if (res.data) {
+      setStats(res.data);
+    }
+  };
+
   useEffect(() => {
     void load(1);
+    void loadStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <Stack spacing={2} sx={{ mt: 2 }}>
+      {/* Summary Statistics */}
+      {stats && stats.totalTitForTat > 0 && (
+        <Stack direction="row" spacing={2}>
+          <Card variant="outlined" sx={{ flex: 1, p: 2 }}>
+            <Typography level="body-xs" sx={{ mb: 0.5, color: "neutral.500" }}>
+              Avg Response Time (Reply Mode)
+            </Typography>
+            <Typography level="h4">
+              {stats.avgResponseTimeSeconds !== null
+                ? formatDurationHumanReadable(stats.avgResponseTimeSeconds)
+                : "—"}
+            </Typography>
+          </Card>
+          <Card variant="outlined" sx={{ flex: 1, p: 2 }}>
+            <Typography level="body-xs" sx={{ mb: 0.5, color: "neutral.500" }}>
+              No Response Rate (Reply Mode)
+            </Typography>
+            <Typography level="h4">
+              {stats.noResponsePercent}%
+            </Typography>
+            <Typography level="body-xs" sx={{ color: "neutral.500" }}>
+              {stats.withoutResponse} of {stats.totalTitForTat} interactions
+            </Typography>
+          </Card>
+        </Stack>
+      )}
+
       <Sheet variant="outlined" sx={{ borderRadius: 8 }}>
         <Table>
           <thead>
@@ -58,7 +99,7 @@ function InteractionsLog() {
               <th>Mode</th>
               <th>From</th>
               <th>Message</th>
-              <th>Wait (s)</th>
+              <th>Wait</th>
             </tr>
           </thead>
           <tbody>
@@ -95,7 +136,7 @@ function InteractionsLog() {
                   >
                     {r.message}
                   </td>
-                  <td>{r.waitTime}</td>
+                  <td>{r.waitTime != null ? formatDurationHumanReadable(r.waitTime) : "—"}</td>
                 </tr>
               ))
             ) : (

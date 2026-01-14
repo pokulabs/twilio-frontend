@@ -476,6 +476,19 @@ class ApiClient {
             | undefined
         >(`/interactions${qs ? `?${qs}` : ""}`);
     }
+
+    async getInteractionStats() {
+        return this.api.get<
+            | {
+                  totalTitForTat: number;
+                  withResponse: number;
+                  withoutResponse: number;
+                  noResponsePercent: number;
+                  avgResponseTimeSeconds: number | null;
+              }
+            | undefined
+        >("/interactions/stats");
+    }
 }
 
 export const apiClient = new ApiClient();
