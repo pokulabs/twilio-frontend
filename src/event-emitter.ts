@@ -13,16 +13,41 @@ export class EventEmitter {
         "new-message": [],
     };
     private lastKnownMsgId = "";
+    private pollIntervalId: ReturnType<typeof setInterval> | null = null;
+    private isPolling = false;
 
     private constructor(twilioClient: TwilioRawClient) {
         this.twilioClient = twilioClient;
     }
 
     async init() {
+        // Only fetch the initial message ID, don't start polling
         const msgs = await this.twilioClient.getMessages({ limit: 1 });
         this.lastKnownMsgId = msgs.items[0]?.sid;
+    }
 
-        setInterval(this.checkForNewMessage.bind(this), POLL_INTERVAL);
+    /**
+     * Start polling for new messages. Call this when entering /messages page.
+     */
+    startPolling() {
+        if (this.isPolling) return;
+        this.isPolling = true;
+        this.pollIntervalId = setInterval(
+            this.checkForNewMessage.bind(this),
+            POLL_INTERVAL,
+        );
+    }
+
+    /**
+     * Stop polling for new messages. Call this when leaving /messages page.
+     */
+    stopPolling() {
+        if (!this.isPolling) return;
+        this.isPolling = false;
+        if (this.pollIntervalId) {
+            clearInterval(this.pollIntervalId);
+            this.pollIntervalId = null;
+        }
     }
 
     static async getInstance(twilioClient: TwilioRawClient) {

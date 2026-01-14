@@ -1,88 +1,136 @@
-import { useEffect, useState } from "react";
-import { authClient } from "../services/auth";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { authClient, clearSessionCache } from "../services/auth";
+
+// Shared state for auth info - only fetched once
+let authInfoFetched = false;
+let authInfoPromise: Promise<void> | null = null;
+let cachedAuthInfo: {
+    organizations: {
+        id: string;
+        name: string;
+        slug: string;
+        createdAt: Date;
+        logo?: string | null;
+        metadata?: any;
+    }[] | null;
+    isAdmin: boolean;
+    orgMemberRole: "owner" | "admin" | "member" | null;
+    orgMembers: { email: string; id: string }[];
+} = {
+    organizations: null,
+    isAdmin: false,
+    orgMemberRole: null,
+    orgMembers: [],
+};
+
+// Subscribers for when auth info updates
+const subscribers: Set<() => void> = new Set();
+
+function notifySubscribers() {
+    subscribers.forEach((fn) => fn());
+}
+
+async function fetchAuthInfo() {
+    if (authInfoFetched || authInfoPromise) {
+        return authInfoPromise;
+    }
+
+    authInfoPromise = (async () => {
+        const orgs = await authClient.organization.list();
+        if (orgs.data) {
+            cachedAuthInfo.organizations = orgs.data;
+
+            if (orgs.data.length) {
+                await authClient.organization.setActive({
+                    organizationId: orgs.data[0].id,
+                });
+                const orgMember =
+                    await authClient.organization.getActiveMember();
+                if (orgMember.data?.role) {
+                    cachedAuthInfo.orgMemberRole = orgMember.data.role as
+                        | "admin"
+                        | "member"
+                        | "owner";
+                }
+
+                const fullOrg =
+                    await authClient.organization.getFullOrganization();
+                if (fullOrg.data) {
+                    cachedAuthInfo.orgMembers = fullOrg.data.members.map(
+                        (e) => ({
+                            email: e.user.email,
+                            id: (e.user as any).id,
+                        }),
+                    );
+                }
+            }
+        }
+
+        const hasPermission = await authClient.admin.hasPermission({
+            permissions: {
+                user: ["create"],
+            },
+        });
+        if (hasPermission.data?.success) {
+            cachedAuthInfo.isAdmin = true;
+        }
+
+        authInfoFetched = true;
+        notifySubscribers();
+    })();
+
+    return authInfoPromise;
+}
+
+function resetAuthInfo() {
+    authInfoFetched = false;
+    authInfoPromise = null;
+    cachedAuthInfo = {
+        organizations: null,
+        isAdmin: false,
+        orgMemberRole: null,
+        orgMembers: [],
+    };
+}
 
 export function useAuth() {
     const { data, isPending, error } = authClient.useSession();
-    const [organizations, setOrganizations] = useState<
-        | {
-              id: string;
-              name: string;
-              slug: string;
-              createdAt: Date;
-              logo?: string | null | undefined | undefined;
-              metadata?: any;
-          }[]
-        | null
-    >(null);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [orgMemberRole, setOrgMemberRole] = useState<
-        "owner" | "admin" | "member" | null
-    >(null);
-    const [orgMembers, setOrgMembers] = useState<
-        { email: string; id: string }[]
-    >([]);
     const isAuthenticated = !!data;
 
+    // Force re-render when auth info updates
+    const [, forceUpdate] = useState({});
+
     useEffect(() => {
-        if (!isAuthenticated) {
-            return;
-        }
-
-        const setAuthInfo = async () => {
-            const orgs = await authClient.organization.list();
-            if (orgs.data) {
-                setOrganizations(orgs.data);
-
-                if (orgs.data.length) {
-                    await authClient.organization.setActive({
-                        organizationId: orgs.data[0].id,
-                    });
-                    const orgMember =
-                        await authClient.organization.getActiveMember();
-                    if (orgMember.data?.role) {
-                        setOrgMemberRole(
-                            orgMember.data.role as "admin" | "member" | "owner",
-                        );
-                    }
-
-                    const fullOrg =
-                        await authClient.organization.getFullOrganization();
-                    if (fullOrg.data) {
-                        const memberList = fullOrg.data.members.map((e) => {
-                            return {
-                                email: e.user.email,
-                                id: (e.user as any).id,
-                            };
-                        });
-                        setOrgMembers(memberList);
-                    }
-                }
-            }
-
-            const hasPermission = await authClient.admin.hasPermission({
-                permissions: {
-                    user: ["create"],
-                },
-            });
-            if (hasPermission.data?.success) {
-                setIsAdmin(true);
-            }
+        const handleUpdate = () => forceUpdate({});
+        subscribers.add(handleUpdate);
+        return () => {
+            subscribers.delete(handleUpdate);
         };
+    }, []);
 
-        void setAuthInfo();
+    useEffect(() => {
+        if (isAuthenticated && !authInfoFetched && !authInfoPromise) {
+            fetchAuthInfo();
+        }
     }, [isAuthenticated]);
 
     return {
-        isInOrg: !!organizations?.length,
+        isInOrg: !!cachedAuthInfo.organizations?.length,
         userId: data?.user.id,
         userEmail: data?.user.email,
         isLoading: isPending,
         isAuthenticated: isAuthenticated,
-        isAdmin: isAdmin,
-        orgMembers: orgMembers,
-        isOrgAdmin: orgMemberRole === "owner" || orgMemberRole === "admin",
+        isAdmin: cachedAuthInfo.isAdmin,
+        orgMembers: cachedAuthInfo.orgMembers,
+        isOrgAdmin:
+            cachedAuthInfo.orgMemberRole === "owner" ||
+            cachedAuthInfo.orgMemberRole === "admin",
         errorMessage: error?.message,
-        signOut: authClient.signOut,
+        signOut: () => {
+            clearSessionCache();
+            resetAuthInfo();
+            return authClient.signOut();
+        },
         signInGoogle: (redirect: string) => {
             return authClient.signIn.social({
                 provider: "google",

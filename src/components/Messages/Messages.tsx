@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sheet } from "@mui/joy";
 
 import MessagesPane from "./MessagesPane";
@@ -12,7 +12,15 @@ import { Filters } from "../../services/chats.service";
 import { useAuthedTwilio } from "../../context/TwilioProvider";
 
 function MessagesLayout() {
-  const { phoneNumbers, twilioClient } = useAuthedTwilio();
+  const { phoneNumbers, twilioClient, eventEmitter } = useAuthedTwilio();
+
+  // Start/stop message polling when this component mounts/unmounts
+  useEffect(() => {
+    eventEmitter.startPolling();
+    return () => {
+      eventEmitter.stopPolling();
+    };
+  }, [eventEmitter]);
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({
     activeNumber: phoneNumbers[0],
