@@ -89,7 +89,7 @@ function HumanAsATool() {
     await apiClient.createInteractionChannel(
       form.uiChannel === "dashboard" ? "Dashboard" : form.humanNumber,
       shouldSendAgentNumber ? form.agentNumber.replace("whatsapp:", "") : "",
-      form.uiChannel !== "call" ? form.waitTime : undefined,
+      form.uiChannel !== "call" && form.uiChannel !== "dashboard" ? form.waitTime : undefined,
       mapUiChannelToMedium(
         form.uiChannel,
         form.usingOwnTwilio,
@@ -115,7 +115,12 @@ function HumanAsATool() {
         <MediumSelector
           uiChannel={form.uiChannel}
           setUiChannel={(val) =>
-            setForm((prev) => ({ ...prev, uiChannel: val }))
+            setForm((prev) => ({
+              ...prev,
+              uiChannel: val,
+              // Default to 1 hour for dashboard
+              validTimeSeconds: val === "dashboard" ? (prev.validTimeSeconds ?? 3600) : prev.validTimeSeconds,
+            }))
           }
         />
 
@@ -178,10 +183,14 @@ function HumanAsATool() {
           <DashboardInput
             webhook={form.webhook}
             setWebhook={(val) => setForm((prev) => ({ ...prev, webhook: val }))}
+            validTimeSeconds={form.validTimeSeconds}
+            setValidTimeSeconds={(val) =>
+              setForm((prev) => ({ ...prev, validTimeSeconds: val }))
+            }
           />
         )}
 
-        {form.uiChannel !== "call" && (
+        {form.uiChannel !== "call" && form.uiChannel !== "dashboard" && (
           <WaitTimeInput
             value={form.waitTime}
             onChange={(val) => setForm((prev) => ({ ...prev, waitTime: val }))}
