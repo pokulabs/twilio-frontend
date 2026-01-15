@@ -1,18 +1,26 @@
-import { Box, Input, Typography } from "@mui/joy";
+import { useState } from "react";
+import { Box, Input, Stack, Typography } from "@mui/joy";
 import { InfoTooltip } from "../../shared/InfoTooltip";
 import { DurationInput } from "../../shared/DurationInput";
+import { apiClient } from "../../../api-client";
+import CreateButton from "../../shared/CreateButton";
 
-export function DashboardInput({
-  webhook,
-  setWebhook,
-  validTimeSeconds,
-  setValidTimeSeconds,
-}: {
-  webhook: string | undefined;
-  setWebhook: (val: string | undefined) => void;
-  validTimeSeconds: number | undefined;
-  setValidTimeSeconds: (val: number | undefined) => void;
-}) {
+export function DashboardInput({ onSaved }: { onSaved?: () => void }) {
+  const [webhook, setWebhook] = useState<string | undefined>();
+  const [validTimeSeconds, setValidTimeSeconds] = useState<number | undefined>(3600);
+
+  const isValid = !!webhook;
+
+  const handleSave = async () => {
+    await apiClient.createInteractionChannel({
+      humanNumber: "Dashboard",
+      medium: "dashboard_poku",
+      webhook,
+      validTime: validTimeSeconds,
+    });
+    onSaved?.();
+  };
+
   return (
     <>
       <Box>
@@ -60,7 +68,12 @@ export function DashboardInput({
           }
         />
       </Box>
+
+      <Stack gap={1}>
+        <CreateButton onCreate={handleSave} disabled={!isValid}>
+          Create
+        </CreateButton>
+      </Stack>
     </>
   );
 }
-

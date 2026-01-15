@@ -105,32 +105,21 @@ class ApiClient {
         });
     }
 
-    async createInteractionChannel(
-        humanNumber: string,
-        agentNumber: string,
-        waitTime: number | undefined,
-        medium: Medium,
-        webhook: string | undefined,
-        validTime: number | undefined,
-        linkEnabled: boolean | undefined,
-        messageTemplate: string | undefined,
-        responseTemplate: string | undefined,
-        noResponseTemplate: string | undefined,
-    ) {
+    async createInteractionChannel(opts: {
+        humanNumber: string;
+        medium: Medium;
+        agentNumber?: string;
+        waitTime?: number;
+        webhook?: string;
+        validTime?: number;
+        linkEnabled?: boolean;
+        messageTemplate?: string;
+        responseTemplate?: string;
+        noResponseTemplate?: string;
+    }) {
         return this.api.post<{ id: string } | undefined>(
             "/interaction-channels",
-            {
-                humanNumber: humanNumber,
-                agentNumber: agentNumber,
-                waitTime: waitTime,
-                medium: medium,
-                webhook: webhook,
-                validTime: validTime,
-                linkEnabled: linkEnabled,
-                messageTemplate: messageTemplate,
-                responseTemplate: responseTemplate,
-                noResponseTemplate: noResponseTemplate,
-            },
+            opts,
         );
     }
 

@@ -1,20 +1,48 @@
-import { Box, Checkbox, Input, Link, Typography } from "@mui/joy";
+import { useState } from "react";
+import { Box, Checkbox, Input, Link, Stack, Typography } from "@mui/joy";
 import { InfoTooltip } from "../../shared/InfoTooltip";
 import { SLACK_LINK } from "../../../utils";
+import { AdvancedOptions } from "../AdvancedOptions";
+import { WaitTimeInput } from "./WaitTimeInput";
+import { apiClient } from "../../../api-client";
+import CreateButton from "../../shared/CreateButton";
 
-type SlackValues = {
-  usingOwnSlack: boolean;
-  agentNumber: string;
-  humanNumber: string;
-};
+export function SlackInput({ onSaved }: { onSaved?: () => void }) {
+  const [usingOwnSlack, setUsingOwnSlack] = useState(false);
+  const [agentNumber, setAgentNumber] = useState("");
+  const [humanNumber, setHumanNumber] = useState("");
+  const [waitTime, setWaitTime] = useState(60);
 
-export function SlackInput({
-  value,
-  onChange,
-}: {
-  value: SlackValues;
-  onChange: (next: SlackValues) => void;
-}) {
+  // Advanced options state
+  const [webhook, setWebhook] = useState<string | undefined>();
+  const [validTimeSeconds, setValidTimeSeconds] = useState<number | undefined>();
+  const [linkEnabled, setLinkEnabled] = useState(false);
+  const [messageTemplate, setMessageTemplate] = useState<string | undefined>();
+  const [responseTemplate, setResponseTemplate] = useState<string | undefined>();
+  const [noResponseTemplate, setNoResponseTemplate] = useState<string | undefined>();
+
+  const isValid = (() => {
+    if (!humanNumber) return false;
+    if (usingOwnSlack && !agentNumber) return false;
+    return true;
+  })();
+
+  const handleSave = async () => {
+    await apiClient.createInteractionChannel({
+      humanNumber,
+      medium: usingOwnSlack ? "slack" : "slack_poku",
+      agentNumber: usingOwnSlack ? agentNumber : undefined,
+      waitTime,
+      webhook,
+      validTime: validTimeSeconds,
+      linkEnabled,
+      messageTemplate,
+      responseTemplate,
+      noResponseTemplate,
+    });
+    onSaved?.();
+  };
+
   return (
     <>
       <Box>
@@ -24,17 +52,15 @@ export function SlackInput({
 
         <Checkbox
           label="Use my own Slack workspace"
-          checked={value.usingOwnSlack}
-          onChange={(e) =>
-            onChange({ ...value, usingOwnSlack: e.target.checked })
-          }
+          checked={usingOwnSlack}
+          onChange={(e) => setUsingOwnSlack(e.target.checked)}
         />
-        {!value.usingOwnSlack && (
+        {!usingOwnSlack && (
           <Typography level="body-sm">
             Join our <Link href={SLACK_LINK}>Slack workspace</Link> if you don't want to use your own.
           </Typography>
         )}
-        {value.usingOwnSlack && (
+        {usingOwnSlack && (
           <>
             <Typography level="body-sm" sx={{ mb: 1 }}>
               If you haven't yet, install the Slack app in your workspace.
@@ -75,10 +101,8 @@ export function SlackInput({
                 Slack Workspace/Team ID
               </Typography>
               <Input
-                value={value.agentNumber}
-                onChange={(e) =>
-                  onChange({ ...value, agentNumber: e.target.value || "" })
-                }
+                value={agentNumber}
+                onChange={(e) => setAgentNumber(e.target.value || "")}
                 placeholder="Ex: T0123456789"
               />
             </Box>
@@ -108,13 +132,37 @@ export function SlackInput({
         </Typography>
 
         <Input
-          value={value.humanNumber}
-          onChange={(e) =>
-            onChange({ ...value, humanNumber: e.target.value || "" })
-          }
+          value={humanNumber}
+          onChange={(e) => setHumanNumber(e.target.value || "")}
           placeholder="Ex: U08LGBTCBNH"
         />
       </Box>
+
+      <WaitTimeInput value={waitTime} onChange={setWaitTime} />
+
+      <AdvancedOptions
+        webhook={webhook}
+        setWebhook={setWebhook}
+        validTimeSeconds={validTimeSeconds}
+        setValidTimeSeconds={setValidTimeSeconds}
+        linkEnabled={linkEnabled}
+        setLinkEnabled={setLinkEnabled}
+        showFollowUp={false}
+        showWebhook={false}
+        messageTemplate={messageTemplate}
+        setMessageTemplate={setMessageTemplate}
+        responseTemplate={responseTemplate}
+        setResponseTemplate={setResponseTemplate}
+        noResponseTemplate={noResponseTemplate}
+        setNoResponseTemplate={setNoResponseTemplate}
+        uiChannel="slack"
+      />
+
+      <Stack gap={1}>
+        <CreateButton onCreate={handleSave} disabled={!isValid}>
+          Create
+        </CreateButton>
+      </Stack>
     </>
   );
 }
