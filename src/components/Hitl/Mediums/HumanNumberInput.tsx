@@ -15,6 +15,7 @@ export function HumanNumberInput({
   onChange: (val: string) => void;
 }) {
   const [country, setCountry] = useState<CountryCode | undefined>("US");
+  const [phoneNumber, setPhoneNumber] = useState<string | undefined>();
 
   return (
     <Box
@@ -34,7 +35,9 @@ export function HumanNumberInput({
 
       <Box sx={{ flex: 1 }}>
         <PhoneNumberInput
+          value={phoneNumber}
           onChange={(val?: string) => {
+            setPhoneNumber(val);
             onChange(val ?? "");
           }}
           country={country}

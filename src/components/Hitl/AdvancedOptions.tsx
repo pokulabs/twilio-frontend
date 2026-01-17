@@ -82,23 +82,25 @@ export function AdvancedOptions({
           <Stack direction="row" gap={1.5}>
             {showFollowUp && (
               <Box sx={{ flex: 1 }}>
+                <Typography
+                  level="body-sm"
+                  sx={{ mb: 0.5 }}
+                  endDecorator={
+                    <InfoTooltip
+                      title={
+                        <Typography>
+                          After the tool call timeout expires, the AI agent will
+                          wait for a response from the human for this duration.
+                        </Typography>
+                      }
+                    />
+                  }
+                >
+                  Follow-up time (optional)
+                </Typography>
                 <DurationInput
                   value={validTimeSeconds}
                   onChange={setValidTimeSeconds}
-                  placeholder="30"
-                  label={
-                    <>
-                      Follow-up time (optional)
-                      <InfoTooltip
-                        title={
-                          <Typography>
-                            After the tool call timeout expires, the AI agent will
-                            wait for a response from the human for this duration.
-                          </Typography>
-                        }
-                      />
-                    </>
-                  }
                 />
               </Box>
             )}

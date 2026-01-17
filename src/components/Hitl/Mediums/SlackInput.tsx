@@ -15,7 +15,7 @@ export function SlackInput({ onSaved }: { onSaved?: () => void }) {
 
   // Advanced options state
   const [webhook, setWebhook] = useState<string | undefined>();
-  const [validTimeSeconds, setValidTimeSeconds] = useState<number | undefined>();
+  const [validTimeSeconds, setValidTimeSeconds] = useState<number | undefined>(86400);
   const [linkEnabled, setLinkEnabled] = useState(false);
   const [messageTemplate, setMessageTemplate] = useState<string | undefined>();
   const [responseTemplate, setResponseTemplate] = useState<string | undefined>();
@@ -147,8 +147,6 @@ export function SlackInput({ onSaved }: { onSaved?: () => void }) {
         setValidTimeSeconds={setValidTimeSeconds}
         linkEnabled={linkEnabled}
         setLinkEnabled={setLinkEnabled}
-        showFollowUp={false}
-        showWebhook={false}
         messageTemplate={messageTemplate}
         setMessageTemplate={setMessageTemplate}
         responseTemplate={responseTemplate}

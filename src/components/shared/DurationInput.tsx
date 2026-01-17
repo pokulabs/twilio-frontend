@@ -1,4 +1,4 @@
-import { Divider, Input, Option, Select, Typography } from "@mui/joy";
+import { Divider, Input, Option, Select } from "@mui/joy";
 import { useMemo, useState, useEffect } from "react";
 
 export type TimeUnit = "seconds" | "minutes" | "hours" | "days";
@@ -23,16 +23,12 @@ export function getBestUnit(seconds: number): { amount: string; unit: TimeUnit }
 export type DurationInputProps = {
   value: number | undefined;
   onChange: (seconds: number | undefined) => void;
-  label?: React.ReactNode;
-  placeholder?: string;
   min?: number;
 };
 
 export function DurationInput({
   value,
   onChange,
-  label,
-  placeholder = "60",
   min = 1,
 }: DurationInputProps) {
   const initial = useMemo(() => getBestUnit(value || 0), []);
@@ -70,48 +66,40 @@ export function DurationInput({
   };
 
   return (
-    <>
-      {label && (
-        <Typography level="body-sm" sx={{ mb: 0.5 }}>
-          {label}
-        </Typography>
-      )}
-      <Input
-        type="number"
-        placeholder={placeholder}
-        value={amount}
-        onChange={(e) => handleAmountChange(e.target.value)}
-        endDecorator={
-          <>
-            <Divider orientation="vertical" />
-            <Select
-              value={unit}
-              variant="plain"
-              onChange={(_, next) =>
-                handleUnitChange((next ?? "seconds") as TimeUnit)
-              }
-              slotProps={{
-                listbox: {
-                  variant: "outlined",
-                },
-              }}
-              sx={{ mr: -1.5, "&:hover": { bgcolor: "transparent" } }}
-            >
-              <Option value="seconds">seconds</Option>
-              <Option value="minutes">minutes</Option>
-              <Option value="hours">hours</Option>
-              <Option value="days">days</Option>
-            </Select>
-          </>
-        }
-        slotProps={{
-          input: {
-            min: min,
-            step: "any",
-          },
-        }}
-      />
-    </>
+    <Input
+      type="number"
+      value={amount}
+      onChange={(e) => handleAmountChange(e.target.value)}
+      endDecorator={
+        <>
+          <Divider orientation="vertical" />
+          <Select
+            value={unit}
+            variant="plain"
+            onChange={(_, next) =>
+              handleUnitChange((next ?? "seconds") as TimeUnit)
+            }
+            slotProps={{
+              listbox: {
+                variant: "outlined",
+              },
+            }}
+            sx={{ mr: -1.5, "&:hover": { bgcolor: "transparent" } }}
+          >
+            <Option value="seconds">seconds</Option>
+            <Option value="minutes">minutes</Option>
+            <Option value="hours">hours</Option>
+            <Option value="days">days</Option>
+          </Select>
+        </>
+      }
+      slotProps={{
+        input: {
+          min: min,
+          step: "any",
+        },
+      }}
+    />
   );
 }
 
