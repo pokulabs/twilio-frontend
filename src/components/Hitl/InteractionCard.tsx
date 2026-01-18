@@ -3,7 +3,6 @@ import {
   Button,
   Chip,
   Divider,
-  LinearProgress,
   Sheet,
   Stack,
   Textarea,
@@ -13,7 +12,7 @@ import { SendRounded } from "@mui/icons-material";
 
 import { displayDateTime, formatDurationHumanReadable } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
-import type { Medium } from "../../types/backend-frontend";
+import type { InteractionMessage, Medium } from "../../types/backend-frontend";
 
 export interface InteractionCardData {
   id: string;
@@ -24,7 +23,7 @@ export interface InteractionCardData {
   humanNumber: string;
   agentNumber: string | null;
   medium: Medium;
-  message: string;
+  message: InteractionMessage;
   metadata: Record<string, unknown> | null;
 }
 
@@ -187,7 +186,7 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
                   wordBreak: "break-word",
                 }}
               >
-                {interaction.message}
+                {interaction.message.body}
               </Typography>
             </Stack>
 

@@ -2,7 +2,7 @@ import axios, { type AxiosInstance } from "axios";
 import type { MessageDirection } from "./types/types";
 import { Recipient } from "./components/Campaigns/CsvUploader";
 import { checkIsAuthenticated } from "./services/auth";
-import { Medium } from "./types/backend-frontend";
+import type { InteractionMessage, Medium } from "./types/backend-frontend";
 
 declare module "axios" {
     interface AxiosRequestConfig {
@@ -390,7 +390,7 @@ class ApiClient {
                   humanNumber: string;
                   agentNumber: string | null;
                   medium: Medium;
-                  message: string;
+                  message: InteractionMessage;
                   metadata: Record<string, unknown> | null;
                   // Additional status info
                   secondsRemaining: number;
@@ -421,7 +421,7 @@ class ApiClient {
                       agentNumber: string | null;
                       waitTime: number;
                       medium: Medium;
-                      message: string;
+                      message: InteractionMessage;
                       metadata: Record<string, unknown> | null;
                       expiresAt: string;
                   }[];
@@ -452,7 +452,7 @@ class ApiClient {
                       agentNumber: string;
                       waitTime: number;
                       medium: Medium;
-                      message: string;
+                      message: InteractionMessage;
                       from: "human" | "agent";
                   }[];
                   pagination: {

@@ -126,7 +126,7 @@ function InteractionsLog() {
                     {r.from}
                   </td>
                   <td
-                    title={r.message}
+                    title={r.message.body}
                     style={{
                       maxWidth: 400,
                       overflow: "hidden",
@@ -134,7 +134,7 @@ function InteractionsLog() {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {r.message}
+                    {r.message.body}
                   </td>
                   <td>{r.waitTime != null ? formatDurationHumanReadable(r.waitTime) : "—"}</td>
                 </tr>

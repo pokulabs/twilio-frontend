@@ -8,6 +8,11 @@ export type Medium =
     | "call_poku"
     | "dashboard_poku";
 
+export type InteractionMessage = {
+    body: string;
+    image_links?: string[];
+};
+
 export function convertCreditsToCents(credits: number) {
     return Math.round(credits * 2.5);
 }
