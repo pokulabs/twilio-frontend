@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { authClient, clearSessionCache } from "../services/auth";
 
 // Shared state for auth info - only fetched once

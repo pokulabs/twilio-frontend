@@ -1,6 +1,7 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useParams } from "react-router-dom";
 import { CssVarsProvider } from "@mui/joy/styles";
 import { CssBaseline, Box } from "@mui/joy";
+import { useEffect } from "react";
 
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Messages/Header";
@@ -17,6 +18,46 @@ import Flagging from "./components/Flagging/Flagging";
 import PublicReply from "./components/PublicReply/PublicReply";
 import CheckoutPage from "./components/Checkout/CheckoutPage";
 import ApiDocs from "./components/ApiDocs/ApiDocs";
+import { authClient } from "./services/auth";
+
+function MainLayout() {
+  return (
+    <Box sx={{ display: "flex" }}>
+      <Sidebar />
+      <Header />
+      <Routes>
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/campaigns" element={<Campaigns />} />
+        <Route path="/flagging" element={<Flagging />} />
+        <Route path="/integrations" element={<Integrations />} />
+        <Route path="/" element={<Account />} />
+        <Route path="/hitl" element={<Hitl />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/reply/:token" element={<PublicReply />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/docs" element={<ApiDocs />} />
+      </Routes>
+    </Box>
+  );
+}
+
+function MessagesOnlyLayout() {
+
+  const { token, email } = useParams<{ token: string; email: string; }>();
+  // Only trigger the magicLink once when the component mounts
+  useEffect(() => {
+    authClient.signIn.magicLink({
+      email: email ?? "",
+      callbackURL: import.meta.env.VITE_UI_URL + "/messages-only/" + token,
+    });
+  }, []);
+  return (
+    <Box sx={{ display: "flex" }}>
+      <Messages />
+    </Box>
+  );
+}
 
 export default function App() {
   return (
@@ -25,23 +66,10 @@ export default function App() {
         <CssVarsProvider disableTransitionOnChange>
           <CssBaseline />
           <Router>
-            <Box sx={{ display: "flex" }}>
-              <Sidebar />
-              <Header />
-              <Routes>
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/campaigns" element={<Campaigns />} />
-                <Route path="/flagging" element={<Flagging />} />
-                <Route path="/integrations" element={<Integrations />} />
-                <Route path="/" element={<Account />} />
-                <Route path="/hitl" element={<Hitl />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/reply/:token" element={<PublicReply />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/docs" element={<ApiDocs />} />
-              </Routes>
-            </Box>
+            <Routes>
+              <Route path="/messages-only/:email/:token" element={<MessagesOnlyLayout />} />
+              <Route path="*" element={<MainLayout />} />
+            </Routes>
           </Router>
         </CssVarsProvider>
       </WebsocketProvider>
