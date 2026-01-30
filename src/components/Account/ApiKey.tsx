@@ -23,7 +23,7 @@ export default function ApiKey() {
   return (
     <Box>
       <Typography level="body-md" sx={{ mb: 2 }}>
-        Generating an API key will invalidate any previous one.
+        Generating an API key will invalidate the previous one.
       </Typography>
 
       {apiKey ? (

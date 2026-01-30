@@ -250,7 +250,7 @@ export function CreditsRemaining() {
                     />
                 }
             >
-                Credits remaining: {creditsRemaining ?? "--"}
+                Credits: {creditsRemaining ?? "--"}
             </Typography>
             <Button
                 size="sm"

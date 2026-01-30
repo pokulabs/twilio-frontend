@@ -48,9 +48,9 @@ function Hitl() {
               },
             }}
           >
-            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={0}>
+            {/* <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={0}>
               Try it
-            </Tab>
+            </Tab> */}
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={1}>
               Configure
             </Tab>
@@ -80,9 +80,9 @@ function Hitl() {
               </Link>
               .
             </Typography>
-            <TabPanel value={0} sx={{ p: 0 }}>
+            {/* <TabPanel value={0} sx={{ p: 0 }}>
               <TryIt />
-            </TabPanel>
+            </TabPanel> */}
             <TabPanel value={1} sx={{ p: 0 }}>
               <HumanAsATool />
             </TabPanel>

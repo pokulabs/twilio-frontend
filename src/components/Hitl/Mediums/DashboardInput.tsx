@@ -57,13 +57,13 @@ export function DashboardInput({ onSaved }: { onSaved?: () => void }) {
                   title={
                     <Typography>
                       How long to listen for a response before the interaction
-                      expires. Leave empty for no expiration.
+                      expires.
                     </Typography>
                   }
                 />
               }
             >
-              Listen Duration (optional)
+              Listen Duration
             </Typography>
           }
         />
