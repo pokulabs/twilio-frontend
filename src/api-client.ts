@@ -451,6 +451,7 @@ class ApiClient {
                       humanNumber: string;
                       agentNumber: string;
                       waitTime: number;
+                      validTime: number;
                       medium: Medium;
                       message: InteractionMessage;
                       from: "human" | "agent";

@@ -68,7 +68,7 @@ function InteractionsLog() {
         <Stack direction="row" spacing={2}>
           <Card variant="outlined" sx={{ flex: 1, p: 2 }}>
             <Typography level="body-xs" sx={{ mb: 0.5, color: "neutral.500" }}>
-              Avg Response Time (Reply Mode)
+              Avg Response Time
             </Typography>
             <Typography level="h4">
               {stats.avgResponseTimeSeconds !== null
@@ -78,7 +78,7 @@ function InteractionsLog() {
           </Card>
           <Card variant="outlined" sx={{ flex: 1, p: 2 }}>
             <Typography level="body-xs" sx={{ mb: 0.5, color: "neutral.500" }}>
-              No Response Rate (Reply Mode)
+              No Response Rate
             </Typography>
             <Typography level="h4">
               {stats.noResponsePercent}%
@@ -94,12 +94,13 @@ function InteractionsLog() {
         <Table>
           <thead>
             <tr>
-              <th>Created</th>
+              <th>Time</th>
               <th>Medium</th>
-              <th>Mode</th>
               <th>From</th>
+              <th>Contact</th>
               <th>Message</th>
               <th>Wait</th>
+              <th>Follow-up</th>
             </tr>
           </thead>
           <tbody>
@@ -119,11 +120,9 @@ function InteractionsLog() {
                   <td>{displayDateTime(new Date(r.createdAt))}</td>
                   <td>{mediumToUiChannelMap[r.medium]}</td>
                   <td>
-                    {r.titForTat && <Box component="span" sx={{ color: "info.main" }}>Reply</Box>}
-                  </td>
-                  <td>
                     {r.from}
                   </td>
+                  <td>{r.humanNumber}</td>
                   <td
                     title={r.message.body}
                     style={{
@@ -136,6 +135,7 @@ function InteractionsLog() {
                     {r.message.body}
                   </td>
                   <td>{r.waitTime != null ? formatDurationHumanReadable(r.waitTime) : "—"}</td>
+                  <td>{r.validTime != null ? formatDurationHumanReadable(r.validTime) : "—"}</td>
                 </tr>
               ))
             ) : (
