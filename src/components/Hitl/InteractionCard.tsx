@@ -146,11 +146,6 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
             <Chip color="primary" variant="soft" size="sm">
               {mediumToUiChannelMap[interaction.medium]}
             </Chip>
-            {interaction.async && (
-              <Chip variant="outlined" size="sm" color="success">
-                Async
-              </Chip>
-            )}
             {interaction.titForTat && (
               <Chip variant="outlined" size="sm" color="warning">
                 Tit-for-Tat

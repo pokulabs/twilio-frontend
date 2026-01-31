@@ -119,7 +119,6 @@ function InteractionsLog() {
                   <td>{displayDateTime(new Date(r.createdAt))}</td>
                   <td>{mediumToUiChannelMap[r.medium]}</td>
                   <td>
-                    {r.async && <Box component="span" sx={{ mr: 1, color: "info.main" }}>Async</Box>}
                     {r.titForTat && <Box component="span" sx={{ color: "info.main" }}>Reply</Box>}
                   </td>
                   <td>
