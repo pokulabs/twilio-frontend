@@ -83,6 +83,10 @@ class ApiClient {
         return this.api.get<{ key: string } | undefined>("/account/keys/vapi");
     }
 
+    async checkRetellKeyExists() {
+        return this.api.get<{ key: string } | undefined>("/account/keys/retell");
+    }
+
     async createLlmKey(key: string) {
         return this.api.post("/account/keys", {
             platform: "openai",
@@ -93,6 +97,13 @@ class ApiClient {
     async createVapiKey(key: string) {
         return this.api.post("/account/keys", {
             platform: "vapi",
+            key: key,
+        });
+    }
+
+    async createRetellKey(key: string) {
+        return this.api.post("/account/keys", {
+            platform: "retell",
             key: key,
         });
     }
