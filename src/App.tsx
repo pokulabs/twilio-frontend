@@ -49,7 +49,7 @@ function MessagesOnlyLayout() {
   useEffect(() => {
     authClient.signIn.magicLink({
       email: email ?? "",
-      callbackURL: import.meta.env.VITE_UI_URL + "/messages-only/" + token,
+      callbackURL: import.meta.env.VITE_UI_URL + "/embed/" + token,
     });
   }, []);
   return (
@@ -67,7 +67,7 @@ export default function App() {
           <CssBaseline />
           <Router>
             <Routes>
-              <Route path="/messages-only/:email/:token" element={<MessagesOnlyLayout />} />
+              <Route path="/embed/:email/:token" element={<MessagesOnlyLayout />} />
               <Route path="*" element={<MainLayout />} />
             </Routes>
           </Router>

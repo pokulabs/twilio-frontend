@@ -285,6 +285,105 @@
           }
         }
       }
+    },
+    "/hitl/capture-email": {
+      "post": {
+        "summary": "Capture email (no channel)",
+        "description": "Same as POST /hitl/capture-email/{interactionChannelId} but without a path parameter. An auto-generated SMS channel may be created when none is specified in the request body.",
+        "operationId": "captureEmailNoChannel",
+        "tags": ["HITL"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully captured or looked up email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CaptureEmailResponse"
+                    },
+                    {
+                      "type": "string",
+                      "description": "No-response template string when no message is received"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Interaction channel not found"
+          }
+        }
+      }
+    },
+    "/hitl/capture-email/{interactionChannelId}": {
+      "post": {
+        "summary": "Capture email",
+        "description": "Sends an SMS (or uses an existing SMS channel) to capture the customer's email. Accepts Vapi/Retell tool-call request bodies or a direct JSON body. When async is true (VAPI only), the response is injected into the agent asynchronously and the HTTP response body is empty.",
+        "operationId": "captureEmail",
+        "tags": ["HITL"],
+        "parameters": [
+          {
+            "name": "interactionChannelId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the interaction channel to use",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully captured or looked up email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/CaptureEmailResponse"
+                    },
+                    {
+                      "type": "string",
+                      "description": "No-response template string when no message is received"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Interaction channel not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -445,6 +544,74 @@
             "minLength": 1,
             "maxLength": 100,
             "description": "Override the interaction channel ID"
+          }
+        }
+      },
+      "CaptureEmailRequest": {
+        "type": "object",
+        "description": "Request body for capture-email. Also accepts Vapi tool-call format (message.toolCallList[].function.arguments) or Retell format (args + call.call_id).",
+        "required": ["human_number"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000,
+            "default": "Could you please reply with your email address here?",
+            "description": "The message to send to the customer"
+          },
+          "skip_if_email_exists": {
+            "type": "boolean",
+            "description": "If true, check if an email already exists for this human_number and return it directly if found; if false or omitted, always perform the texting and capture flow."
+          },
+          "human_number": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "description": "The phone number of the customer in E164 format (must start with +)"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Do not use unless explicitly told to"
+          },
+          "interaction_channel_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Do not use unless explicitly told to. Override the interaction channel ID"
+          },
+          "async": {
+            "type": "boolean",
+            "default": false,
+            "description": "If true, response will be asynchronously injected into the agent (VAPI only)"
+          }
+        }
+      },
+      "CaptureEmailResponse": {
+        "type": "object",
+        "description": "Returned when a message was received and parsed",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true,
+            "description": "Extracted email address if valid, else null"
+          },
+          "is_valid_email": {
+            "type": "boolean",
+            "description": "Whether the content contained a valid email"
+          },
+          "is_disposable_email": {
+            "type": "boolean",
+            "description": "Whether the email is from a disposable provider"
+          },
+          "content": {
+            "type": "string",
+            "description": "Raw message content"
+          },
+          "existing_email": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "True when skip_if_email_exists was used and an existing email was found"
           }
         }
       }
