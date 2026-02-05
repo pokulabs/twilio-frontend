@@ -332,8 +332,8 @@ class ApiClient {
         });
     }
 
-    async getCampaigns() {
-        return this.api.get("/campaigns");
+    async getCampaigns(params: { page?: number; pageSize?: number } = {}) {
+        return this.api.get("/campaigns", { params });
     }
 
     async getEnrichedData(contactNumbers: string[]) {
@@ -448,10 +448,6 @@ class ApiClient {
     }
 
     async getInteractions(params: { page?: number; pageSize?: number } = {}) {
-        const search = new URLSearchParams();
-        if (params.page) search.set("page", String(params.page));
-        if (params.pageSize) search.set("pageSize", String(params.pageSize));
-        const qs = search.toString();
         return this.api.get<
             | {
                   data: {
@@ -475,7 +471,7 @@ class ApiClient {
                   };
               }
             | undefined
-        >(`/interactions${qs ? `?${qs}` : ""}`);
+        >("/interactions", { params });
     }
 
     async getInteractionStats() {

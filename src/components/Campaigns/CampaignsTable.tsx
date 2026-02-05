@@ -1,4 +1,12 @@
-import { Typography, Stack, Table, IconButton } from "@mui/joy";
+import {
+  Typography,
+  Stack,
+  Table,
+  IconButton,
+  Sheet,
+  Box,
+  CircularProgress,
+} from "@mui/joy";
 import { displayDate, displayDateTime } from "../../utils";
 import {
   Chart as ChartJS,
@@ -25,8 +33,16 @@ ChartJS.register(
   Legend,
 );
 
-export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
-  // Aggregate data by day
+const COL_COUNT = 8;
+
+export default function CampaignsTable({
+  campaigns,
+  loading = false,
+}: {
+  campaigns: any[];
+  loading?: boolean;
+}) {
+  // Aggregate data by day (current page)
   const dailyData: Record<string, { failed: number; delivered: number }> = {};
   campaigns.forEach((c) => {
     const date = displayDate(new Date(c.createdTime));
@@ -76,9 +92,11 @@ export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
     <Stack spacing={2}>
       <Typography level="h4">Campaigns</Typography>
 
-      <Line data={chartData} options={chartOptions} />
-
       {campaigns.length > 0 && (
+        <Line data={chartData} options={chartOptions} />
+      )}
+
+      <Sheet variant="outlined" sx={{ borderRadius: 8 }}>
         <Table>
           <thead>
             <tr>
@@ -93,51 +111,71 @@ export default function CampaignsTable({ campaigns }: { campaigns: any[] }) {
             </tr>
           </thead>
           <tbody>
-            {campaigns.map((r) => (
-              <tr key={r.id}>
-                <td>{displayDateTime(new Date(r.createdTime))}</td>
-                <td>{r.name}</td>
-                <td>{r.status}</td>
-                <td>
-                  {r.queuedMessages}/{r.messageCount}
-                </td>
-                <td>
-                  {r.pendingMessages}/{r.messageCount}
-                </td>
-                <td>
-                  {r.failedMessages}/{r.messageCount}
-                </td>
-                <td>
-                  {r.deliveredMessages}/{r.messageCount}
-                </td>
-                <td>
-                  {(() => {
-                    const createdDate = new Date(r.createdTime);
-                    const numDays = 7;
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - numDays);
-
-                    if (createdDate >= sevenDaysAgo) {
-                      return (
-                        <IconButton
-                          variant="outlined"
-                          size="sm"
-                          onClick={() => {
-                            apiClient.downloadCampaignMessagesCsv(r.id);
-                          }}
-                        >
-                          <DownloadRounded />
-                        </IconButton>
-                      );
-                    }
-                    return `>${numDays} days old`;
-                  })()}
+            {loading ? (
+              <tr>
+                <td colSpan={COL_COUNT}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", py: 4 }}
+                  >
+                    <CircularProgress />
+                  </Box>
                 </td>
               </tr>
-            ))}
+            ) : campaigns.length > 0 ? (
+              campaigns.map((r) => (
+                <tr key={r.id}>
+                  <td>{displayDateTime(new Date(r.createdTime))}</td>
+                  <td>{r.name}</td>
+                  <td>{r.status}</td>
+                  <td>
+                    {r.queuedMessages}/{r.messageCount}
+                  </td>
+                  <td>
+                    {r.pendingMessages}/{r.messageCount}
+                  </td>
+                  <td>
+                    {r.failedMessages}/{r.messageCount}
+                  </td>
+                  <td>
+                    {r.deliveredMessages}/{r.messageCount}
+                  </td>
+                  <td>
+                    {(() => {
+                      const createdDate = new Date(r.createdTime);
+                      const numDays = 7;
+                      const sevenDaysAgo = new Date();
+                      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - numDays);
+
+                      if (createdDate >= sevenDaysAgo) {
+                        return (
+                          <IconButton
+                            variant="outlined"
+                            size="sm"
+                            onClick={() => {
+                              apiClient.downloadCampaignMessagesCsv(r.id);
+                            }}
+                          >
+                            <DownloadRounded />
+                          </IconButton>
+                        );
+                      }
+                      return `>${numDays} days old`;
+                    })()}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={COL_COUNT}>
+                  <Box sx={{ p: 2 }}>
+                    No campaigns yet. Click "New Campaign" to get started.
+                  </Box>
+                </td>
+              </tr>
+            )}
           </tbody>
         </Table>
-      )}
+      </Sheet>
     </Stack>
   );
 }
