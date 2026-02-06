@@ -2,6 +2,9 @@ import { Box, Tab, tabClasses, TabList, TabPanel, Tabs } from "@mui/joy";
 import { TwilioIntegrationForm } from "./TwilioForm";
 import Vapi from "./Vapi";
 import Retell from "./Retell";
+import twilio from "../../assets/twilio.png";
+import retell from "../../assets/retell.png";
+import vapi from "../../assets/vapi.png";
 
 export default function Integrations() {
   return (
@@ -37,12 +40,27 @@ export default function Integrations() {
             }}
           >
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={0}>
+              <Box
+                component="img"
+                src={twilio}
+                sx={{ width: 18, height: 18 }}
+              />
               Twilio
             </Tab>
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={1}>
+              <Box
+                component="img"
+                src={vapi}
+                sx={{ width: 18, height: 18 }}
+              />
               Vapi
             </Tab>
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
+              <Box
+                component="img"
+                src={retell}
+                sx={{ width: 18, height: 18 }}
+              />
               Retell
             </Tab>
           </TabList>

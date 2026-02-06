@@ -121,7 +121,11 @@ export default function Sidebar() {
         }}
         onClick={() => closeSidebar()}
       />
-      <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+      <Box
+        sx={{ display: "flex", gap: 1, alignItems: "center", cursor: "pointer", textDecoration: "none" }}
+        component={Link}
+        to="/"
+      >
         <Avatar src={logo} size="sm" />
         <Typography level="title-lg">Poku</Typography>
         <ColorSchemeToggle sx={{ ml: "auto" }} />

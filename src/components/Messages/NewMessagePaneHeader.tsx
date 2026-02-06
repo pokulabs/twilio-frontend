@@ -2,6 +2,7 @@ import { IconButton, Stack, Typography, Input, Divider } from "@mui/joy";
 import { ArrowBackIosNewRounded } from "@mui/icons-material";
 
 import { toggleMessagesPane } from "../../utils";
+import { HumanNumberInput } from "../Hitl/Mediums/HumanNumberInput";
 
 type MessagesPaneHeaderProps = {
   activeNumber: string;
@@ -39,16 +40,10 @@ export default function NewMessagePaneHeader(props: MessagesPaneHeaderProps) {
         <Typography level="body-md" sx={{ p: 1 }}>
           <b>From:</b> {activeNumber}
         </Typography>
-        <Input
-          placeholder="Ex: +12223334444"
-          onChange={(e) => setContactNumber(e.target.value)}
-          startDecorator={
-            <>
-              <Typography sx={{ pr: 1.5 }}>To:</Typography>
-              <Divider orientation="vertical" />
-            </>
-          }
-        />
+        <Typography level="body-md">
+          <b>To:</b>
+        </Typography>
+        <HumanNumberInput onChange={setContactNumber} />
       </Stack>
     </Stack>
   );
