@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 import useWebSocket, { ReadyState, SendMessage } from "react-use-websocket";
 import { useAuth } from "../hooks/use-auth";
 
@@ -47,6 +47,15 @@ export const WebsocketProvider = ({
       },
       isAuthenticated,
     );
+
+  useEffect(() => {
+    if (readyState === ReadyState.OPEN) {
+      sendJsonMessage({
+        type: "subscribe",
+        events: ["chat-update"],
+      });
+    }
+  }, [readyState]);
 
   return (
     <WebSocketContext.Provider
