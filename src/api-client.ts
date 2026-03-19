@@ -2,7 +2,11 @@ import axios, { type AxiosInstance } from "axios";
 import type { MessageDirection } from "./types/types";
 import { Recipient } from "./components/Campaigns/CsvUploader";
 import { checkIsAuthenticated } from "./services/auth";
-import type { InteractionMessage, Medium } from "./types/backend-frontend";
+import type {
+    InteractionFormValue,
+    InteractionMessage,
+    Medium,
+} from "./types/backend-frontend";
 
 declare module "axios" {
     interface AxiosRequestConfig {
@@ -422,11 +426,26 @@ class ApiClient {
 
     async submitPublicFormReply(
         token: string,
-        values: Record<string, string | boolean>,
+        values: Record<string, InteractionFormValue>,
     ) {
         return this.api.post(
             `/webhooks/reply/${token}`,
             { kind: "form", values },
+            { skipAuth: true },
+        );
+    }
+
+    async autocompleteAddress(input: string, sessionToken: string) {
+        return this.api.post<{
+            suggestions: {
+                placeId: string;
+                text: string;
+                mainText?: string;
+                secondaryText?: string;
+            }[];
+        }>(
+            "/public/places/autocomplete",
+            { input, sessionToken },
             { skipAuth: true },
         );
     }

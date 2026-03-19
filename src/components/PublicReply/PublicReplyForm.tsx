@@ -19,11 +19,14 @@ import {
 
 import { formatDurationHumanReadable } from "../../utils";
 import type {
+  InteractionAddressValue,
   InteractionFormField,
   InteractionFormRequest,
+  InteractionFormValue,
 } from "../../types/backend-frontend";
+import AddressAutocompleteField from "./AddressAutocompleteField";
 
-type FormValues = Record<string, string | boolean>;
+type FormValues = Record<string, InteractionFormValue>;
 
 interface PublicReplyFormProps {
   body?: string;
@@ -35,7 +38,27 @@ interface PublicReplyFormProps {
   onSubmit: (values: FormValues) => Promise<void>;
 }
 
-function validateField(field: InteractionFormField, value: string | boolean) {
+function isAddressValue(value: InteractionFormValue): value is InteractionAddressValue {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "text" in value &&
+    "place_id" in value &&
+    typeof value.text === "string" &&
+    typeof value.place_id === "string"
+  );
+}
+
+function validateField(field: InteractionFormField, value: InteractionFormValue) {
+  if (field.type === "address") {
+    if (!isAddressValue(value) || !value.text.trim() || !value.place_id.trim()) {
+      return field.required
+        ? `${field.label} must be selected from the address suggestions.`
+        : null;
+    }
+    return null;
+  }
+
   if (field.type === "checkbox") {
     if (field.required && value !== true) {
       return `${field.label} is required.`;
@@ -91,7 +114,14 @@ export default function PublicReplyForm({
 }: PublicReplyFormProps) {
   const [values, setValues] = useState<FormValues>(() =>
     Object.fromEntries(
-      form.fields.map((field) => [field.id, field.type === "checkbox" ? false : ""]),
+      form.fields.map((field) => [
+        field.id,
+        field.type === "checkbox"
+          ? false
+          : field.type === "address"
+            ? { text: "", place_id: "" }
+            : "",
+      ]),
     ),
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -163,82 +193,104 @@ export default function PublicReplyForm({
         ) : null}
 
         <Stack spacing={2}>
-          {form.fields.map((field) => (
-            <FormControl key={field.id} error={Boolean(errors[field.id])}>
-              <FormLabel>
-                {field.label}
-                {field.required ? " *" : ""}
-              </FormLabel>
+          {form.fields.map((field) => {
+            const addressValue: InteractionAddressValue = isAddressValue(values[field.id])
+              ? (values[field.id] as InteractionAddressValue)
+              : { text: "", place_id: "" };
 
-              {field.type === "textarea" ? (
-                <Textarea
-                  minRows={3}
-                  value={String(values[field.id] ?? "")}
-                  placeholder={field.placeholder}
+            return (
+            <Box key={field.id}>
+              {field.type === "address" ? (
+                <AddressAutocompleteField
+                  field={field}
+                  value={addressValue}
                   disabled={isExpired || isSubmitting}
-                  onChange={(event) =>
+                  error={errors[field.id]}
+                  onChange={(value) =>
                     setValues((current) => ({
                       ...current,
-                      [field.id]: event.target.value,
+                      [field.id]: value,
                     }))
                   }
                 />
-              ) : null}
+              ) : (
+                <FormControl error={Boolean(errors[field.id])}>
+                  <FormLabel>
+                    {field.label}
+                    {field.required ? " *" : ""}
+                  </FormLabel>
 
-              {field.type === "select" ? (
-                <Select
-                  value={typeof values[field.id] === "string" ? String(values[field.id]) : null}
-                  placeholder={field.placeholder ?? "Select an option"}
-                  disabled={isExpired || isSubmitting}
-                  onChange={(_event, value) =>
-                    setValues((current) => ({
-                      ...current,
-                      [field.id]: value ?? "",
-                    }))
-                  }
-                >
-                  {field.options?.map((option) => (
-                    <Option key={option.value} value={option.value}>
-                      {option.label}
-                    </Option>
-                  ))}
-                </Select>
-              ) : null}
+                  {field.type === "textarea" ? (
+                    <Textarea
+                      minRows={3}
+                      value={String(values[field.id] ?? "")}
+                      placeholder={field.placeholder}
+                      disabled={isExpired || isSubmitting}
+                      onChange={(event) =>
+                        setValues((current) => ({
+                          ...current,
+                          [field.id]: event.target.value,
+                        }))
+                      }
+                    />
+                  ) : null}
 
-              {field.type === "checkbox" ? (
-                <Checkbox
-                  checked={Boolean(values[field.id])}
-                  disabled={isExpired || isSubmitting}
-                  label={field.helper_text ?? "Yes"}
-                  onChange={(event) =>
-                    setValues((current) => ({
-                      ...current,
-                      [field.id]: event.target.checked,
-                    }))
-                  }
-                />
-              ) : null}
+                  {field.type === "select" ? (
+                    <Select
+                      value={typeof values[field.id] === "string" ? String(values[field.id]) : null}
+                      placeholder={field.placeholder ?? "Select an option"}
+                      disabled={isExpired || isSubmitting}
+                      onChange={(_event, value) =>
+                        setValues((current) => ({
+                          ...current,
+                          [field.id]: value ?? "",
+                        }))
+                      }
+                    >
+                      {field.options?.map((option) => (
+                        <Option key={option.value} value={option.value}>
+                          {option.label}
+                        </Option>
+                      ))}
+                    </Select>
+                  ) : null}
 
-              {!["textarea", "select", "checkbox"].includes(field.type) ? (
-                <Input
-                  type={field.type}
-                  value={String(values[field.id] ?? "")}
-                  placeholder={field.placeholder}
-                  disabled={isExpired || isSubmitting}
-                  onChange={(event) =>
-                    setValues((current) => ({
-                      ...current,
-                      [field.id]: event.target.value,
-                    }))
-                  }
-                />
-              ) : null}
+                  {field.type === "checkbox" ? (
+                    <Checkbox
+                      checked={Boolean(values[field.id])}
+                      disabled={isExpired || isSubmitting}
+                      label={field.helper_text ?? "Yes"}
+                      onChange={(event) =>
+                        setValues((current) => ({
+                          ...current,
+                          [field.id]: event.target.checked,
+                        }))
+                      }
+                    />
+                  ) : null}
 
-              <FormHelperText>
-                {errors[field.id] ?? field.helper_text ?? " "}
-              </FormHelperText>
-            </FormControl>
-          ))}
+                  {!["textarea", "select", "checkbox", "address"].includes(field.type) ? (
+                    <Input
+                      type={field.type}
+                      value={String(values[field.id] ?? "")}
+                      placeholder={field.placeholder}
+                      disabled={isExpired || isSubmitting}
+                      onChange={(event) =>
+                        setValues((current) => ({
+                          ...current,
+                          [field.id]: event.target.value,
+                        }))
+                      }
+                    />
+                  ) : null}
+
+                  <FormHelperText>
+                    {errors[field.id] ?? field.helper_text ?? " "}
+                  </FormHelperText>
+                </FormControl>
+              )}
+            </Box>
+          )})}
         </Stack>
 
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>

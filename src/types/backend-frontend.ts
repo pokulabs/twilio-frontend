@@ -14,7 +14,8 @@ export type InteractionFormFieldType =
     | "email"
     | "tel"
     | "select"
-    | "checkbox";
+    | "checkbox"
+    | "address";
 
 export type InteractionFormFieldOption = {
     label: string;
@@ -41,8 +42,18 @@ export type InteractionFormRequest = {
     fields: InteractionFormField[];
 };
 
+export type InteractionAddressValue = {
+    text: string;
+    place_id: string;
+};
+
+export type InteractionFormValue =
+    | string
+    | boolean
+    | InteractionAddressValue;
+
 export type InteractionFormResponse = {
-    values: Record<string, string | boolean>;
+    values: Record<string, InteractionFormValue>;
 };
 
 export type InteractionMessage = {

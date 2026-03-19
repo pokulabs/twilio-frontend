@@ -1,8 +1,10 @@
+import type { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, CircularProgress, Sheet, Typography } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
+import type { InteractionFormValue } from "../../types/backend-frontend";
 import { ActiveInteractions } from "../Hitl/ActiveInteractions";
 import { InteractionCard, type InteractionCardData } from "../Hitl/InteractionCard";
 import PublicReplyForm from "./PublicReplyForm";
@@ -12,6 +14,13 @@ type PublicReplyInfo = InteractionCardData & {
   expired: boolean;
   alreadyResponded: boolean;
 };
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return (
+    (error as AxiosError<{ message?: string }>).response?.data?.message ??
+    (error instanceof Error ? error.message : fallback)
+  );
+}
 
 export default function PublicReply() {
   const { token } = useParams<{ token: string }>();
@@ -45,8 +54,8 @@ export default function PublicReply() {
           return;
         }
         setInfo(data);
-      } catch (e: any) {
-        setError(e?.response?.data?.error || "Invalid or expired link");
+      } catch (error: unknown) {
+        setError(getErrorMessage(error, "Invalid or expired link"));
       } finally {
         setLoading(false);
       }
@@ -60,24 +69,24 @@ export default function PublicReply() {
     try {
       await apiClient.submitPublicReply(token, response);
       setStatus("success");
-    } catch (e: any) {
+    } catch (error: unknown) {
       setStatus("error");
-      setError(e?.response?.data?.error || "Failed to submit response");
-      throw e; // Re-throw so InteractionCard knows it failed
+      setError(getErrorMessage(error, "Failed to submit response"));
+      throw error; // Re-throw so InteractionCard knows it failed
     }
   };
 
-  const handleFormSubmit = async (values: Record<string, string | boolean>) => {
+  const handleFormSubmit = async (values: Record<string, InteractionFormValue>) => {
     if (!token) return;
     setStatus("submitting");
     setError(null);
     try {
       await apiClient.submitPublicFormReply(token, values);
       setStatus("success");
-    } catch (e: any) {
+    } catch (error: unknown) {
       setStatus("error");
-      setError(e?.response?.data?.error || "Failed to submit form");
-      throw e;
+      setError(getErrorMessage(error, "Failed to submit form"));
+      throw error;
     }
   };
 
