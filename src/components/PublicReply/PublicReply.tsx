@@ -5,6 +5,7 @@ import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
 import { ActiveInteractions } from "../Hitl/ActiveInteractions";
 import { InteractionCard, type InteractionCardData } from "../Hitl/InteractionCard";
+import PublicReplyForm from "./PublicReplyForm";
 
 type PublicReplyInfo = InteractionCardData & {
   secondsRemaining: number;
@@ -66,6 +67,20 @@ export default function PublicReply() {
     }
   };
 
+  const handleFormSubmit = async (values: Record<string, string | boolean>) => {
+    if (!token) return;
+    setStatus("submitting");
+    setError(null);
+    try {
+      await apiClient.submitPublicFormReply(token, values);
+      setStatus("success");
+    } catch (e: any) {
+      setStatus("error");
+      setError(e?.response?.data?.error || "Failed to submit form");
+      throw e;
+    }
+  };
+
   if (status === "success") {
     return (
       <Sheet
@@ -108,7 +123,7 @@ export default function PublicReply() {
   }
 
   // If logged in, show the full Active Interactions dashboard with this interaction focused
-  if (isAuthenticated && info?.id) {
+  if (isAuthenticated && info?.id && !info.message.form_request) {
     return (
       <Box sx={{ flex: 1, width: "100%", p: { xs: 2, md: 4 }, pt: { xs: 10, md: 12 } }}>
         <ActiveInteractions focusedInteractionId={info.id} />
@@ -132,7 +147,7 @@ export default function PublicReply() {
         Reply to Request
       </Typography>
 
-      {error ? (
+      {!info && error ? (
         <Sheet
           variant="outlined"
           sx={{ borderRadius: 8, p: 4, textAlign: "center" }}
@@ -152,12 +167,24 @@ export default function PublicReply() {
             </Typography>
           </Sheet>
         ) : (
-          <InteractionCard
-            interaction={info}
-            now={now}
-            onSubmit={handleSubmit}
-            isSubmitting={status === "submitting"}
-          />
+          info.message.form_request ? (
+            <PublicReplyForm
+              body={info.message.body}
+              form={info.message.form_request}
+              expiresAt={info.expiresAt}
+              now={now}
+              isSubmitting={status === "submitting"}
+              serverError={error}
+              onSubmit={handleFormSubmit}
+            />
+          ) : (
+            <InteractionCard
+              interaction={info}
+              now={now}
+              onSubmit={handleSubmit}
+              isSubmitting={status === "submitting"}
+            />
+          )
         )
       ) : null}
     </Box>

@@ -67,21 +67,12 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
     const [localSubmitting, setLocalSubmitting] = useState(false);
     const submitting = isSubmitting || localSubmitting;
 
-    const createdAtMs = new Date(interaction.createdAt).getTime();
     const expiresAtMs = new Date(interaction.expiresAt).getTime();
-    const totalSeconds = Math.max(
-      1,
-      Math.floor((expiresAtMs - createdAtMs) / 1000),
-    );
     const remainingSeconds = Math.max(
       0,
       Math.floor((expiresAtMs - now) / 1000),
     );
-    const elapsedSeconds = Math.min(totalSeconds, totalSeconds - remainingSeconds);
-    const progress = Math.round((elapsedSeconds / totalSeconds) * 100);
-
     const createdAt = new Date(interaction.createdAt);
-    const expiresAt = new Date(interaction.expiresAt);
     const statusColor =
       remainingSeconds > 60
         ? "success"
@@ -181,7 +172,7 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
                   wordBreak: "break-word",
                 }}
               >
-                {interaction.message.body}
+                {interaction.message.body ?? "(No message body)"}
               </Typography>
             </Stack>
 

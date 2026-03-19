@@ -415,7 +415,18 @@ class ApiClient {
     async submitPublicReply(token: string, message: string) {
         return this.api.post(
             `/webhooks/reply/${token}`,
-            { message },
+            { kind: "text", message },
+            { skipAuth: true },
+        );
+    }
+
+    async submitPublicFormReply(
+        token: string,
+        values: Record<string, string | boolean>,
+    ) {
+        return this.api.post(
+            `/webhooks/reply/${token}`,
+            { kind: "form", values },
             { skipAuth: true },
         );
     }

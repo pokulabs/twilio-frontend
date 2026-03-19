@@ -124,7 +124,7 @@ function InteractionsLog() {
                   </td>
                   <td>{r.humanNumber}</td>
                   <td
-                    title={r.message.body}
+                    title={r.message.body ?? ""}
                     style={{
                       maxWidth: 400,
                       overflow: "hidden",
@@ -132,7 +132,7 @@ function InteractionsLog() {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {r.message.body}
+                    {r.message.body ?? "(No message body)"}
                   </td>
                   <td>{r.waitTime != null ? formatDurationHumanReadable(r.waitTime) : "—"}</td>
                   <td>{r.validTime != null ? formatDurationHumanReadable(r.validTime) : "—"}</td>
