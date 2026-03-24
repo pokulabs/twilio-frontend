@@ -414,7 +414,12 @@ class ApiClient {
                   alreadyResponded: boolean;
               }
             | undefined
-        >(`/public/reply/${token}`, { skipAuth: true });
+        >("/interactions/reply-details", {
+            skipAuth: true,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
     }
 
     async submitPublicReply(token: string, message: string) {
