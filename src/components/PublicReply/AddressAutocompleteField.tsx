@@ -25,6 +25,7 @@ type AddressSuggestion = {
 
 interface AddressAutocompleteFieldProps {
   field: InteractionFormField;
+  replyToken: string;
   value: InteractionAddressValue;
   disabled: boolean;
   error?: string;
@@ -40,6 +41,7 @@ function createSessionToken() {
 
 export default function AddressAutocompleteField({
   field,
+  replyToken,
   value,
   disabled,
   error,
@@ -68,6 +70,7 @@ export default function AddressAutocompleteField({
       setLoading(true);
       try {
         const response = await apiClient.autocompleteAddress(
+          replyToken,
           trimmed,
           sessionTokenRef.current,
         );
@@ -89,7 +92,7 @@ export default function AddressAutocompleteField({
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [inputValue]);
+  }, [inputValue, replyToken]);
 
   const selectedOption = useMemo(
     () =>

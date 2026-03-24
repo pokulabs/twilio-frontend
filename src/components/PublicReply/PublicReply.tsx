@@ -180,6 +180,7 @@ export default function PublicReply() {
             <PublicReplyForm
               body={info.message.body}
               form={info.message.form_request}
+              replyToken={token}
               expiresAt={info.expiresAt}
               now={now}
               isSubmitting={status === "submitting"}

@@ -31,6 +31,7 @@ type FormValues = Record<string, InteractionFormValue>;
 interface PublicReplyFormProps {
   body?: string;
   form: InteractionFormRequest;
+  replyToken: string;
   expiresAt: string;
   now: number;
   isSubmitting: boolean;
@@ -106,6 +107,7 @@ function validateField(field: InteractionFormField, value: InteractionFormValue)
 export default function PublicReplyForm({
   body,
   form,
+  replyToken,
   expiresAt,
   now,
   isSubmitting,
@@ -203,6 +205,7 @@ export default function PublicReplyForm({
               {field.type === "address" ? (
                 <AddressAutocompleteField
                   field={field}
+                  replyToken={replyToken}
                   value={addressValue}
                   disabled={isExpired || isSubmitting}
                   error={errors[field.id]}

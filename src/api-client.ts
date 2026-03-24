@@ -441,7 +441,11 @@ class ApiClient {
         );
     }
 
-    async autocompleteAddress(input: string, sessionToken: string) {
+    async autocompleteAddress(
+        replyToken: string,
+        input: string,
+        sessionToken: string,
+    ) {
         return this.api.post<{
             suggestions: {
                 placeId: string;
@@ -450,9 +454,14 @@ class ApiClient {
                 secondaryText?: string;
             }[];
         }>(
-            "/public/places/autocomplete",
+            "/interactions/reply/places/autocomplete",
             { input, sessionToken },
-            { skipAuth: true },
+            {
+                skipAuth: true,
+                headers: {
+                    Authorization: `Bearer ${replyToken}`,
+                },
+            },
         );
     }
 
