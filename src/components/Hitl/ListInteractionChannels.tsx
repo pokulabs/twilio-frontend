@@ -15,6 +15,7 @@ import {
   Modal,
   ModalDialog,
   ModalClose,
+  Textarea,
 } from "@mui/joy";
 import {
   ContentCopy,
@@ -43,6 +44,10 @@ function formatDuration(totalSeconds: number): string {
   return formatDurationHumanReadable(totalSeconds);
 }
 
+type InteractionChannel = NonNullable<
+  Awaited<ReturnType<typeof apiClient.getInteractionChannels>>["data"]
+>["data"][number];
+
 function getMediumLabel(medium: Medium): string {
   switch (medium) {
     case "slack":
@@ -67,24 +72,38 @@ const EditChannelModal = ({
   open,
   onClose,
   initialWaitTime,
+  initialMessageTemplate,
+  showMessageTemplate,
   onSave,
 }: {
   open: boolean;
   onClose: () => void;
   initialWaitTime: number;
-  onSave: (newWaitTime: number) => Promise<void>;
+  initialMessageTemplate?: string;
+  showMessageTemplate: boolean;
+  onSave: (updates: {
+    waitTime: number;
+    messageTemplate?: string;
+  }) => Promise<void>;
 }) => {
   const [editWaitTime, setEditWaitTime] = useState(initialWaitTime);
+  const [editMessageTemplate, setEditMessageTemplate] = useState(
+    initialMessageTemplate ?? "",
+  );
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setEditWaitTime(initialWaitTime);
-  }, [initialWaitTime, open]);
+    setEditMessageTemplate(initialMessageTemplate ?? "");
+  }, [initialWaitTime, initialMessageTemplate, open]);
 
   const handleUpdate = async () => {
     setSaving(true);
     try {
-      await onSave(editWaitTime);
+      await onSave({
+        waitTime: editWaitTime,
+        messageTemplate: showMessageTemplate ? editMessageTemplate : undefined,
+      });
       onClose();
     } catch (err) {
       console.error("Failed to update channel", err);
@@ -104,6 +123,23 @@ const EditChannelModal = ({
             value={editWaitTime}
             onChange={(val) => setEditWaitTime(val)}
           />
+          {showMessageTemplate && (
+            <Box>
+              <Typography level="body-sm" sx={{ mb: 0.5 }}>
+                Outgoing message template
+              </Typography>
+              <Textarea
+                minRows={4}
+                maxRows={8}
+                placeholder={`Request from AI agent. Expires in {{waitTime}} seconds:\n\n{{message}}`}
+                value={editMessageTemplate}
+                onChange={(event) => setEditMessageTemplate(event.target.value)}
+              />
+              <Typography level="body-xs" color="neutral" sx={{ mt: 0.5 }}>
+                {"Supports `{{waitTime}}` and `{{message}}`. Leave empty to forego the template."}
+              </Typography>
+            </Box>
+          )}
           <Button loading={saving} onClick={handleUpdate} sx={{ mt: 2 }}>
             Save Changes
           </Button>
@@ -117,11 +153,13 @@ const InteractionChannelCard = ({
   channel: e,
   onReload,
 }: {
-  channel: any;
+  channel: InteractionChannel;
   onReload: () => void;
 }) => {
   const [urlType, setUrlType] = useState<"mcp" | "api" | "channel_id">("mcp");
   const [showEdit, setShowEdit] = useState(false);
+  const showMessageTemplate =
+    e.medium !== "whatsapp" && e.medium !== "whatsapp_poku";
 
   const mediumIconMap: Record<Medium, string> = {
     slack: slack,
@@ -333,9 +371,12 @@ const InteractionChannelCard = ({
         open={showEdit}
         onClose={() => setShowEdit(false)}
         initialWaitTime={e.waitTime}
-        onSave={async (newWaitTime) => {
+        initialMessageTemplate={e.messageTemplate}
+        showMessageTemplate={showMessageTemplate}
+        onSave={async ({ waitTime, messageTemplate }) => {
           await apiClient.updateInteractionChannel(e.id, {
-            waitTime: newWaitTime,
+            waitTime,
+            messageTemplate,
           });
           onReload();
         }}
@@ -345,11 +386,7 @@ const InteractionChannelCard = ({
 };
 
 export const ListInteractionChannels = forwardRef((_props, ref) => {
-  const [ics, setIcs] = useState<
-    NonNullable<
-      Awaited<ReturnType<typeof apiClient.getInteractionChannels>>["data"]
-    >["data"]
-  >([]);
+  const [ics, setIcs] = useState<InteractionChannel[]>([]);
 
   const getIcs = async () => {
     const interactionChannels = await apiClient.getInteractionChannels();

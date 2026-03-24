@@ -197,6 +197,7 @@ class ApiClient {
         interactionChannelId: string,
         updates: {
             waitTime?: number;
+            messageTemplate?: string;
         },
     ) {
         return this.api.post(
