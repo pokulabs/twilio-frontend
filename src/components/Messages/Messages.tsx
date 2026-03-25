@@ -10,9 +10,12 @@ import { useWebsocketEvents } from "../../hooks/use-websocket-events";
 import type { ChatInfo } from "../../types/types";
 import { Filters } from "../../services/chats.service";
 import { useAuthedTwilio } from "../../context/TwilioProvider";
+import { useAuth } from "../../hooks/use-auth";
+import { useSortedChats } from "../../hooks/use-sorted-chats";
 
 function MessagesLayout() {
   const { phoneNumbers, twilioClient, eventEmitter } = useAuthedTwilio();
+  const { userEmail } = useAuth();
 
   // Start/stop message polling when this component mounts/unmounts
   useEffect(() => {
@@ -25,7 +28,7 @@ function MessagesLayout() {
   const [filters, setFilters] = useState<Filters>({
     activeNumber: phoneNumbers[0],
   });
-  const [chats, setChats] = useState<ChatInfo[]>([]);
+  const [chats, setChats] = useSortedChats([], userEmail);
 
   const selectedChat = chats.find((c) => c.chatId === selectedChatId) ?? null;
 
