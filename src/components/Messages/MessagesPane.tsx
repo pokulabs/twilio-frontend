@@ -18,6 +18,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
   const { twilioClient, eventEmitter } = useAuthedTwilio();
   const { messages } = useChatMessages(chat);
   const { userEmail } = useAuth();
+  const displayedMessages = [...messages].reverse();
 
   return (
     <Sheet
@@ -37,15 +38,15 @@ export default function MessagesPane(props: MessagesPaneProps) {
           px: 2,
           py: 3,
           overflowY: "scroll",
-          flexDirection: "column-reverse",
+          flexDirection: "column",
         }}
       >
         <Stack spacing={2} sx={{ justifyContent: "flex-end" }}>
-          {messages.map((message, index) => {
+          {displayedMessages.map((message) => {
             const isYou = message.direction === "outbound";
             return (
               <Stack
-                key={index}
+                key={message.id}
                 direction="row"
                 spacing={2}
                 sx={{ flexDirection: isYou ? "row-reverse" : "row" }}
