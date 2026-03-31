@@ -12,10 +12,10 @@ import { RefreshRounded } from "@mui/icons-material";
 import type { AxiosError } from "axios";
 
 import withLoggedIn from "../../context/withLoggedIn";
-import { apiClient } from "../../api-client";
-import { InteractionCard, type InteractionCardData } from "./InteractionCard";
+import { apiClient, type InteractionHistoryItem } from "../../api-client";
+import { InteractionCard } from "./InteractionCard";
 
-type ActiveInteraction = InteractionCardData & { waitTime: number };
+type ActiveInteraction = InteractionHistoryItem;
 
 interface ActiveInteractionsProps {
   focusedInteractionId?: string;

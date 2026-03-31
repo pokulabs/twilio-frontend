@@ -18,6 +18,38 @@ declare module "axios" {
     }
 }
 
+export type InteractionHistoryMessage = {
+    id: string;
+    createdAt: string;
+    from: "human" | "agent";
+    message: InteractionMessage;
+    medium: Medium;
+    humanNumber: string | null;
+    agentNumber: string | null;
+};
+
+export type InteractionHistoryItem = {
+    id: string;
+    interactionId: string;
+    createdAt: string;
+    titForTat: boolean;
+    waitTime: number | null;
+    validTime: number | null;
+    metadata: Record<string, unknown> | null;
+    mediumProviderMetadata: Record<string, unknown> | null;
+    humanNumber: string | null;
+    agentNumber: string | null;
+    medium: Medium | null;
+    messages: InteractionHistoryMessage[];
+    expiresAt: string | null;
+    isActive: boolean;
+    call: {
+        callId: string;
+        transcript: string | null;
+        recordingUrl: string | null;
+    } | null;
+};
+
 class ApiClient {
     private api: AxiosInstance;
 
@@ -424,7 +456,7 @@ class ApiClient {
 
     async submitPublicReply(token: string, message: string) {
         return this.api.post(
-            `/webhooks/reply/${token}`,
+            `/listeners/reply/${token}`,
             { kind: "text", message },
             { skipAuth: true },
         );
@@ -435,7 +467,7 @@ class ApiClient {
         values: Record<string, InteractionFormValue>,
     ) {
         return this.api.post(
-            `/webhooks/reply/${token}`,
+            `/listeners/reply/${token}`,
             { kind: "form", values },
             { skipAuth: true },
         );
@@ -468,26 +500,14 @@ class ApiClient {
     async getActiveInteractions() {
         return this.api.get<
             | {
-                  data: {
-                      id: string;
-                      createdAt: string;
-                      async: boolean;
-                      titForTat: boolean;
-                      humanNumber: string;
-                      agentNumber: string | null;
-                      waitTime: number;
-                      medium: Medium;
-                      message: InteractionMessage;
-                      metadata: Record<string, unknown> | null;
-                      expiresAt: string;
-                  }[];
+                  data: InteractionHistoryItem[];
               }
             | undefined
         >("/interactions/active");
     }
 
     async respondToInteraction(interactionId: string, response: string) {
-        return this.api.post(`/webhooks/${interactionId}/respond`, {
+        return this.api.post(`/listeners/${interactionId}/respond`, {
             response,
         });
     }
@@ -495,19 +515,7 @@ class ApiClient {
     async getInteractions(params: { page?: number; pageSize?: number } = {}) {
         return this.api.get<
             | {
-                  data: {
-                      id: string;
-                      createdAt: string;
-                      async: boolean;
-                      titForTat: boolean;
-                      humanNumber: string;
-                      agentNumber: string;
-                      waitTime: number;
-                      validTime: number;
-                      medium: Medium;
-                      message: InteractionMessage;
-                      from: "human" | "agent";
-                  }[];
+                  data: InteractionHistoryItem[];
                   pagination: {
                       page: number;
                       pageSize: number;

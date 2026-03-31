@@ -12,18 +12,18 @@ import { SendRounded } from "@mui/icons-material";
 
 import { displayDateTime, formatDurationHumanReadable } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
-import type { InteractionMessage, Medium } from "../../types/backend-frontend";
+import type { InteractionHistoryItem } from "../../api-client";
+import type { Medium } from "../../types/backend-frontend";
 
 export interface InteractionCardData {
   id: string;
   createdAt: string;
   expiresAt: string;
-  async: boolean;
   titForTat: boolean;
   humanNumber: string;
   agentNumber: string | null;
   medium: Medium;
-  message: InteractionMessage;
+  messages: InteractionHistoryItem["messages"];
   metadata: Record<string, unknown> | null;
 }
 
@@ -85,6 +85,12 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
         : "Expired";
     const metadataEntries = Object.entries(interaction.metadata ?? {});
     const isExpired = remainingSeconds === 0;
+    const latestMessage = interaction.messages.at(-1);
+    const latestMessageText =
+      latestMessage?.message.body?.trim() || "(No message body)";
+    const mediumLabel = interaction.medium
+      ? mediumToUiChannelMap[interaction.medium] ?? interaction.medium
+      : "Unknown";
 
     const handleSubmit = async () => {
       if (!response.trim() || isExpired) return;
@@ -123,7 +129,7 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
           rowGap={1.5}
         >
           <Stack spacing={0.5}>
-            <Typography level="title-md">{interaction.humanNumber}</Typography>
+            <Typography level="title-md">{interaction.humanNumber ?? "Unknown contact"}</Typography>
             <Typography level="body-sm" color="neutral">
               Created {displayDateTime(createdAt)}
             </Typography>
@@ -135,7 +141,7 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
             justifyContent={{ xs: "flex-start", md: "flex-end" }}
           >
             <Chip color="primary" variant="soft" size="sm">
-              {mediumToUiChannelMap[interaction.medium]}
+              {mediumLabel}
             </Chip>
             {interaction.titForTat && (
               <Chip variant="outlined" size="sm" color="warning">
@@ -172,7 +178,7 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
                   wordBreak: "break-word",
                 }}
               >
-                {interaction.message.body ?? "(No message body)"}
+                {latestMessageText}
               </Typography>
             </Stack>
 
