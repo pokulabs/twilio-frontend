@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { Stack, Box, Divider } from "@mui/joy";
-import withLoggedIn from "../../context/withLoggedIn";
 import { ListInteractionChannels } from "./ListInteractionChannels";
 import { MediumSelector } from "./MediumSelector";
 import { SmsInput } from "./Mediums/SmsInput";
@@ -49,7 +48,7 @@ function HumanAsATool() {
 
   return (
     <Box sx={{ maxWidth: 948 }}>
-      <Stack spacing={3} sx={{ mt: 2 }}>
+      <Stack spacing={3}>
         <MediumSelector uiChannel={uiChannel} setUiChannel={setUiChannel} />
 
         {uiChannel === "sms" && <SmsInput onSaved={handleSaved} />}
@@ -66,4 +65,4 @@ function HumanAsATool() {
   );
 }
 
-export default withLoggedIn(HumanAsATool);
+export default HumanAsATool;

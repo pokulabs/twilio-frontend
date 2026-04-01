@@ -18,11 +18,11 @@ import type { Medium } from "../../types/backend-frontend";
 export interface InteractionCardData {
   id: string;
   createdAt: string;
-  expiresAt: string;
+  expiresAt: string | null;
   titForTat: boolean;
-  humanNumber: string;
+  humanNumber: string | null;
   agentNumber: string | null;
-  medium: Medium;
+  medium: Medium | null;
   messages: InteractionHistoryItem["messages"];
   metadata: Record<string, unknown> | null;
 }
@@ -67,24 +67,28 @@ export const InteractionCard = forwardRef<HTMLDivElement, InteractionCardProps>(
     const [localSubmitting, setLocalSubmitting] = useState(false);
     const submitting = isSubmitting || localSubmitting;
 
-    const expiresAtMs = new Date(interaction.expiresAt).getTime();
-    const remainingSeconds = Math.max(
-      0,
-      Math.floor((expiresAtMs - now) / 1000),
-    );
+    const expiresAtMs = interaction.expiresAt
+      ? new Date(interaction.expiresAt).getTime()
+      : null;
+    const remainingSeconds =
+      expiresAtMs === null ? null : Math.max(0, Math.floor((expiresAtMs - now) / 1000));
     const createdAt = new Date(interaction.createdAt);
     const statusColor =
-      remainingSeconds > 60
+      remainingSeconds === null
+        ? "neutral"
+        : remainingSeconds > 60
         ? "success"
         : remainingSeconds > 0
           ? "warning"
           : "neutral";
     const statusLabel =
-      remainingSeconds > 0
+      remainingSeconds === null
+        ? "No expiry"
+        : remainingSeconds > 0
         ? `${formatDurationHumanReadable(remainingSeconds)} left`
         : "Expired";
     const metadataEntries = Object.entries(interaction.metadata ?? {});
-    const isExpired = remainingSeconds === 0;
+    const isExpired = remainingSeconds !== null && remainingSeconds === 0;
     const latestMessage = interaction.messages.at(-1);
     const latestMessageText =
       latestMessage?.message.body?.trim() || "(No message body)";

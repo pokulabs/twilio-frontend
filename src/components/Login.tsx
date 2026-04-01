@@ -11,106 +11,170 @@ import {
   SvgIcon,
   Avatar,
   Stack,
+  Sheet,
+  CircularProgress,
+  Alert,
 } from "@mui/joy";
 import logo from "../assets/logo.png";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [magicLinkSent, setMagicLinkSent] = useState(false);
-  const { isAuthenticated, signInMagicLink, signInGoogle } = useAuth();
+  const [errorText, setErrorText] = useState<string | null>(null);
+  const { isAuthenticated, isLoading, signInMagicLink, signInGoogle } = useAuth();
   const [searchParams] = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
+  const redirectParam = searchParams.get("redirect");
+  const redirect =
+    redirectParam && redirectParam.startsWith("/") ? redirectParam : "/";
 
   const handleEmailLogin = async () => {
-    if (!email) return;
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) return;
 
     try {
-      await signInMagicLink(email, redirect);
+      setErrorText(null);
+      await signInMagicLink(trimmedEmail, redirect);
       setMagicLinkSent(true);
     } catch (err) {
       console.error("Failed to send magic link", err);
+      setErrorText("Could not send the sign-in email. Please try again.");
     }
   };
 
-  if (!isAuthenticated) {
+  if (isLoading) {
     return (
       <Box
         sx={{
+          minHeight: "100dvh",
           display: "flex",
-          justifyContent: "center",
           alignItems: "center",
-          p: 2,
-          width: "100%",
+          justifyContent: "center",
         }}
       >
-        <Card variant="outlined" sx={{ width: 400, p: 3 }}>
-          {magicLinkSent ? (
-            <Box sx={{ textAlign: "center", py: 4 }}>
-              <Typography level="title-lg" sx={{ mb: 1 }}>
-                📬 Check your email (and spam)
-              </Typography>
-              <Typography>
-                We've sent a login link to <strong>{email}</strong>
-              </Typography>
-            </Box>
-          ) : (
-            <Stack spacing={2}>
-              <Box sx={{ textAlign: "center", mb: 2 }}>
-                <Box
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "50%",
-                    backgroundColor: "neutral.softBg",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    mx: "auto",
-                    mb: 1,
-                  }}
-                >
-                  <Avatar src={logo} size="sm" />
-                </Box>
-                <Typography level="title-lg">Welcome to Poku</Typography>
-                <Typography level="body-sm" textColor="text.secondary">
-                  Please sign in or sign up below.
-                </Typography>
-              </Box>
-
-              <FormControl sx={{ mb: 1 }}>
-                <FormLabel>Email</FormLabel>
-                <Input
-                  type="email"
-                  placeholder="you@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </FormControl>
-
-              <Button variant="solid" onClick={handleEmailLogin}>
-                Continue with Email
-              </Button>
-
-              <Divider>or</Divider>
-
-              <Button
-                variant="soft"
-                color="neutral"
-                startDecorator={<GoogleIcon />}
-                onClick={() => {
-                  signInGoogle(redirect);
-                }}
-              >
-                Continue with Google
-              </Button>
-            </Stack>
-          )}
-        </Card>
+        <CircularProgress />
       </Box>
     );
   }
+
+  if (isAuthenticated) {
+    return <Navigate to={redirect} replace />;
+  }
+
+  return (
+    <Sheet
+      sx={{
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        px: 2,
+        py: 6,
+        background:
+          "radial-gradient(circle at top, var(--joy-palette-primary-softBg), transparent 55%)",
+      }}
+    >
+      <Card
+        variant="outlined"
+        sx={{
+          width: "100%",
+          maxWidth: 420,
+          p: 4,
+          boxShadow: "lg",
+        }}
+      >
+        {magicLinkSent ? (
+          <Stack spacing={2} sx={{ textAlign: "center", py: 2 }}>
+            <Box
+              sx={{
+                width: 52,
+                height: 52,
+                borderRadius: "50%",
+                backgroundColor: "primary.softBg",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mx: "auto",
+              }}
+            >
+              <Avatar src={logo} size="sm" />
+            </Box>
+            <Typography level="h3">Check your email</Typography>
+            <Typography level="body-sm" textColor="text.secondary">
+              We sent a magic link to <strong>{email.trim()}</strong>.
+            </Typography>
+            <Typography level="body-sm" textColor="text.tertiary">
+              Open the link to finish signing in to your dashboard.
+            </Typography>
+          </Stack>
+        ) : (
+          <Stack spacing={2.5}>
+            <Box sx={{ textAlign: "center" }}>
+              <Box
+                sx={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: "50%",
+                  backgroundColor: "neutral.softBg",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mx: "auto",
+                  mb: 1.5,
+                }}
+              >
+                <Avatar src={logo} size="sm" />
+              </Box>
+              <Typography level="h3">Sign in to Poku</Typography>
+              <Typography level="body-sm" textColor="text.secondary">
+                Continue with email or Google to open your dashboard.
+              </Typography>
+            </Box>
+
+            {errorText ? (
+              <Alert color="danger" variant="soft">
+                {errorText}
+              </Alert>
+            ) : null}
+
+            <FormControl>
+              <FormLabel>Email</FormLabel>
+              <Input
+                type="email"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    void handleEmailLogin();
+                  }
+                }}
+              />
+            </FormControl>
+
+            <Button variant="solid" size="lg" onClick={() => void handleEmailLogin()}>
+              Continue with Email
+            </Button>
+
+            <Divider>or</Divider>
+
+            <Button
+              variant="soft"
+              color="neutral"
+              size="lg"
+              startDecorator={<GoogleIcon />}
+              onClick={() => {
+                void signInGoogle(redirect);
+              }}
+            >
+              Continue with Google
+            </Button>
+          </Stack>
+        )}
+      </Card>
+    </Sheet>
+  );
 }
 
 function GoogleIcon() {

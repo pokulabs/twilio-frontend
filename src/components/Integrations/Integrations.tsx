@@ -14,7 +14,6 @@ export default function Integrations() {
           position: "sticky",
           top: { sm: -100, md: -110 },
           bgcolor: "background.body",
-          pt: 10,
         }}
       >
         <Tabs defaultValue={0} sx={{ bgcolor: "transparent" }}>

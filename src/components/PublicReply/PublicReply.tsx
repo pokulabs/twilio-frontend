@@ -4,12 +4,26 @@ import { useParams } from "react-router-dom";
 import { Box, CircularProgress, Sheet, Typography } from "@mui/joy";
 import { apiClient } from "../../api-client";
 import { useAuth } from "../../hooks/use-auth";
-import type { InteractionFormValue } from "../../types/backend-frontend";
+import type {
+  InteractionFormValue,
+  InteractionMessage,
+  Medium,
+} from "../../types/backend-frontend";
 import { ActiveInteractions } from "../Hitl/ActiveInteractions";
 import { InteractionCard, type InteractionCardData } from "../Hitl/InteractionCard";
 import PublicReplyForm from "./PublicReplyForm";
 
-type PublicReplyInfo = InteractionCardData & {
+type PublicReplyInfo = {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  async: boolean;
+  titForTat: boolean;
+  humanNumber: string;
+  agentNumber: string | null;
+  medium: Medium;
+  message: InteractionMessage;
+  metadata: Record<string, unknown> | null;
   secondsRemaining: number;
   expired: boolean;
   alreadyResponded: boolean;
@@ -131,6 +145,30 @@ export default function PublicReply() {
     );
   }
 
+  const interactionForCard: InteractionCardData | null = info
+    ? {
+        id: info.id,
+        createdAt: info.createdAt,
+        expiresAt: info.expiresAt,
+        titForTat: info.titForTat,
+        humanNumber: info.humanNumber,
+        agentNumber: info.agentNumber,
+        medium: info.medium,
+        metadata: info.metadata,
+        messages: [
+          {
+            id: `${info.id}-public`,
+            createdAt: info.createdAt,
+            from: "human",
+            message: info.message,
+            medium: info.medium,
+            humanNumber: info.humanNumber,
+            agentNumber: info.agentNumber,
+          },
+        ],
+      }
+    : null;
+
   // If logged in, show the full Active Interactions dashboard with this interaction focused
   if (isAuthenticated && info?.id && !info.message.form_request) {
     return (
@@ -176,7 +214,7 @@ export default function PublicReply() {
             </Typography>
           </Sheet>
         ) : (
-          info.message.form_request ? (
+          info.message.form_request && token ? (
             <PublicReplyForm
               body={info.message.body}
               form={info.message.form_request}
@@ -188,12 +226,14 @@ export default function PublicReply() {
               onSubmit={handleFormSubmit}
             />
           ) : (
-            <InteractionCard
-              interaction={info}
-              now={now}
-              onSubmit={handleSubmit}
-              isSubmitting={status === "submitting"}
-            />
+            interactionForCard && (
+              <InteractionCard
+                interaction={interactionForCard}
+                now={now}
+                onSubmit={handleSubmit}
+                isSubmitting={status === "submitting"}
+              />
+            )
           )
         )
       ) : null}

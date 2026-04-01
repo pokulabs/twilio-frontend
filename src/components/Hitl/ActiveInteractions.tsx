@@ -10,8 +10,6 @@ import {
 } from "@mui/joy";
 import { RefreshRounded } from "@mui/icons-material";
 import type { AxiosError } from "axios";
-
-import withLoggedIn from "../../context/withLoggedIn";
 import { apiClient, type InteractionHistoryItem } from "../../api-client";
 import { InteractionCard } from "./InteractionCard";
 
@@ -191,10 +189,4 @@ export function ActiveInteractions({
   );
 }
 
-// Default export wraps with auth check for use in Hitl dashboard tabs
-// Named export (ActiveInteractions) is available for direct use (e.g., PublicReply)
-function ActiveInteractionsWithAuth() {
-  return <ActiveInteractions />;
-}
-
-export default withLoggedIn(ActiveInteractionsWithAuth);
+export default ActiveInteractions;

@@ -93,6 +93,10 @@ function resetAuthInfo() {
     };
 }
 
+function getSafeRedirectPath(redirect: string) {
+    return redirect.startsWith("/") ? redirect : "/";
+}
+
 export function useAuth() {
     const { data, isPending, error } = authClient.useSession();
     const isAuthenticated = !!data;
@@ -132,15 +136,17 @@ export function useAuth() {
             return authClient.signOut();
         },
         signInGoogle: (redirect: string) => {
+            const safeRedirect = getSafeRedirectPath(redirect);
             return authClient.signIn.social({
                 provider: "google",
-                callbackURL: import.meta.env.VITE_UI_URL + redirect,
+                callbackURL: import.meta.env.VITE_UI_URL + safeRedirect,
             });
         },
         signInMagicLink(email: string, redirect: string) {
+            const safeRedirect = getSafeRedirectPath(redirect);
             return authClient.signIn.magicLink({
                 email,
-                callbackURL: import.meta.env.VITE_UI_URL + redirect,
+                callbackURL: import.meta.env.VITE_UI_URL + safeRedirect,
             });
         },
         impersonateUser(userId: string) {

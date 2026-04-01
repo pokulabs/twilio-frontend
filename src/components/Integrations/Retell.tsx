@@ -1,7 +1,6 @@
 import { Alert, Button, Input, Stack, Typography } from "@mui/joy";
 import { useEffect, useState } from "react";
 import { apiClient } from "../../api-client";
-import withLoggedIn from "../../context/withLoggedIn";
 
 function Retell() {
   const [retellKey, setRetellKey] = useState("");
@@ -46,4 +45,4 @@ function Retell() {
   );
 }
 
-export default withLoggedIn(Retell);
+export default Retell;

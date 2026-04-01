@@ -50,6 +50,42 @@ export type InteractionHistoryItem = {
     } | null;
 };
 
+export type AvailablePhoneNumber = {
+    phoneNumber: string;
+    locality: string | null;
+    region: string | null;
+    country: string;
+};
+
+export type ReservedPhoneNumber = {
+    id: string;
+    phone_number: string;
+    created_at: string;
+};
+
+export type PhoneHistoryMessageItem = {
+    id: string;
+    createdAt: string;
+    from: "agent" | "human";
+    message: {
+        body?: string;
+        image_links?: string[];
+    };
+};
+
+export type PhoneHistoryItem = {
+    interactionId: string;
+    medium: "sms_poku" | "call_poku";
+    humanNumber: string | null;
+    agentNumber: string | null;
+    messages: PhoneHistoryMessageItem[];
+    call: {
+        callId: string;
+        transcript: string | null;
+        recordingUrl: string | null;
+    } | null;
+};
+
 class ApiClient {
     private api: AxiosInstance;
 
@@ -219,6 +255,28 @@ class ApiClient {
 
     async createCheckoutSession() {
         return this.api.post<{ url: string }>("/account/create-checkout-session");
+    }
+
+    async listAvailablePhoneNumbers(
+        params: { country?: string; areaCode?: number; limit?: number } = {},
+    ) {
+        return this.api.get<AvailablePhoneNumber[]>("/reserved-numbers/available", {
+            params,
+        });
+    }
+
+    async listReservedPhoneNumbers() {
+        return this.api.get<ReservedPhoneNumber[]>("/reserved-numbers");
+    }
+
+    async reservePhoneNumber(phoneNumber: string) {
+        return this.api.post<ReservedPhoneNumber>("/reserved-numbers/reserve", {
+            phoneNumber,
+        });
+    }
+
+    async deleteReservedPhoneNumber(reservedNumberId: string) {
+        return this.api.delete(`/reserved-numbers/${reservedNumberId}`);
     }
 
     async deleteInteractionChannel(interactionChannelId: string) {
@@ -525,6 +583,18 @@ class ApiClient {
               }
             | undefined
         >("/interactions", { params });
+    }
+
+    async listPhoneHistory(params: { page?: number; pageSize?: number } = {}) {
+        return this.api.get<{
+            data: PhoneHistoryItem[];
+            pagination: {
+                page: number;
+                pageSize: number;
+                total: number;
+                totalPages: number;
+            };
+        }>("/interactions/phone-history", { params });
     }
 
     async getInteractionStats() {

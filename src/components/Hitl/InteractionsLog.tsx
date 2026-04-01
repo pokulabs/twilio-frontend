@@ -17,7 +17,6 @@ import {
 } from "@mui/joy";
 import { displayDateTime, formatDurationHumanReadable } from "../../utils";
 import { mediumToUiChannelMap } from "./HumanAsATool";
-import withLoggedIn from "../../context/withLoggedIn";
 
 type Interaction =
   NonNullable<
@@ -296,4 +295,4 @@ function InteractionsLog() {
   );
 }
 
-export default withLoggedIn(InteractionsLog);
+export default InteractionsLog;

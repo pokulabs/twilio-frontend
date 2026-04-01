@@ -14,7 +14,7 @@ import {
 } from "@mui/joy";
 import { SendRounded, PhoneRounded } from "@mui/icons-material";
 import { apiClient } from "../../api-client";
-import ChatBubble from "../Messages/ChatBubble";
+// import ChatBubble from "../Messages/ChatBubble";
 import type { PlainMessage } from "../../types/types";
 
 interface DemoMessage {
@@ -186,7 +186,7 @@ export default function TryIt() {
                 }}
               >
                 {msg.isBot && <Avatar />}
-                <ChatBubble {...plainMessage} />
+                {/* <ChatBubble {...plainMessage} /> */}
               </Stack>
             );
           })}
@@ -197,7 +197,7 @@ export default function TryIt() {
               sx={{ alignItems: "flex-start" }}
             >
               <Avatar />
-              <ChatBubble
+              {/* <ChatBubble
                 id="loading"
                 content="Bot is thinking..."
                 timestamp={Date.now()}
@@ -206,7 +206,7 @@ export default function TryIt() {
                 to="user"
                 status="delivered"
                 errorCode={0}
-              />
+              /> */}
             </Stack>
           )}
           <div ref={messagesEndRef} />

@@ -10,7 +10,6 @@ import {
 } from "@mui/joy";
 
 import HumanAsATool from "./HumanAsATool";
-import TryIt from "./TryIt";
 import Steps from "./Steps";
 import InteractionsLog from "./InteractionsLog";
 import ActiveInteractions from "./ActiveInteractions";

@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import {
@@ -16,7 +15,6 @@ import {
   IconButton,
 } from "@mui/joy";
 import {
-  QuestionAnswerRounded,
   YouTube,
   ShareRounded,
   AccountCircle,
@@ -25,45 +23,14 @@ import {
   SportsMartialArtsRounded,
   Email,
   LocalPoliceRounded,
-  KeyboardArrowDown,
+  LocalPhoneRounded,
+  HistoryRounded,
 } from "@mui/icons-material";
 
 import logo from "../assets/logo.png";
 import slack from "../assets/slack.png";
-import ColorSchemeToggle from "./Messages/ColorSchemeToggle";
 import { closeSidebar, YOUTUBE_LINK, SLACK_LINK } from "../utils";
 import { useAuth } from "../hooks/use-auth";
-
-function Toggler(props: {
-  defaultExpanded?: boolean;
-  children: React.ReactNode;
-  renderToggle: (params: {
-    open: boolean;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  }) => React.ReactNode;
-}) {
-  const { defaultExpanded = false, renderToggle, children } = props;
-  const [open, setOpen] = React.useState(defaultExpanded);
-  return (
-    <React.Fragment>
-      {renderToggle({ open, setOpen })}
-      <Box
-        sx={[
-          {
-            display: "grid",
-            transition: "0.2s ease",
-            "& > *": {
-              overflow: "hidden",
-            },
-          },
-          open ? { gridTemplateRows: "1fr" } : { gridTemplateRows: "0fr" },
-        ]}
-      >
-        {children}
-      </Box>
-    </React.Fragment>
-  );
-}
 
 export default function Sidebar() {
   const location = useLocation();
@@ -128,7 +95,6 @@ export default function Sidebar() {
       >
         <Avatar src={logo} size="sm" />
         <Typography level="title-lg">Poku</Typography>
-        <ColorSchemeToggle sx={{ ml: "auto" }} />
       </Box>
       <Box
         sx={{
@@ -148,58 +114,53 @@ export default function Sidebar() {
             "--ListItem-radius": (theme) => theme.vars.radius.sm,
           }}
         >
-          <ListItem nested>
-            <Toggler
-              renderToggle={({ open, setOpen }) => (
-                <ListItemButton onClick={() => setOpen(!open)}>
-                  <QuestionAnswerRounded />
-                  <ListItemContent>
-                    <Typography level="title-sm">Inbox</Typography>
-                  </ListItemContent>
-                  <KeyboardArrowDown
-                    sx={[
-                      open
-                        ? {
-                            transform: "rotate(180deg)",
-                          }
-                        : {
-                            transform: "none",
-                          },
-                    ]}
-                  />
-                </ListItemButton>
-              )}
+          <ListItem>
+            <ListItemButton
+              component={Link}
+              to="/"
+              selected={location.pathname === "/"}
             >
-              <List sx={{ gap: 0.5 }}>
-                <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton
-                    component={Link}
-                    to="/messages"
-                    selected={location.pathname === "/messages"}
-                  >
-                    Messages
-                  </ListItemButton>
-                </ListItem>
-                <ListItem>
-                  <ListItemButton
-                    component={Link}
-                    to="/campaigns"
-                    selected={location.pathname === "/campaigns"}
-                  >
-                    Campaigns
-                  </ListItemButton>
-                </ListItem>
-                <ListItem>
-                  <ListItemButton
-                    component={Link}
-                    to="/flagging"
-                    selected={location.pathname === "/flagging"}
-                  >
-                    Flagging
-                  </ListItemButton>
-                </ListItem>
-              </List>
-            </Toggler>
+              <AccountCircle />
+              <ListItemContent>
+                <Typography level="title-sm">Account</Typography>
+              </ListItemContent>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              component={Link}
+              to="/channels"
+              selected={location.pathname === "/channels"}
+            >
+              <SportsMartialArtsRounded />
+              <ListItemContent>
+                <Typography level="title-sm">Channels</Typography>
+              </ListItemContent>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              component={Link}
+              to="/phones"
+              selected={location.pathname === "/phones"}
+            >
+              <LocalPhoneRounded />
+              <ListItemContent>
+                <Typography level="title-sm">Phones</Typography>
+              </ListItemContent>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              component={Link}
+              to="/history"
+              selected={location.pathname === "/history"}
+            >
+              <HistoryRounded />
+              <ListItemContent>
+                <Typography level="title-sm">History</Typography>
+              </ListItemContent>
+            </ListItemButton>
           </ListItem>
           <ListItem>
             <ListItemButton
@@ -210,30 +171,6 @@ export default function Sidebar() {
               <ShareRounded />
               <ListItemContent>
                 <Typography level="title-sm">Integrations</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/hitl"
-              selected={location.pathname === "/hitl"}
-            >
-              <SportsMartialArtsRounded />
-              <ListItemContent>
-                <Typography level="title-sm">Human-in-the-Loop</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/"
-              selected={location.pathname === "/"}
-            >
-              <AccountCircle />
-              <ListItemContent>
-                <Typography level="title-sm">Account</Typography>
               </ListItemContent>
             </ListItemButton>
           </ListItem>
@@ -265,10 +202,12 @@ export default function Sidebar() {
           orientation="horizontal"
         >
           <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/docs"
-              title="API Docs"
+          <ListItemButton
+              component="a"
+              href="https://docs.pokulabs.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Docs"
             >
               <DescriptionRounded />
             </ListItemButton>
