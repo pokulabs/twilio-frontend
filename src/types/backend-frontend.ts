@@ -38,6 +38,7 @@ export type InteractionFormField = {
 export type InteractionFormRequest = {
     title: string;
     description?: string;
+    brand_image_url?: string;
     submit_label?: string;
     fields: InteractionFormField[];
 };

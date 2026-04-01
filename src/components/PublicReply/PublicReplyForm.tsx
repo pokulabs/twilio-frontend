@@ -165,6 +165,20 @@ export default function PublicReplyForm({
   return (
     <Sheet variant="outlined" sx={{ borderRadius: 12, p: { xs: 2, sm: 3 } }}>
       <Stack spacing={2}>
+          {form.brand_image_url ? (
+            <Box
+              component="img"
+              src={form.brand_image_url}
+              alt={`${form.title} brand`}
+              sx={{
+                alignSelf: "flex-start",
+                maxHeight: 64,
+                maxWidth: "100%",
+                objectFit: "contain",
+              }}
+            />
+          ) : null}
+
         <Stack
           direction={{ xs: "column", sm: "row" }}
           justifyContent="space-between"
