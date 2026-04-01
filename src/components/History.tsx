@@ -28,9 +28,7 @@ import {
     TableRow,
     Typography,
 } from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
 import { apiClient, type PhoneHistoryItem } from "../api-client";
-import { appTheme } from "../theme";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -85,7 +83,6 @@ export default function History() {
     };
 
     return (
-        <ThemeProvider theme={appTheme}>
         <Box
             sx={{
                 width: "100%",
@@ -339,6 +336,5 @@ export default function History() {
                 ) : null}
             </Stack>
         </Box>
-        </ThemeProvider>
     );
 }

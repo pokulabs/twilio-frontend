@@ -132,7 +132,9 @@ export function formatDurationHumanReadable(totalSeconds: number): string {
 }
 
 export const POLL_INTERVAL = 1000; // every 1 second
+export const DOCS_LINK = "https://docs.pokulabs.com";
 export const SLACK_LINK =
     "https://join.slack.com/t/pokulabs/shared_invite/zt-334pmqhy9-oZN8cMAXLFUdmDCgNZX9rA";
 export const GITHUB_LINK = "https://github.com/pokulabs/twilio-frontend";
 export const YOUTUBE_LINK = "https://www.youtube.com/@Poku-Labs";
+export const DISCORD_LINK = "https://discord.gg/wZrpA3dhqg";

@@ -16,7 +16,6 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { ThemeProvider } from "@mui/material/styles";
 import { getCountryCallingCode } from "react-phone-number-input/input";
 import en from "react-phone-number-input/locale/en";
 import {
@@ -24,7 +23,6 @@ import {
     type AvailablePhoneNumber,
     type ReservedPhoneNumber,
 } from "../api-client";
-import { appTheme } from "../theme";
 
 const DEFAULT_LIMIT = 20;
 const COUNTRY_OPTIONS = ["US", "GB"] as const;
@@ -133,7 +131,6 @@ export default function Phones() {
     };
 
     return (
-        <ThemeProvider theme={appTheme}>
         <Box
             sx={{
                 width: "100%",
@@ -323,6 +320,5 @@ export default function Phones() {
                 </Card>
             </Stack>
         </Box>
-        </ThemeProvider>
     );
 }

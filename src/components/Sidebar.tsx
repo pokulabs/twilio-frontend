@@ -29,7 +29,7 @@ import {
 
 import logo from "../assets/logo.png";
 import slack from "../assets/slack.png";
-import { closeSidebar, YOUTUBE_LINK, SLACK_LINK } from "../utils";
+import { closeSidebar, DOCS_LINK, YOUTUBE_LINK, SLACK_LINK } from "../utils";
 import { useAuth } from "../hooks/use-auth";
 
 export default function Sidebar() {
@@ -204,7 +204,7 @@ export default function Sidebar() {
           <ListItem>
           <ListItemButton
               component="a"
-              href="https://docs.pokulabs.com"
+              href={DOCS_LINK}
               target="_blank"
               rel="noopener noreferrer"
               title="Docs"

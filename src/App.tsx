@@ -8,6 +8,10 @@ import {
 } from "react-router-dom";
 import { CssVarsProvider } from "@mui/joy/styles";
 import { CssBaseline, Box, CircularProgress } from "@mui/joy";
+import {
+  ThemeProvider,
+  THEME_ID as MATERIAL_THEME_ID,
+} from "@mui/material/styles";
 
 import Sidebar from "./components/Sidebar";
 import Integrations from "./components/Integrations/Integrations";
@@ -21,6 +25,7 @@ import { useAuth } from "./hooks/use-auth";
 import Phones from "./components/Phones";
 import History from "./components/History";
 import HumanAsATool from "./components/Hitl/HumanAsATool";
+import { appTheme } from "./theme";
 
 function TabContentLayout() {
   return (
@@ -105,23 +110,25 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <TwilioProvider>
-      <CssVarsProvider disableTransitionOnChange>
-        <CssBaseline />
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/reply/:token" element={<PublicReply />} />
-            <Route
-              path="*"
-              element={
-                <RequireAuth>
-                  <MainLayout />
-                </RequireAuth>
-              }
-            />
-          </Routes>
-        </Router>
-      </CssVarsProvider>
+      <ThemeProvider theme={{ [MATERIAL_THEME_ID]: appTheme }}>
+        <CssVarsProvider disableTransitionOnChange>
+          <CssBaseline />
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/reply/:token" element={<PublicReply />} />
+              <Route
+                path="*"
+                element={
+                  <RequireAuth>
+                    <MainLayout />
+                  </RequireAuth>
+                }
+              />
+            </Routes>
+          </Router>
+        </CssVarsProvider>
+      </ThemeProvider>
     </TwilioProvider>
   );
 }

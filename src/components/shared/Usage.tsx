@@ -14,6 +14,13 @@ import {
     Alert,
     CircularProgress,
 } from "@mui/joy";
+import {
+    Box as MuiBox,
+    Button as MuiButton,
+    CircularProgress as MuiCircularProgress,
+    Stack as MuiStack,
+    Typography as MuiTypography,
+} from "@mui/material";
 import { CheckCircleRounded, BlockRounded, WarningRounded } from "@mui/icons-material";
 import { apiClient } from "../../api-client";
 import { InfoTooltip } from "./InfoTooltip";
@@ -228,52 +235,56 @@ export function CreditsRemaining() {
     };
 
     return (
-        <Box
+        <MuiBox
             sx={{
                 display: "flex",
                 gap: 2,
                 alignItems: "center",
+                flexWrap: "wrap",
             }}
         >
-            <Typography
-                level="body-md"
-                sx={{ mb: 0 }}
-                endDecorator={
-                    <InfoTooltip
-                        title={
-                            <Typography level="body-sm" color="warning">
-                                1 credit per message
-                                <br />
-                                10 credits per voice call
-                            </Typography>
-                        }
-                    />
+            <MuiStack direction="row" spacing={0.75} alignItems="center">
+                <MuiTypography variant="body2" sx={{ mb: 0 }}>
+                    Credits: {creditsRemaining ?? "--"}
+                </MuiTypography>
+                <InfoTooltip
+                    title={
+                        <MuiTypography variant="body2" sx={{ color: "warning.main" }}>
+                            1 credit per message
+                            <br />
+                            10 credits per voice call
+                        </MuiTypography>
+                    }
+                />
+            </MuiStack>
+            <MuiButton
+                size="small"
+                variant="contained"
+                disabled={isCheckoutLoading}
+                startIcon={
+                    isCheckoutLoading ? (
+                        <MuiCircularProgress size={16} color="inherit" />
+                    ) : undefined
                 }
-            >
-                Credits: {creditsRemaining ?? "--"}
-            </Typography>
-            <Button
-                size="sm"
-                variant="soft"
-                loading={isCheckoutLoading}
                 onClick={handleAddCredits}
             >
                 Add credits
-            </Button>
-            <Button
-                size="sm"
-                variant="plain"
-                startDecorator={
+            </MuiButton>
+            <MuiButton
+                size="small"
+                variant="outlined"
+                color="inherit"
+                startIcon={
                     autoRechargeEnabled ? (
                         <CheckCircleRounded color="success" />
                     ) : (
-                        <BlockRounded color={"danger" as any}/>
+                        <BlockRounded color="error" />
                     )
                 }
                 onClick={() => setIsAutoRechargeModalOpen(true)}
             >
                 Auto-recharge
-            </Button>
+            </MuiButton>
 
             <AutoRechargeModal
                 open={isAutoRechargeModalOpen}
@@ -285,6 +296,6 @@ export function CreditsRemaining() {
                 }}
                 onSave={() => fetchLimits()}
             />
-        </Box>
+        </MuiBox>
     );
 }
