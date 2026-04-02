@@ -1,7 +1,7 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import {
-  GlobalStyles,
   Avatar,
   Box,
   List,
@@ -36,237 +36,233 @@ export default function Sidebar() {
   const location = useLocation();
   const { isAuthenticated, userEmail, signOut, isAdmin } = useAuth();
 
+  useEffect(() => {
+    closeSidebar();
+  }, [location.pathname]);
+
   return (
-    <Sheet
-      className="Sidebar"
+    <Box
       sx={{
-        position: { xs: "fixed", md: "sticky" },
-        transform: {
-          xs: "translateX(calc(100% * (var(--SideNavigation-slideIn, 0) - 1)))",
-          md: "none",
-        },
-        transition: "transform 0.4s, width 0.4s",
-        zIndex: 9999,
-        height: "100dvh",
-        width: "var(--Sidebar-width)",
-        top: 0,
-        p: 2,
-        flexShrink: 0,
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
-        borderRight: "1px solid",
-        borderColor: "divider",
+        width: { xs: 0, md: "var(--Sidebar-width)" },
+        flexShrink: { md: 0 },
       }}
     >
-      <GlobalStyles
-        styles={(theme) => ({
-          ":root": {
-            "--Sidebar-width": "220px",
-            [theme.breakpoints.up("lg")]: {
-              "--Sidebar-width": "240px",
-            },
-          },
-        })}
-      />
       <Box
         className="Sidebar-overlay"
         sx={{
+          display: { xs: "block", md: "none" },
           position: "fixed",
           zIndex: 9998,
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          opacity: "var(--SideNavigation-slideIn)",
+          inset: 0,
+          opacity: "var(--SideNavigation-slideIn, 0)",
           backgroundColor: "var(--joy-palette-background-backdrop)",
           transition: "opacity 0.4s",
-          transform: {
-            xs: "translateX(calc(100% * (var(--SideNavigation-slideIn, 0) - 1) + var(--SideNavigation-slideIn, 0) * var(--Sidebar-width, 0px)))",
-            lg: "translateX(-100%)",
-          },
+          transform: "translateX(calc((var(--SideNavigation-slideIn, 0) - 1) * 100%))",
         }}
         onClick={() => closeSidebar()}
       />
-      <Box
-        sx={{ display: "flex", gap: 1, alignItems: "center", cursor: "pointer", textDecoration: "none" }}
-        component={Link}
-        to="/"
-      >
-        <Avatar src={logo} size="sm" />
-        <Typography level="title-lg">Poku</Typography>
-      </Box>
-      <Box
+      <Sheet
+        className="Sidebar"
         sx={{
-          minHeight: 0,
-          flexGrow: 1,
+          position: { xs: "fixed", md: "sticky" },
+          transform: {
+            xs: "translateX(calc(100% * (var(--SideNavigation-slideIn, 0) - 1)))",
+            md: "none",
+          },
+          transition: "transform 0.4s, width 0.4s",
+          zIndex: 9999,
+          height: "100dvh",
+          width: "var(--Sidebar-width)",
+          top: 0,
+          left: 0,
+          p: 2,
           display: "flex",
           flexDirection: "column",
+          overflowY: "auto",
           [`& .${listItemButtonClasses.root}`]: {
             gap: 1.5,
           },
+          borderRight: "1px solid",
+          borderColor: "divider",
         }}
       >
-        <List
-          size="sm"
+        <Box
+          sx={{ display: "flex", gap: 1, alignItems: "center", cursor: "pointer", textDecoration: "none" }}
+          component={Link}
+          to="/"
+        >
+          <Avatar src={logo} size="sm" />
+          <Typography level="title-lg">Poku</Typography>
+        </Box>
+        <Box
           sx={{
-            gap: 1,
-            "--ListItem-radius": (theme) => theme.vars.radius.sm,
+            minHeight: 0,
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/"
-              selected={location.pathname === "/"}
-            >
-              <AccountCircle />
-              <ListItemContent>
-                <Typography level="title-sm">Account</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/channels"
-              selected={location.pathname === "/channels"}
-            >
-              <SportsMartialArtsRounded />
-              <ListItemContent>
-                <Typography level="title-sm">Channels</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/phones"
-              selected={location.pathname === "/phones"}
-            >
-              <LocalPhoneRounded />
-              <ListItemContent>
-                <Typography level="title-sm">Phones</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/history"
-              selected={location.pathname === "/history"}
-            >
-              <HistoryRounded />
-              <ListItemContent>
-                <Typography level="title-sm">History</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component={Link}
-              to="/integrations"
-              selected={location.pathname === "/integrations"}
-            >
-              <ShareRounded />
-              <ListItemContent>
-                <Typography level="title-sm">Integrations</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-          {isAdmin && (
+          <List
+            size="sm"
+            sx={{
+              gap: 1,
+              "--ListItem-radius": (theme) => theme.vars.radius.sm,
+            }}
+          >
             <ListItem>
               <ListItemButton
                 component={Link}
-                to="/admin"
-                selected={location.pathname === "/admin"}
+                to="/"
+                selected={location.pathname === "/"}
               >
-                <LocalPoliceRounded />
+                <AccountCircle />
                 <ListItemContent>
-                  <Typography level="title-sm">Admin</Typography>
+                  <Typography level="title-sm">Account</Typography>
                 </ListItemContent>
               </ListItemButton>
             </ListItem>
-          )}
-        </List>
+            <ListItem>
+              <ListItemButton
+                component={Link}
+                to="/channels"
+                selected={location.pathname === "/channels"}
+              >
+                <SportsMartialArtsRounded />
+                <ListItemContent>
+                  <Typography level="title-sm">Channels</Typography>
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
+            <ListItem>
+              <ListItemButton
+                component={Link}
+                to="/phones"
+                selected={location.pathname === "/phones"}
+              >
+                <LocalPhoneRounded />
+                <ListItemContent>
+                  <Typography level="title-sm">Phones</Typography>
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
+            <ListItem>
+              <ListItemButton
+                component={Link}
+                to="/history"
+                selected={location.pathname === "/history"}
+              >
+                <HistoryRounded />
+                <ListItemContent>
+                  <Typography level="title-sm">History</Typography>
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
+            <ListItem>
+              <ListItemButton
+                component={Link}
+                to="/integrations"
+                selected={location.pathname === "/integrations"}
+              >
+                <ShareRounded />
+                <ListItemContent>
+                  <Typography level="title-sm">Integrations</Typography>
+                </ListItemContent>
+              </ListItemButton>
+            </ListItem>
+            {isAdmin && (
+              <ListItem>
+                <ListItemButton
+                  component={Link}
+                  to="/admin"
+                  selected={location.pathname === "/admin"}
+                >
+                  <LocalPoliceRounded />
+                  <ListItemContent>
+                    <Typography level="title-sm">Admin</Typography>
+                  </ListItemContent>
+                </ListItemButton>
+              </ListItem>
+            )}
+          </List>
 
-        <List
-          size="sm"
-          sx={{
-            mt: "auto",
-            flexGrow: 0,
-            mb: 1,
-            gap: 2,
-            "--ListItem-radius": (theme) => theme.vars.radius.sm,
-          }}
-          orientation="horizontal"
-        >
-          <ListItem>
-          <ListItemButton
-              component="a"
-              href={DOCS_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Docs"
-            >
-              <DescriptionRounded />
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component="a"
-              href={SLACK_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Slack"
-            >
-              <Avatar size="sm" src={slack} sx={{ width: 18, height: 18 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component="a"
-              href={YOUTUBE_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="YouTube"
-            >
-              <YouTube />
-            </ListItemButton>
-          </ListItem>
-          <ListItem>
-            <ListItemButton
-              component="a"
-              href="mailto:hello@pokulabs.com"
-              title="hello@pokulabs.com"
-            >
-              <Email />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Box>
-      {isAuthenticated && (
-        <>
-          <Divider />
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-            <Box sx={{ minWidth: 0, flex: 1 }}>
-              <Typography level="title-sm">Logged in</Typography>
-              <Typography level="body-xs">{userEmail}</Typography>
+          <List
+            size="sm"
+            sx={{
+              mt: "auto",
+              flexGrow: 0,
+              mb: 1,
+              gap: 2,
+              "--ListItem-radius": (theme) => theme.vars.radius.sm,
+            }}
+            orientation="horizontal"
+          >
+            <ListItem>
+              <ListItemButton
+                component="a"
+                href={DOCS_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Docs"
+              >
+                <DescriptionRounded />
+              </ListItemButton>
+            </ListItem>
+            <ListItem>
+              <ListItemButton
+                component="a"
+                href={SLACK_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Slack"
+              >
+                <Avatar size="sm" src={slack} sx={{ width: 18, height: 18 }} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem>
+              <ListItemButton
+                component="a"
+                href={YOUTUBE_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="YouTube"
+              >
+                <YouTube />
+              </ListItemButton>
+            </ListItem>
+            <ListItem>
+              <ListItemButton
+                component="a"
+                href="mailto:hello@pokulabs.com"
+                title="hello@pokulabs.com"
+              >
+                <Email />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </Box>
+        {isAuthenticated && (
+          <>
+            <Divider />
+            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+              <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Typography level="title-sm">Logged in</Typography>
+                <Typography level="body-xs">{userEmail}</Typography>
+              </Box>
+              <IconButton
+                title="Logout"
+                size="sm"
+                variant="plain"
+                color="neutral"
+                onClick={() => {
+                  signOut();
+                }}
+              >
+                <LogoutRounded />
+              </IconButton>
             </Box>
-            <IconButton
-              title="Logout"
-              size="sm"
-              variant="plain"
-              color="neutral"
-              onClick={() => {
-                signOut();
-              }}
-            >
-              <LogoutRounded />
-            </IconButton>
-          </Box>
-        </>
-      )}
-    </Sheet>
+          </>
+        )}
+      </Sheet>
+    </Box>
   );
 }

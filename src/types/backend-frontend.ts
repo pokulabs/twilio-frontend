@@ -22,6 +22,25 @@ export type InteractionFormFieldOption = {
     value: string;
 };
 
+export type InteractionFormStringValidationNot = {
+    pattern?: string;
+    const?: string;
+    enum?: string[];
+};
+
+export type InteractionFormStringValidationRule = {
+    type?: "string";
+    title: string;
+    description?: string;
+    pattern?: string;
+    format?: "email";
+    minLength?: number;
+    maxLength?: number;
+    const?: string;
+    enum?: string[];
+    not?: InteractionFormStringValidationNot;
+};
+
 export type InteractionFormField = {
     id: string;
     label: string;
@@ -33,6 +52,7 @@ export type InteractionFormField = {
     pattern?: string;
     min_length?: number;
     max_length?: number;
+    validations?: InteractionFormStringValidationRule[];
 };
 
 export type InteractionFormRequest = {
