@@ -4,16 +4,18 @@ import { useLocation } from "react-router-dom";
 import {
   Avatar,
   Box,
+  Drawer,
+  Typography,
+  Divider,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
-  listItemButtonClasses,
-  ListItemContent,
-  Typography,
-  Sheet,
-  Divider,
-  IconButton,
-} from "@mui/joy";
+  ListItemIcon,
+  ListItemText,
+  Stack,
+} from "@mui/material";
+import { drawerClasses } from "@mui/material/Drawer";
 import {
   YouTube,
   ShareRounded,
@@ -29,240 +31,216 @@ import {
 
 import logo from "../assets/logo.png";
 import slack from "../assets/slack.png";
-import { closeSidebar, DOCS_LINK, YOUTUBE_LINK, SLACK_LINK } from "../utils";
+import { DOCS_LINK, YOUTUBE_LINK, SLACK_LINK } from "../utils";
 import { useAuth } from "../hooks/use-auth";
 
-export default function Sidebar() {
+const drawerWidth = 240;
+
+type SidebarProps = {
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+};
+
+export default function Sidebar({
+  mobileOpen,
+  onMobileClose,
+}: SidebarProps) {
   const location = useLocation();
   const { isAuthenticated, userEmail, signOut, isAdmin } = useAuth();
 
   useEffect(() => {
-    closeSidebar();
-  }, [location.pathname]);
+    onMobileClose();
+  }, [location.pathname, onMobileClose]);
+
+  const navItems = [
+    { label: "Account", to: "/", icon: <AccountCircle /> },
+    {
+      label: "Channels",
+      to: "/channels",
+      icon: <SportsMartialArtsRounded />,
+    },
+    { label: "Phones", to: "/phones", icon: <LocalPhoneRounded /> },
+    { label: "History", to: "/history", icon: <HistoryRounded /> },
+    {
+      label: "Integrations",
+      to: "/integrations",
+      icon: <ShareRounded />,
+    },
+    ...(isAdmin
+      ? [{ label: "Admin", to: "/admin", icon: <LocalPoliceRounded /> }]
+      : []),
+  ];
+
+  const footerLinks = [
+    {
+      title: "Docs",
+      href: DOCS_LINK,
+      icon: <DescriptionRounded />,
+    },
+    {
+      title: "Slack",
+      href: SLACK_LINK,
+      icon: <Avatar src={slack} sx={{ width: 18, height: 18 }} />,
+    },
+    {
+      title: "YouTube",
+      href: YOUTUBE_LINK,
+      icon: <YouTube />,
+    },
+    {
+      title: "hello@pokulabs.com",
+      href: "mailto:hello@pokulabs.com",
+      icon: <Email />,
+    },
+  ];
+
+  const sidebarContent = (
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          p: 2,
+          textDecoration: "none",
+          color: "inherit",
+        }}
+        component={Link}
+        to="/"
+      >
+        <Avatar src={logo} sx={{ width: 32, height: 32 }} />
+        <Typography variant="h6">Poku</Typography>
+      </Box>
+
+      <Divider />
+
+      <Box
+        sx={{
+          overflow: "auto",
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          px: 1.5,
+          py: 2,
+        }}
+      >
+        <List dense disablePadding>
+          {navItems.map((item) => (
+            <ListItem key={item.to} disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton
+                component={Link}
+                to={item.to}
+                selected={location.pathname === item.to}
+                sx={{ borderRadius: 1.5 }}
+                onClick={onMobileClose}
+              >
+                <ListItemIcon sx={{ minWidth: 36 }}>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+
+        <Stack direction="row" spacing={1} sx={{ mt: "auto", px: 0.5, pb: 1 }}>
+          {footerLinks.map((item) => (
+            <IconButton
+              key={item.title}
+              component="a"
+              href={item.href}
+              target={item.href.startsWith("http") ? "_blank" : undefined}
+              rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+              title={item.title}
+              color="default"
+              sx={{
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 1.5,
+              }}
+            >
+              {item.icon}
+            </IconButton>
+          ))}
+        </Stack>
+      </Box>
+
+      {isAuthenticated && (
+        <>
+          <Divider />
+          <Stack
+            direction="row"
+            sx={{
+              p: 2,
+              gap: 1,
+              alignItems: "center",
+            }}
+          >
+            <Box sx={{ minWidth: 0, mr: "auto" }}>
+              <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.2 }}>
+                Logged in
+              </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                {userEmail}
+              </Typography>
+            </Box>
+            <IconButton
+              title="Logout"
+              size="small"
+              color="default"
+              onClick={() => {
+                signOut();
+              }}
+            >
+              <LogoutRounded />
+            </IconButton>
+          </Stack>
+        </>
+      )}
+    </Box>
+  );
 
   return (
     <Box
       sx={{
-        width: { xs: 0, md: "var(--Sidebar-width)" },
+        width: { xs: 0, md: drawerWidth },
         flexShrink: { md: 0 },
       }}
     >
-      <Box
-        className="Sidebar-overlay"
+      <Drawer
+        open={mobileOpen}
+        onClose={onMobileClose}
+        variant="temporary"
         sx={{
           display: { xs: "block", md: "none" },
-          position: "fixed",
-          zIndex: 9998,
-          inset: 0,
-          opacity: "var(--SideNavigation-slideIn, 0)",
-          backgroundColor: "var(--joy-palette-background-backdrop)",
-          transition: "opacity 0.4s",
-          transform: "translateX(calc((var(--SideNavigation-slideIn, 0) - 1) * 100%))",
-        }}
-        onClick={() => closeSidebar()}
-      />
-      <Sheet
-        className="Sidebar"
-        sx={{
-          position: { xs: "fixed", md: "sticky" },
-          transform: {
-            xs: "translateX(calc(100% * (var(--SideNavigation-slideIn, 0) - 1)))",
-            md: "none",
+          [`& .${drawerClasses.paper}`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
           },
-          transition: "transform 0.4s, width 0.4s",
-          zIndex: 9999,
-          height: "100dvh",
-          width: "var(--Sidebar-width)",
-          top: 0,
-          left: 0,
-          p: 2,
-          display: "flex",
-          flexDirection: "column",
-          overflowY: "auto",
-          [`& .${listItemButtonClasses.root}`]: {
-            gap: 1.5,
-          },
-          borderRight: "1px solid",
-          borderColor: "divider",
         }}
       >
-        <Box
-          sx={{ display: "flex", gap: 1, alignItems: "center", cursor: "pointer", textDecoration: "none" }}
-          component={Link}
-          to="/"
-        >
-          <Avatar src={logo} size="sm" />
-          <Typography level="title-lg">Poku</Typography>
-        </Box>
-        <Box
-          sx={{
-            minHeight: 0,
-            flexGrow: 1,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <List
-            size="sm"
-            sx={{
-              gap: 1,
-              "--ListItem-radius": (theme) => theme.vars.radius.sm,
-            }}
-          >
-            <ListItem>
-              <ListItemButton
-                component={Link}
-                to="/"
-                selected={location.pathname === "/"}
-              >
-                <AccountCircle />
-                <ListItemContent>
-                  <Typography level="title-sm">Account</Typography>
-                </ListItemContent>
-              </ListItemButton>
-            </ListItem>
-            <ListItem>
-              <ListItemButton
-                component={Link}
-                to="/channels"
-                selected={location.pathname === "/channels"}
-              >
-                <SportsMartialArtsRounded />
-                <ListItemContent>
-                  <Typography level="title-sm">Channels</Typography>
-                </ListItemContent>
-              </ListItemButton>
-            </ListItem>
-            <ListItem>
-              <ListItemButton
-                component={Link}
-                to="/phones"
-                selected={location.pathname === "/phones"}
-              >
-                <LocalPhoneRounded />
-                <ListItemContent>
-                  <Typography level="title-sm">Phones</Typography>
-                </ListItemContent>
-              </ListItemButton>
-            </ListItem>
-            <ListItem>
-              <ListItemButton
-                component={Link}
-                to="/history"
-                selected={location.pathname === "/history"}
-              >
-                <HistoryRounded />
-                <ListItemContent>
-                  <Typography level="title-sm">History</Typography>
-                </ListItemContent>
-              </ListItemButton>
-            </ListItem>
-            <ListItem>
-              <ListItemButton
-                component={Link}
-                to="/integrations"
-                selected={location.pathname === "/integrations"}
-              >
-                <ShareRounded />
-                <ListItemContent>
-                  <Typography level="title-sm">Integrations</Typography>
-                </ListItemContent>
-              </ListItemButton>
-            </ListItem>
-            {isAdmin && (
-              <ListItem>
-                <ListItemButton
-                  component={Link}
-                  to="/admin"
-                  selected={location.pathname === "/admin"}
-                >
-                  <LocalPoliceRounded />
-                  <ListItemContent>
-                    <Typography level="title-sm">Admin</Typography>
-                  </ListItemContent>
-                </ListItemButton>
-              </ListItem>
-            )}
-          </List>
+        {sidebarContent}
+      </Drawer>
 
-          <List
-            size="sm"
-            sx={{
-              mt: "auto",
-              flexGrow: 0,
-              mb: 1,
-              gap: 2,
-              "--ListItem-radius": (theme) => theme.vars.radius.sm,
-            }}
-            orientation="horizontal"
-          >
-            <ListItem>
-              <ListItemButton
-                component="a"
-                href={DOCS_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Docs"
-              >
-                <DescriptionRounded />
-              </ListItemButton>
-            </ListItem>
-            <ListItem>
-              <ListItemButton
-                component="a"
-                href={SLACK_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Slack"
-              >
-                <Avatar size="sm" src={slack} sx={{ width: 18, height: 18 }} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem>
-              <ListItemButton
-                component="a"
-                href={YOUTUBE_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="YouTube"
-              >
-                <YouTube />
-              </ListItemButton>
-            </ListItem>
-            <ListItem>
-              <ListItemButton
-                component="a"
-                href="mailto:hello@pokulabs.com"
-                title="hello@pokulabs.com"
-              >
-                <Email />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </Box>
-        {isAuthenticated && (
-          <>
-            <Divider />
-            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-              <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Typography level="title-sm">Logged in</Typography>
-                <Typography level="body-xs">{userEmail}</Typography>
-              </Box>
-              <IconButton
-                title="Logout"
-                size="sm"
-                variant="plain"
-                color="neutral"
-                onClick={() => {
-                  signOut();
-                }}
-              >
-                <LogoutRounded />
-              </IconButton>
-            </Box>
-          </>
-        )}
-      </Sheet>
+      <Drawer
+        open
+        variant="permanent"
+        sx={{
+          display: { xs: "none", md: "block" },
+          [`& .${drawerClasses.paper}`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            borderRight: "1px solid",
+            borderColor: "divider",
+          },
+        }}
+      >
+        {sidebarContent}
+      </Drawer>
     </Box>
   );
 }

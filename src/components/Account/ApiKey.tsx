@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Button, Typography, Input, Stack, Alert, Tooltip, Box } from "@mui/joy";
+import {
+  Alert,
+  Box,
+  Button,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { apiClient } from "../../api-client";
 
 export default function ApiKey() {
@@ -22,29 +30,34 @@ export default function ApiKey() {
 
   return (
     <Box>
-      <Typography level="body-md" sx={{ mb: 2 }}>
+      <Typography variant="body2" sx={{ mb: 2 }}>
         Generating an API key will invalidate the previous one.
       </Typography>
 
       {apiKey ? (
         <Stack spacing={2}>
-          <Alert color="warning" variant="soft">
+          <Alert severity="warning">
             Save your key securely. This is the only time it will be shown.
           </Alert>
-          <Input
-            readOnly
+          <TextField
             value={apiKey}
-            endDecorator={
-              <Tooltip title={copied ? "Copied!" : "Copy"}>
-                <Button size="sm" onClick={handleCopy}>
-                  {copied ? "✓" : "Copy"}
-                </Button>
-              </Tooltip>
-            }
+            fullWidth
+            slotProps={{
+              input: {
+                readOnly: true,
+                endAdornment: (
+                  <Tooltip title={copied ? "Copied!" : "Copy"}>
+                    <Button size="small" onClick={handleCopy}>
+                      {copied ? "✓" : "Copy"}
+                    </Button>
+                  </Tooltip>
+                ),
+              },
+            }}
           />
         </Stack>
       ) : (
-        <Button color="primary" onClick={handleGenerate} sx={{ width: "300px" }}>
+        <Button variant="contained" onClick={handleGenerate} sx={{ width: "300px" }}>
           Generate API Key
         </Button>
       )}

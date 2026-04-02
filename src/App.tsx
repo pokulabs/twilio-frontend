@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import {
   BrowserRouter as Router,
   Navigate,
@@ -12,7 +13,6 @@ import {
   CircularProgress,
   CssBaseline,
   IconButton,
-  Typography,
 } from "@mui/material";
 import MenuRounded from "@mui/icons-material/MenuRounded";
 import {
@@ -33,7 +33,6 @@ import Phones from "./components/Phones";
 import History from "./components/History";
 import HumanAsATool from "./components/Hitl/HumanAsATool";
 import { appTheme } from "./theme";
-import { toggleSidebar } from "./utils";
 
 function TabContentLayout() {
   return (
@@ -61,6 +60,11 @@ function TabContentLayout() {
 }
 
 function MainLayout() {
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const handleMobileSidebarClose = useCallback(() => {
+    setMobileSidebarOpen(false);
+  }, []);
+
   return (
     <Box
       sx={{
@@ -68,7 +72,10 @@ function MainLayout() {
         minHeight: "100dvh",
       }}
     >
-      <Sidebar />
+      <Sidebar
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={handleMobileSidebarClose}
+      />
       <Box
         sx={{
           flex: 1,
@@ -88,7 +95,7 @@ function MainLayout() {
           }}
         >
           <IconButton
-            onClick={() => toggleSidebar()}
+            onClick={() => setMobileSidebarOpen(true)}
             sx={{
               border: "1px solid",
               borderColor: "divider",
