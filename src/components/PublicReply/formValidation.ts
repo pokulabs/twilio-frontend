@@ -32,14 +32,12 @@ export function getValidationChecklist(
   if (!stringValue) {
     return field.validations.map((rule) => ({
       title: rule.title,
-      description: rule.description,
       status: "pending",
     }));
   }
 
   return field.validations.map((rule) => ({
     title: rule.title,
-    description: rule.description,
     status: evaluateStringValidationRule(rule, stringValue) ? "passed" : "failed",
   }));
 }

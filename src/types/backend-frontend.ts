@@ -22,23 +22,9 @@ export type InteractionFormFieldOption = {
     value: string;
 };
 
-export type InteractionFormStringValidationNot = {
-    pattern?: string;
-    const?: string;
-    enum?: string[];
-};
-
 export type InteractionFormStringValidationRule = {
-    type?: "string";
     title: string;
-    description?: string;
-    pattern?: string;
-    format?: "email";
-    minLength?: number;
-    maxLength?: number;
-    const?: string;
-    enum?: string[];
-    not?: InteractionFormStringValidationNot;
+    pattern: string;
 };
 
 export type InteractionFormField = {
@@ -164,54 +150,7 @@ export function evaluateStringValidationRule(
     rule: InteractionFormStringValidationRule,
     value: string,
 ) {
-    if (rule.pattern !== undefined && !testRegex(rule.pattern, value)) {
-        return false;
-    }
-
-    if (rule.format === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        return false;
-    }
-
-    if (rule.minLength !== undefined && value.length < rule.minLength) {
-        return false;
-    }
-
-    if (rule.maxLength !== undefined && value.length > rule.maxLength) {
-        return false;
-    }
-
-    if (rule.const !== undefined && value !== rule.const) {
-        return false;
-    }
-
-    if (rule.enum !== undefined && !rule.enum.includes(value)) {
-        return false;
-    }
-
-    if (rule.not !== undefined && evaluateStringValidationNot(rule.not, value)) {
-        return false;
-    }
-
-    return true;
-}
-
-function evaluateStringValidationNot(
-    rule: NonNullable<InteractionFormStringValidationRule["not"]>,
-    value: string,
-) {
-    if (rule.pattern !== undefined && testRegex(rule.pattern, value)) {
-        return true;
-    }
-
-    if (rule.const !== undefined && value === rule.const) {
-        return true;
-    }
-
-    if (rule.enum !== undefined && rule.enum.includes(value)) {
-        return true;
-    }
-
-    return false;
+    return testRegex(rule.pattern, value);
 }
 
 function testRegex(pattern: string, value: string) {
