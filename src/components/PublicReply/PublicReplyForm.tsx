@@ -20,11 +20,15 @@ import {
 import { formatDurationHumanReadable } from "../../utils";
 import type {
   InteractionAddressValue,
-  InteractionFormField,
   InteractionFormRequest,
   InteractionFormValue,
 } from "../../types/backend-frontend";
 import AddressAutocompleteField from "./AddressAutocompleteField";
+import {
+  getValidationChecklist,
+  isAddressValue,
+  validateField,
+} from "./formValidation";
 
 type FormValues = Record<string, InteractionFormValue>;
 
@@ -37,71 +41,6 @@ interface PublicReplyFormProps {
   isSubmitting: boolean;
   serverError?: string | null;
   onSubmit: (values: FormValues) => Promise<void>;
-}
-
-function isAddressValue(value: InteractionFormValue): value is InteractionAddressValue {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "text" in value &&
-    "place_id" in value &&
-    typeof value.text === "string" &&
-    typeof value.place_id === "string"
-  );
-}
-
-function validateField(field: InteractionFormField, value: InteractionFormValue) {
-  if (field.type === "address") {
-    if (!isAddressValue(value) || !value.text.trim() || !value.place_id.trim()) {
-      return field.required
-        ? `${field.label} must be selected from the address suggestions.`
-        : null;
-    }
-    return null;
-  }
-
-  if (field.type === "checkbox") {
-    if (field.required && value !== true) {
-      return `${field.label} is required.`;
-    }
-    return null;
-  }
-
-  const stringValue = typeof value === "string" ? value.trim() : "";
-  if (!stringValue) {
-    return field.required ? `${field.label} is required.` : null;
-  }
-
-  if (field.min_length !== undefined && stringValue.length < field.min_length) {
-    return `${field.label} must be at least ${field.min_length} characters.`;
-  }
-
-  if (field.max_length !== undefined && stringValue.length > field.max_length) {
-    return `${field.label} must be ${field.max_length} characters or fewer.`;
-  }
-
-  if (
-    field.type === "email" &&
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(stringValue)
-  ) {
-    return `${field.label} must be a valid email address.`;
-  }
-
-  if (
-    field.type === "select" &&
-    !field.options?.some((option) => option.value === stringValue)
-  ) {
-    return `${field.label} must be one of the provided options.`;
-  }
-
-  if (field.pattern) {
-    const regex = new RegExp(field.pattern);
-    if (!regex.test(stringValue)) {
-      return `${field.label} is invalid.`;
-    }
-  }
-
-  return null;
 }
 
 export default function PublicReplyForm({
@@ -146,6 +85,22 @@ export default function PublicReplyForm({
       "Fill out the fields below and submit your response.",
     [form.description],
   );
+
+  const setFieldValue = (fieldId: string, value: InteractionFormValue) => {
+    setValues((current) => ({
+      ...current,
+      [fieldId]: value,
+    }));
+    setErrors((current) => {
+      if (!(fieldId in current)) {
+        return current;
+      }
+
+      const next = { ...current };
+      delete next[fieldId];
+      return next;
+    });
+  };
 
   const handleSubmit = async () => {
     const nextErrors = Object.fromEntries(
@@ -213,6 +168,7 @@ export default function PublicReplyForm({
             const addressValue: InteractionAddressValue = isAddressValue(values[field.id])
               ? (values[field.id] as InteractionAddressValue)
               : { text: "", place_id: "" };
+            const checklist = getValidationChecklist(field, values[field.id] ?? "");
 
             return (
             <Box key={field.id}>
@@ -223,12 +179,7 @@ export default function PublicReplyForm({
                   value={addressValue}
                   disabled={isExpired || isSubmitting}
                   error={errors[field.id]}
-                  onChange={(value) =>
-                    setValues((current) => ({
-                      ...current,
-                      [field.id]: value,
-                    }))
-                  }
+                  onChange={(value) => setFieldValue(field.id, value)}
                 />
               ) : (
                 <FormControl error={Boolean(errors[field.id])}>
@@ -243,12 +194,7 @@ export default function PublicReplyForm({
                       value={String(values[field.id] ?? "")}
                       placeholder={field.placeholder}
                       disabled={isExpired || isSubmitting}
-                      onChange={(event) =>
-                        setValues((current) => ({
-                          ...current,
-                          [field.id]: event.target.value,
-                        }))
-                      }
+                      onChange={(event) => setFieldValue(field.id, event.target.value)}
                     />
                   ) : null}
 
@@ -257,12 +203,7 @@ export default function PublicReplyForm({
                       value={typeof values[field.id] === "string" ? String(values[field.id]) : null}
                       placeholder={field.placeholder ?? "Select an option"}
                       disabled={isExpired || isSubmitting}
-                      onChange={(_event, value) =>
-                        setValues((current) => ({
-                          ...current,
-                          [field.id]: value ?? "",
-                        }))
-                      }
+                      onChange={(_event, value) => setFieldValue(field.id, value ?? "")}
                     >
                       {field.options?.map((option) => (
                         <Option key={option.value} value={option.value}>
@@ -277,12 +218,7 @@ export default function PublicReplyForm({
                       checked={Boolean(values[field.id])}
                       disabled={isExpired || isSubmitting}
                       label={field.helper_text ?? "Yes"}
-                      onChange={(event) =>
-                        setValues((current) => ({
-                          ...current,
-                          [field.id]: event.target.checked,
-                        }))
-                      }
+                      onChange={(event) => setFieldValue(field.id, event.target.checked)}
                     />
                   ) : null}
 
@@ -292,18 +228,34 @@ export default function PublicReplyForm({
                       value={String(values[field.id] ?? "")}
                       placeholder={field.placeholder}
                       disabled={isExpired || isSubmitting}
-                      onChange={(event) =>
-                        setValues((current) => ({
-                          ...current,
-                          [field.id]: event.target.value,
-                        }))
-                      }
+                      onChange={(event) => setFieldValue(field.id, event.target.value)}
                     />
                   ) : null}
 
                   <FormHelperText>
                     {errors[field.id] ?? field.helper_text ?? " "}
                   </FormHelperText>
+
+                  {checklist.length > 0 ? (
+                    <Stack spacing={0.5} sx={{ mt: 0.5 }}>
+                      {checklist.map((item) => (
+                        <Typography
+                          key={`${field.id}-${item.title}`}
+                          level="body-xs"
+                          sx={{
+                            color:
+                              item.status === "passed"
+                                ? "success.600"
+                                : item.status === "failed"
+                                  ? "danger.600"
+                                  : "neutral.500",
+                          }}
+                        >
+                          {item.status === "passed" ? "✓" : "•"} {item.title}
+                        </Typography>
+                      ))}
+                    </Stack>
+                  ) : null}
                 </FormControl>
               )}
             </Box>

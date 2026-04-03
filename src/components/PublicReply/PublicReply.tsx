@@ -190,10 +190,6 @@ export default function PublicReply() {
         pt: { xs: 10, md: 12 },
       }}
     >
-      <Typography level="title-lg" sx={{ mb: 2 }}>
-        Reply to Request
-      </Typography>
-
       {!info && error ? (
         <Sheet
           variant="outlined"
