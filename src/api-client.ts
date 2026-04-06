@@ -1,6 +1,5 @@
 import axios, { type AxiosInstance } from "axios";
 import type { MessageDirection } from "./types/types";
-import { Recipient } from "./components/Campaigns/CsvUploader";
 import { checkIsAuthenticated } from "./services/auth";
 import type {
     InteractionFormValue,
@@ -258,7 +257,7 @@ class ApiClient {
     }
 
     async listAvailablePhoneNumbers(
-        params: { country?: string; areaCode?: number; limit?: number } = {},
+        params: { country?: string; areaCode?: number; } = {},
     ) {
         return this.api.get<AvailablePhoneNumber[]>("/reserved-numbers/available", {
             params,
@@ -409,22 +408,6 @@ class ApiClient {
 
     async createApiKey() {
         return this.api.post("/account/key");
-    }
-
-    async createCampaign(
-        name: string,
-        template: string,
-        recipients: Recipient[],
-        senders: string[],
-        phoneNumberKey: string,
-    ) {
-        return this.api.post("/campaigns", {
-            name: name,
-            template: template,
-            recipients: recipients,
-            senders: senders,
-            phoneNumberKey: phoneNumberKey,
-        });
     }
 
     async getCampaigns(params: { page?: number; pageSize?: number } = {}) {

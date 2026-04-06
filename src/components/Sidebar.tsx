@@ -54,13 +54,13 @@ export default function Sidebar({
 
   const navItems = [
     { label: "Account", to: "/", icon: <AccountCircle /> },
+    { label: "Phones", to: "/phones", icon: <LocalPhoneRounded /> },
+    { label: "History", to: "/history", icon: <HistoryRounded /> },
     {
       label: "Channels",
       to: "/channels",
       icon: <SportsMartialArtsRounded />,
     },
-    { label: "Phones", to: "/phones", icon: <LocalPhoneRounded /> },
-    { label: "History", to: "/history", icon: <HistoryRounded /> },
     {
       label: "Integrations",
       to: "/integrations",

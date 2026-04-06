@@ -12,7 +12,6 @@ export type ValidationStatus = "passed" | "failed" | "pending";
 
 export interface ValidationChecklistItem {
   title: string;
-  description?: string;
   status: ValidationStatus;
 }
 

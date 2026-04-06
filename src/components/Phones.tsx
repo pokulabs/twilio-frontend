@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import ShoppingCartRounded from "@mui/icons-material/ShoppingCartRounded";
 import {
@@ -12,7 +12,14 @@ import {
     List,
     ListItem,
     ListItemText,
+    Paper,
     Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TablePagination,
+    TableRow,
     TextField,
     Typography,
 } from "@mui/material";
@@ -24,7 +31,7 @@ import {
     type ReservedPhoneNumber,
 } from "../api-client";
 
-const DEFAULT_LIMIT = 20;
+const AVAILABLE_NUMBERS_PAGE_SIZE = 10;
 const COUNTRY_OPTIONS = ["US", "GB"] as const;
 type CountryCode = (typeof COUNTRY_OPTIONS)[number];
 
@@ -35,7 +42,7 @@ export default function Phones() {
     const [reservedNumbers, setReservedNumbers] = useState<ReservedPhoneNumber[]>([]);
     const [country, setCountry] = useState<CountryCode>("US");
     const [areaCodeInput, setAreaCodeInput] = useState("");
-    const [limitInput, setLimitInput] = useState(String(DEFAULT_LIMIT));
+    const [availableNumbersPage, setAvailableNumbersPage] = useState(0);
     const [isLoadingAvailable, setIsLoadingAvailable] = useState(false);
     const [isLoadingReserved, setIsLoadingReserved] = useState(false);
     const [buyingPhoneNumber, setBuyingPhoneNumber] = useState<string | null>(null);
@@ -58,10 +65,6 @@ export default function Phones() {
         const trimmedAreaCode = areaCodeInput.trim();
         const areaCode =
             trimmedAreaCode.length > 0 ? Number(trimmedAreaCode) : undefined;
-        const parsedLimit = Number(limitInput);
-        const limit = Number.isFinite(parsedLimit)
-            ? Math.min(50, Math.max(1, parsedLimit))
-            : DEFAULT_LIMIT;
 
         if (
             selectedCountry === "US" &&
@@ -78,15 +81,15 @@ export default function Phones() {
             const res = await apiClient.listAvailablePhoneNumbers({
                 country: selectedCountry,
                 areaCode: selectedCountry === "US" ? areaCode : undefined,
-                limit,
             });
             setAvailableNumbers(res.data ?? []);
+            setAvailableNumbersPage(0);
         } catch {
             setErrorText("Failed to load available phone numbers.");
         } finally {
             setIsLoadingAvailable(false);
         }
-    }, [country, areaCodeInput, limitInput]);
+    }, [country, areaCodeInput]);
 
     useEffect(() => {
         void loadReservedNumbers();
@@ -129,6 +132,14 @@ export default function Phones() {
             setDeletingId(null);
         }
     };
+
+    const paginatedAvailableNumbers = useMemo(() => {
+        const start = availableNumbersPage * AVAILABLE_NUMBERS_PAGE_SIZE;
+        return availableNumbers.slice(
+            start,
+            start + AVAILABLE_NUMBERS_PAGE_SIZE,
+        );
+    }, [availableNumbers, availableNumbersPage]);
 
     return (
         <Box
@@ -241,17 +252,6 @@ export default function Phones() {
                                         }}
                                     />
                                 ) : null}
-                                <TextField
-                                    label="Limit"
-                                    value={limitInput}
-                                    onChange={(event) => setLimitInput(event.target.value)}
-                                    inputProps={{
-                                        inputMode: "numeric",
-                                        pattern: "[0-9]*",
-                                        min: 1,
-                                        max: 50,
-                                    }}
-                                />
                                 <Button
                                     variant="outlined"
                                     onClick={() => void loadAvailableNumbers()}
@@ -261,60 +261,77 @@ export default function Phones() {
                                 </Button>
                             </Box>
 
-                            <List
-                                dense
-                                sx={{
-                                    border: 1,
-                                    borderColor: "divider",
-                                    borderRadius: 2,
-                                    maxHeight: 360,
-                                    overflow: "auto",
-                                }}
-                            >
-                                {availableNumbers.length === 0 ? (
-                                    <ListItem>
-                                        <ListItemText primary="No available numbers found." />
-                                    </ListItem>
-                                ) : (
-                                    availableNumbers.map((number) => (
-                                        <ListItem
-                                            key={number.phoneNumber}
-                                            secondaryAction={
-                                                <Button
-                                                    size="small"
-                                                    variant="contained"
-                                                    startIcon={
-                                                        <ShoppingCartRounded fontSize="small" />
-                                                    }
-                                                    disabled={
-                                                        buyingPhoneNumber === number.phoneNumber
-                                                    }
-                                                    onClick={() =>
-                                                        void handleBuy(number.phoneNumber)
-                                                    }
-                                                >
-                                                    {buyingPhoneNumber === number.phoneNumber
-                                                        ? "Reserving..."
-                                                        : "Reserve"}
-                                                </Button>
-                                            }
-                                        >
-                                            <ListItemText
-                                                primary={number.phoneNumber}
-                                                secondary={
-                                                    [
-                                                        number.locality,
-                                                        number.region,
-                                                    ]
-                                                        .filter(Boolean)
-                                                        .join(", ") ||
-                                                    `${number.country === "GB" ? "UK" : number.country} number`
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))
-                                )}
-                            </List>
+                            <Paper variant="outlined" sx={{ overflow: "hidden" }}>
+                                <Table size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>Phone number</TableCell>
+                                            <TableCell>Location</TableCell>
+                                            <TableCell align="right">Action</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {availableNumbers.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={3}>
+                                                    No available numbers found.
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : (
+                                            paginatedAvailableNumbers.map((number) => (
+                                                <TableRow key={number.phoneNumber} hover>
+                                                    <TableCell>{number.phoneNumber}</TableCell>
+                                                    <TableCell>
+                                                        {[
+                                                            number.locality,
+                                                            number.region,
+                                                        ]
+                                                            .filter(Boolean)
+                                                            .join(", ") ||
+                                                            `${number.country === "GB" ? "UK" : number.country} number`}
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        <Button
+                                                            size="small"
+                                                            variant="contained"
+                                                            startIcon={
+                                                                <ShoppingCartRounded fontSize="small" />
+                                                            }
+                                                            disabled={
+                                                                buyingPhoneNumber ===
+                                                                number.phoneNumber
+                                                            }
+                                                            onClick={() =>
+                                                                void handleBuy(
+                                                                    number.phoneNumber,
+                                                                )
+                                                            }
+                                                        >
+                                                            {buyingPhoneNumber ===
+                                                            number.phoneNumber
+                                                                ? "Reserving..."
+                                                                : "Reserve"}
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
+                                    </TableBody>
+                                </Table>
+                                {availableNumbers.length > 0 ? (
+                                    <TablePagination
+                                        component="div"
+                                        count={availableNumbers.length}
+                                        page={availableNumbersPage}
+                                        onPageChange={(_, nextPage) =>
+                                            setAvailableNumbersPage(nextPage)
+                                        }
+                                        rowsPerPage={AVAILABLE_NUMBERS_PAGE_SIZE}
+                                        rowsPerPageOptions={[]}
+                                        labelRowsPerPage=""
+                                    />
+                                ) : null}
+                            </Paper>
                         </Stack>
                     </CardContent>
                 </Card>
