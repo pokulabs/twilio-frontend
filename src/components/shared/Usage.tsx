@@ -250,9 +250,9 @@ export function CreditsRemaining() {
                 <InfoTooltip
                     title={
                         <MuiTypography variant="body2" sx={{ color: "warning.main" }}>
-                            1 credit per message
+                            Messages: 1 credit/message
                             <br />
-                            10 credits per voice call
+                            Calls: 5 credits/minute
                         </MuiTypography>
                     }
                 />
