@@ -62,6 +62,33 @@ export type ReservedPhoneNumber = {
     created_at: string;
 };
 
+export type ReservedNumberWebhookEventType =
+    | "phone.sms.received"
+    | "phone.call.received";
+
+export type ReservedNumberWebhook = {
+    id: string;
+    created_at: string;
+    updated_at: string;
+    name: string | null;
+    url: string;
+    signing_secret: string | null;
+    headers: Record<string, string>;
+    event_types: ReservedNumberWebhookEventType[];
+    interaction_channel_id: string | null;
+    reserved_phone_number_ids: string[];
+    is_active: boolean;
+};
+
+export type CreateReservedNumberWebhookInput = {
+    name?: string;
+    url: string;
+    signingSecret?: string;
+    headers?: Record<string, string>;
+    eventTypes: ReservedNumberWebhookEventType[];
+    reservedPhoneNumberIds?: string[];
+};
+
 export type PhoneHistoryMessageItem = {
     id: string;
     createdAt: string;
@@ -155,7 +182,15 @@ class ApiClient {
     }
 
     async checkRetellKeyExists() {
-        return this.api.get<{ key: string } | undefined>("/account/keys/retell");
+        return this.api.get<{ key: string } | undefined>(
+            "/account/keys/retell",
+        );
+    }
+
+    async getMessageBirdCreds() {
+        return this.api.get<{ id: string; key: string } | undefined>(
+            "/account/keys/messagebird",
+        );
     }
 
     async createLlmKey(key: string) {
@@ -183,6 +218,14 @@ class ApiClient {
         return this.api.post("/account/keys", {
             platform: "twilio",
             id: sid,
+            key: key,
+        });
+    }
+
+    async createMessageBirdKey(workspaceId: string, key: string) {
+        return this.api.post("/account/keys", {
+            platform: "messagebird",
+            id: workspaceId,
             key: key,
         });
     }
@@ -253,15 +296,20 @@ class ApiClient {
     }
 
     async createCheckoutSession() {
-        return this.api.post<{ url: string }>("/account/create-checkout-session");
+        return this.api.post<{ url: string }>(
+            "/account/create-checkout-session",
+        );
     }
 
     async listAvailablePhoneNumbers(
-        params: { country?: string; areaCode?: number; } = {},
+        params: { country?: string; areaCode?: number } = {},
     ) {
-        return this.api.get<AvailablePhoneNumber[]>("/reserved-numbers/available", {
-            params,
-        });
+        return this.api.get<AvailablePhoneNumber[]>(
+            "/reserved-numbers/available",
+            {
+                params,
+            },
+        );
     }
 
     async listReservedPhoneNumbers() {
@@ -276,6 +324,23 @@ class ApiClient {
 
     async deleteReservedPhoneNumber(reservedNumberId: string) {
         return this.api.delete(`/reserved-numbers/${reservedNumberId}`);
+    }
+
+    async listReservedNumberWebhooks() {
+        return this.api.get<
+            | {
+                  data: ReservedNumberWebhook[];
+              }
+            | undefined
+        >("/webhooks");
+    }
+
+    async createReservedNumberWebhook(input: CreateReservedNumberWebhookInput) {
+        return this.api.post<ReservedNumberWebhook>("/webhooks", input);
+    }
+
+    async deleteReservedNumberWebhook(webhookId: string) {
+        return this.api.delete(`/webhooks/${webhookId}`);
     }
 
     async deleteInteractionChannel(interactionChannelId: string) {

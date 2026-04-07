@@ -15,6 +15,7 @@ export const mediumToUiChannelMap: Record<Medium, string> = {
   slack_poku: "Slack",
   slack: "Slack",
   whatsapp_poku: "WhatsApp",
+  whatsapp_messagebird: "WhatsApp",
   whatsapp: "WhatsApp",
   call_poku: "Call",
   sms: "SMS",

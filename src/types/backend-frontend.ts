@@ -2,6 +2,7 @@ export type Medium =
     | "sms"
     | "sms_poku"
     | "whatsapp"
+    | "whatsapp_messagebird"
     | "whatsapp_poku"
     | "slack_poku"
     | "slack"

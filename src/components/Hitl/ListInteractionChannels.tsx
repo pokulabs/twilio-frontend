@@ -54,6 +54,7 @@ function getMediumLabel(medium: Medium): string {
     case "slack_poku":
       return "Slack";
     case "whatsapp":
+    case "whatsapp_messagebird":
     case "whatsapp_poku":
       return "WhatsApp";
     case "call_poku":
@@ -159,12 +160,15 @@ const InteractionChannelCard = ({
   const [urlType, setUrlType] = useState<"mcp" | "api" | "channel_id">("mcp");
   const [showEdit, setShowEdit] = useState(false);
   const showMessageTemplate =
-    e.medium !== "whatsapp" && e.medium !== "whatsapp_poku";
+    e.medium !== "whatsapp" &&
+    e.medium !== "whatsapp_messagebird" &&
+    e.medium !== "whatsapp_poku";
 
   const mediumIconMap: Record<Medium, string> = {
     slack: slack,
     slack_poku: slack,
     whatsapp: whatsapp,
+    whatsapp_messagebird: whatsapp,
     whatsapp_poku: whatsapp,
     call_poku: call,
     sms: sms,

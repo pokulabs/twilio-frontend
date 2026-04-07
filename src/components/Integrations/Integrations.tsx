@@ -2,9 +2,11 @@ import { Box, Tab, tabClasses, TabList, TabPanel, Tabs } from "@mui/joy";
 import { TwilioIntegrationForm } from "./TwilioForm";
 import Vapi from "./Vapi";
 import Retell from "./Retell";
+import MessageBird from "./MessageBird";
 import twilio from "../../assets/twilio.png";
 import retell from "../../assets/retell.png";
 import vapi from "../../assets/vapi.png";
+import bird from "../../assets/bird.png";
 
 export default function Integrations() {
   return (
@@ -49,12 +51,20 @@ export default function Integrations() {
             <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={1}>
               <Box
                 component="img"
+                src={bird}
+                sx={{ width: 18, height: 18 }}
+                />
+              Bird
+            </Tab>
+            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
+              <Box
+                component="img"
                 src={vapi}
                 sx={{ width: 18, height: 18 }}
               />
               Vapi
             </Tab>
-            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={2}>
+            <Tab sx={{ borderRadius: "6px 6px 0 0" }} indicatorInset value={3}>
               <Box
                 component="img"
                 src={retell}
@@ -68,9 +78,12 @@ export default function Integrations() {
               <TwilioIntegrationForm />
             </TabPanel>
             <TabPanel value={1} sx={{ p: 0, maxWidth: 500 }}>
-              <Vapi />
+              <MessageBird />
             </TabPanel>
             <TabPanel value={2} sx={{ p: 0, maxWidth: 500 }}>
+              <Vapi />
+            </TabPanel>
+            <TabPanel value={3} sx={{ p: 0, maxWidth: 500 }}>
               <Retell />
             </TabPanel>
           </Box>
