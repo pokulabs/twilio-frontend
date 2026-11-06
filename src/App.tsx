@@ -157,7 +157,7 @@ export default function App() {
       <ThemeProvider theme={{ [MATERIAL_THEME_ID]: appTheme }}>
         <CssVarsProvider disableTransitionOnChange>
           <CssBaseline />
-          <Router>
+          <Router basename={import.meta.env.BASE_URL}>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/reply/:token" element={<PublicReply />} />

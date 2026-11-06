@@ -2,13 +2,14 @@
   "name": "Poku",
   "short_name": "Poku",
   "description": "Keep your humans in the loop",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "./logo.png",
       "sizes": "1024x1024",
       "type": "image/png"
     }
